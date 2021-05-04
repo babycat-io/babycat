@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fs = require('fs');
-var babycat = require('../target/wasm/nodejs/babycat_wasm.js');
+var babycat = require('../target/wasm/nodejs/babycat_binding_wasm.js');
 
 const AUDIO_FOR_TESTS_DIR = __dirname + '/../audio-for-tests/';
 
