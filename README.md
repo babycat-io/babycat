@@ -24,10 +24,6 @@ Babycat uses the [same audio terminology as the Apple Core Audio API](https://de
 * A **frame** is a collection of time-coincident samples. A frame has one sample for every channel.
 * The **frame rate** (or **sample rate**) for a stream is the number of frames per second (hertz) of uncompressed audio.
 
-## Contributing to Babycat
-
-You can]
-
 ## Acknowledgements
 
 The first version of Babycat was an internal project at Neocrym written by [Ritik Neil Mishra](https://www.linkedin.com/in/ritikmishra). Since then, the code has been extended and open-sourced by [James Mishra](https://www.linkedin.com/in/jamesmishra).
