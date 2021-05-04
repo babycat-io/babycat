@@ -1,0 +1,40 @@
+name: test-rust
+
+defaults:
+  run:
+    shell: bash
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-rust:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04, macos-10.15, windows-2019]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: "1.50.0"
+          override: true
+          components: rustfmt, clippy
+          target: wasm32-unknown-unknown
+
+    - name: Check Rust formatting
+      if: matrix.os == 'ubuntu-20.04'
+      run: make fmt-check-rust
+
+    - name: lint Rust code
+      if: matrix.os == 'ubuntu-20.04'
+      run: make lint-rust
+
+    - name: Run Rust tests
+      run: make test-rust

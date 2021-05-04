@@ -1,0 +1,16 @@
+[package]
+name = "babycat-wasm"
+version = "0.1.0"
+authors = ["Neocrym Records Inc <engineering@neocrym.com>"]
+edition = "2018"
+homepage = "https://babycat.io"
+repository = "https://github.com/babycat-io/babycat"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+babycat = { path = "../babycat", default_features = false, features = ["resample-lanczos"] }
+js-sys = "0.3"
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }

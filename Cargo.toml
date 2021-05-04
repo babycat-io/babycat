@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "babycat",
+    "babycat-cli",
+    "babycat-wasm",
+    "babycat-lib-resample",
+]

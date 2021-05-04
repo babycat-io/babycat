@@ -1,0 +1,24 @@
+[package]
+name = "babycat-lib-resample"
+version = "0.1.0"
+authors = ["James Mishra <james.mishra@neocrym.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+float-cmp= "0.8"
+samplerate = { version = "0.2", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.3", features = ["html_reports"] }
+hound = "3.4"
+
+[[bench]]
+name = "resample_benchmark"
+harness = false
+
+[features]
+default = ["lanczos", "samplerate"]
+lanczos = []
+libsamplerate = ["samplerate"]
