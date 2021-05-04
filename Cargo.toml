@@ -2,6 +2,6 @@
 members = [
     "babycat",
     "babycat-cli",
-    "babycat-wasm",
+    "babycat-binding-wasm",
     "babycat-lib-resample",
 ]

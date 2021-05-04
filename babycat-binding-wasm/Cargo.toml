@@ -1,5 +1,5 @@
 [package]
-name = "babycat-wasm"
+name = "babycat-binding-wasm"
 version = "0.1.0"
 authors = ["Neocrym Records Inc <engineering@neocrym.com>"]
 edition = "2018"
