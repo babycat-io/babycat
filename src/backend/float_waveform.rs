@@ -352,6 +352,7 @@ impl FloatWaveform {
         )
     }
 
+    #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, decode_args: DecodeArgs) -> Result<Self, Error> {
         let pathname = std::path::Path::new(filename);
         let file = match std::fs::File::open(pathname) {
@@ -385,7 +386,7 @@ impl FloatWaveform {
         Self::from_encoded_stream_with_hint(file, decode_args, file_extension, DEFAULT_MIME_TYPE)
     }
 
-    #[cfg(feature = "enable-multithreading")]
+    #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
     pub fn from_many_files(
         filenames: &[&str],
         decode_args: DecodeArgs,
@@ -436,6 +437,7 @@ impl FloatWaveform {
         Ok(cursor.into_inner())
     }
 
+    #[cfg(feature = "enable-filesystem")]
     pub fn to_wav_file(&self, filename: &str) -> Result<(), Error> {
         let writer_spec = hound::WavSpec {
             channels: self.num_channels as u16,
@@ -497,7 +499,7 @@ mod test_float_waveform_from_bytes {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "enable-filesystem"))]
 mod test_float_waveform_from_file {
     use crate::backend::errors::Error;
     use crate::DecodeArgs;
@@ -1043,7 +1045,7 @@ mod test_float_waveform_from_file {
     }
 }
 
-#[cfg(all(test, feature = "enable-multithreading"))]
+#[cfg(all(test, feature = "enable-multithreading", feature = "enable-filesystem"))]
 mod test_float_waveform_from_many_filenames {
     use crate::{BatchArgs, DecodeArgs, FloatWaveform, Waveform};
 
