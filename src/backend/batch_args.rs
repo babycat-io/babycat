@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-pub const DEFAULT_NUM_WORKERS: u32 = 0;
+pub const BABYCAT_DEFAULT_NUM_WORKERS: u32 = 0;
 
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -11,7 +11,7 @@ pub struct BatchArgs {
 impl Default for BatchArgs {
     fn default() -> Self {
         BatchArgs {
-            num_workers: DEFAULT_NUM_WORKERS as usize,
+            num_workers: BABYCAT_DEFAULT_NUM_WORKERS as usize,
         }
     }
 }

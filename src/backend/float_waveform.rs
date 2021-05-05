@@ -99,8 +99,8 @@ impl FloatWaveform {
     ) -> Result<Self, Error> {
         // If the user has provided an end timestamp that is BEFORE
         // our start timestamp, then we raise an error.
-        if decode_args.start_time_milliseconds != DEFAULT_START_TIME_MILLISECONDS
-            && decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
+        if decode_args.start_time_milliseconds != BABYCAT_DEFAULT_START_TIME_MILLISECONDS
+            && decode_args.end_time_milliseconds != BABYCAT_DEFAULT_END_TIME_MILLISECONDS
             && decode_args.start_time_milliseconds >= decode_args.end_time_milliseconds
         {
             return Err(Error::WrongTimeOffset(
@@ -112,7 +112,7 @@ impl FloatWaveform {
         // If the user has not specified how long the output audio should be,
         // then we would not know how to zero-pad after it.
         if decode_args.zero_pad_ending
-            && decode_args.end_time_milliseconds == DEFAULT_END_TIME_MILLISECONDS
+            && decode_args.end_time_milliseconds == BABYCAT_DEFAULT_END_TIME_MILLISECONDS
         {
             return Err(Error::CannotZeroPadWithoutSpecifiedLength);
         }
@@ -134,10 +134,10 @@ impl FloatWaveform {
         // guessing which audio format the input is.
         // An incorrect hint will not prevent a successful decoding.
         let mut hint = Hint::new();
-        if file_extension != DEFAULT_FILE_EXTENSION {
+        if file_extension != BABYCAT_DEFAULT_FILE_EXTENSION {
             hint.with_extension(&file_extension);
         }
-        if mime_type != DEFAULT_MIME_TYPE {
+        if mime_type != BABYCAT_DEFAULT_MIME_TYPE {
             hint.mime_type(&mime_type);
         }
 
@@ -185,7 +185,7 @@ impl FloatWaveform {
         // If the user provided a negative frame rate, throw an error.
         // We waited this long to throw an error because we also want to
         // tell them what the REAL frame rate is for this audio stream.
-        if decode_args.frame_rate_hz != DEFAULT_FRAME_RATE_HZ && decode_args.frame_rate_hz < 1 {
+        if decode_args.frame_rate_hz != BABYCAT_DEFAULT_FRAME_RATE_HZ && decode_args.frame_rate_hz < 1 {
             return Err(Error::WrongFrameRate(
                 original_frame_rate_hz,
                 decode_args.frame_rate_hz,
@@ -198,7 +198,7 @@ impl FloatWaveform {
         // If decode_args.num_channels was unspecified, then we read from
         // all of the channels.
         let selected_num_channels = {
-            if decode_args.num_channels == DEFAULT_NUM_CHANNELS {
+            if decode_args.num_channels == BABYCAT_DEFAULT_NUM_CHANNELS {
                 original_num_channels
             } else if decode_args.num_channels < 1 {
                 decoder.close();
@@ -266,7 +266,7 @@ impl FloatWaveform {
 
                         // If we have a defined end offset and we are past it,
                         // then stop the decoding loop entirely.
-                        if decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
+                        if decode_args.end_time_milliseconds != BABYCAT_DEFAULT_END_TIME_MILLISECONDS
                             && current_sample > end_time_samples
                         {
                             break 'packet_loop;
@@ -302,7 +302,7 @@ impl FloatWaveform {
         // Zero-pad the output audio vector if our start/end interval
         // is longer than the actual audio we decoded.
         if decode_args.zero_pad_ending
-            && decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
+            && decode_args.end_time_milliseconds != BABYCAT_DEFAULT_END_TIME_MILLISECONDS
         {
             let expected_buffer_len = (end_time_samples - start_time_samples) * num_channels as u64;
             let buffer_padding = expected_buffer_len - buffer.len() as u64;
@@ -315,7 +315,7 @@ impl FloatWaveform {
         let mut final_frame_rate_hz = original_frame_rate_hz;
         // If we want the audio to be at a different frame rate,
         // then resample it.
-        if decode_args.frame_rate_hz != DEFAULT_FRAME_RATE_HZ
+        if decode_args.frame_rate_hz != BABYCAT_DEFAULT_FRAME_RATE_HZ
             && decode_args.frame_rate_hz != original_frame_rate_hz
         {
             final_frame_rate_hz = decode_args.frame_rate_hz;
@@ -347,8 +347,8 @@ impl FloatWaveform {
         Self::from_encoded_stream_with_hint(
             encoded_stream,
             decode_args,
-            DEFAULT_FILE_EXTENSION,
-            DEFAULT_MIME_TYPE,
+            BABYCAT_DEFAULT_FILE_EXTENSION,
+            BABYCAT_DEFAULT_MIME_TYPE,
         )
     }
 
@@ -378,12 +378,12 @@ impl FloatWaveform {
         let file_extension = match pathname.extension() {
             Some(os_str) => match os_str.to_str() {
                 Some(str) => str,
-                None => DEFAULT_FILE_EXTENSION,
+                None => BABYCAT_DEFAULT_FILE_EXTENSION,
             },
-            None => DEFAULT_FILE_EXTENSION,
+            None => BABYCAT_DEFAULT_FILE_EXTENSION,
         };
 
-        Self::from_encoded_stream_with_hint(file, decode_args, file_extension, DEFAULT_MIME_TYPE)
+        Self::from_encoded_stream_with_hint(file, decode_args, file_extension, BABYCAT_DEFAULT_MIME_TYPE)
     }
 
     #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
