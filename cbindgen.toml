@@ -6,3 +6,7 @@ autogen_warning = """/*
 """
 include_version = true
 language = "C"
+
+[export]
+# A prefix to add before the name of every item
+prefix = "babycat_"

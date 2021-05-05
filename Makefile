@@ -83,6 +83,11 @@ test-rust: vendor
 test-wasm-nodejs: build-wasm-nodejs
 	cd tests-wasm-nodejs && $(NPM) run test
 
+test-c: vendor
+	$(CARGO) build --release --no-default-features --features=frontend-c
+	$(CC) -g -Wall -o target/release/test_c tests-c/tests_c.c target/release/libbabycat.dylib
+	./target/release/test_c
+
 test: test-rust test-wasm-nodejs
 
 

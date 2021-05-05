@@ -185,7 +185,9 @@ impl FloatWaveform {
         // If the user provided a negative frame rate, throw an error.
         // We waited this long to throw an error because we also want to
         // tell them what the REAL frame rate is for this audio stream.
-        if decode_args.frame_rate_hz != BABYCAT_DEFAULT_FRAME_RATE_HZ && decode_args.frame_rate_hz < 1 {
+        if decode_args.frame_rate_hz != BABYCAT_DEFAULT_FRAME_RATE_HZ
+            && decode_args.frame_rate_hz < 1
+        {
             return Err(Error::WrongFrameRate(
                 original_frame_rate_hz,
                 decode_args.frame_rate_hz,
@@ -266,7 +268,8 @@ impl FloatWaveform {
 
                         // If we have a defined end offset and we are past it,
                         // then stop the decoding loop entirely.
-                        if decode_args.end_time_milliseconds != BABYCAT_DEFAULT_END_TIME_MILLISECONDS
+                        if decode_args.end_time_milliseconds
+                            != BABYCAT_DEFAULT_END_TIME_MILLISECONDS
                             && current_sample > end_time_samples
                         {
                             break 'packet_loop;
@@ -383,7 +386,12 @@ impl FloatWaveform {
             None => BABYCAT_DEFAULT_FILE_EXTENSION,
         };
 
-        Self::from_encoded_stream_with_hint(file, decode_args, file_extension, BABYCAT_DEFAULT_MIME_TYPE)
+        Self::from_encoded_stream_with_hint(
+            file,
+            decode_args,
+            file_extension,
+            BABYCAT_DEFAULT_MIME_TYPE,
+        )
     }
 
     #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
