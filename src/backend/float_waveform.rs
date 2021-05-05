@@ -3,6 +3,11 @@ use std::io::Read;
 
 use serde::{Deserialize, Serialize};
 
+#[cfg(feature = "enable-multithreading")]
+use crate::backend::batch_args::BatchArgs;
+#[cfg(feature = "enable-multithreading")]
+use crate::backend::named_result::NamedResult;
+#[cfg(feature = "enable-multithreading")]
 use rayon::prelude::*;
 
 use symphonia::core::audio::AudioBufferRef;
@@ -13,11 +18,9 @@ use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-use crate::backend::batch_args::BatchArgs;
 use crate::backend::common::milliseconds_to_frames;
 use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
-use crate::backend::named_result::NamedResult;
 use crate::backend::resample::resample;
 use crate::backend::waveform::Waveform;
 //use crate::leak_str;
@@ -383,6 +386,7 @@ impl FloatWaveform {
         Self::from_encoded_stream_with_hint(file, decode_args, file_extension, DEFAULT_MIME_TYPE)
     }
 
+    #[cfg(feature = "enable-multithreading")]
     pub fn from_many_files(
         filenames: &[&str],
         decode_args: DecodeArgs,
@@ -1040,7 +1044,7 @@ mod test_float_waveform_from_file {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "enable-multithreading"))]
 mod test_float_waveform_from_many_filenames {
     use crate::{BatchArgs, DecodeArgs, FloatWaveform, Waveform};
 

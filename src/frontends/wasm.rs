@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use babycat::Waveform;
+use crate::backend::Waveform;
 use js_sys::Float32Array;
 use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;
@@ -12,14 +12,14 @@ fn throw_js_error<E: std::fmt::Display>(err: E) -> JsValue {
 
 #[wasm_bindgen]
 pub struct FloatWaveform {
-    inner: babycat::FloatWaveform,
+    inner: crate::backend::FloatWaveform,
 }
 
 #[wasm_bindgen]
 impl FloatWaveform {
     pub fn fromFramesOfSilence(frameRateHz: u32, numChannels: u32, numFrames: u32) -> Self {
         FloatWaveform {
-            inner: babycat::FloatWaveform::from_frames_of_silence(
+            inner: crate::backend::FloatWaveform::from_frames_of_silence(
                 frameRateHz,
                 numChannels,
                 numFrames as u64,
@@ -33,7 +33,7 @@ impl FloatWaveform {
         durationMilliseconds: u32,
     ) -> Self {
         FloatWaveform {
-            inner: babycat::FloatWaveform::from_milliseconds_of_silence(
+            inner: crate::backend::FloatWaveform::from_milliseconds_of_silence(
                 frameRateHz,
                 numChannels,
                 durationMilliseconds as u64,
@@ -45,12 +45,12 @@ impl FloatWaveform {
         encodedArray: Uint8Array,
         decodeArgs: JsValue,
     ) -> Result<FloatWaveform, JsValue> {
-        let parsedDecodeArgs: babycat::DecodeArgs = match decodeArgs.into_serde() {
+        let parsedDecodeArgs: crate::backend::DecodeArgs = match decodeArgs.into_serde() {
             Ok(parsed) => parsed,
             Err(err) => return Err(throw_js_error(err)),
         };
         let cursor = std::io::Cursor::new(encodedArray.to_vec());
-        match babycat::FloatWaveform::from_encoded_stream(cursor, parsedDecodeArgs) {
+        match crate::backend::FloatWaveform::from_encoded_stream(cursor, parsedDecodeArgs) {
             Ok(inner) => Ok(FloatWaveform { inner }),
             Err(err) => Err(throw_js_error(err)),
         }
@@ -62,12 +62,12 @@ impl FloatWaveform {
         fileExtension: &str,
         mimeType: &str,
     ) -> Result<FloatWaveform, JsValue> {
-        let parsedDecodeArgs: babycat::DecodeArgs = match decodeArgs.into_serde() {
+        let parsedDecodeArgs: crate::backend::DecodeArgs = match decodeArgs.into_serde() {
             Ok(parsed) => parsed,
             Err(err) => return Err(throw_js_error(err)),
         };
         let cursor = std::io::Cursor::new(encodedArray.to_vec());
-        match babycat::FloatWaveform::from_encoded_stream_with_hint(
+        match crate::backend::FloatWaveform::from_encoded_stream_with_hint(
             cursor,
             parsedDecodeArgs,
             fileExtension,
@@ -105,8 +105,8 @@ impl FloatWaveform {
     }
 }
 
-impl From<babycat::FloatWaveform> for FloatWaveform {
-    fn from(item: babycat::FloatWaveform) -> Self {
+impl From<crate::backend::FloatWaveform> for FloatWaveform {
+    fn from(item: crate::backend::FloatWaveform) -> Self {
         FloatWaveform { inner: item }
     }
 }

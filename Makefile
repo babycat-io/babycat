@@ -51,7 +51,7 @@ fmt-check: fmt-check-rust
 # lint ==============================================================
 
 lint-rust: vendor
-	$(CARGO) clippy --workspace --all-features
+	$(CARGO) clippy --all-features
 
 lint: lint-rust
 
@@ -65,20 +65,20 @@ docs: docs-rust
 # build =============================================================
 
 build-rust: vendor
-	$(CARGO) build --release
+	$(CARGO) build --release --features=frontend-rust
 
 build-wasm-nodejs: vendor
-	$(WASM_PACK) build --release --target=nodejs --out-dir=../target/wasm/nodejs -- --features=frontend-wasm
+	$(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
 
 build-wasm-web: vendor
-	$(WASM_PACK) build --release --target=web --out-dir=../target/wasm/web -- --features=frontend-wasm
+	$(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
 
 build: build-rust build-wasm-nodejs build-wasm-web
 
 # test ==============================================================
 
 test-rust: vendor
-	$(CARGO) test
+	$(CARGO) test --features=frontend-rust
 
 test-wasm-nodejs: build-wasm-nodejs
 	cd tests-wasm-nodejs && $(NPM) run test

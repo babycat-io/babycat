@@ -1,6 +1,6 @@
 var assert = require('assert');
 var fs = require('fs');
-var babycat = require('../target/wasm/nodejs/babycat_binding_wasm.js');
+var babycat = require('../target/wasm/nodejs/babycat.js');
 
 const AUDIO_FOR_TESTS_DIR = __dirname + '/../audio-for-tests/';
 
@@ -261,6 +261,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_invalid_resample_1', function() {
         let decodeArgs = {
             frame_rate_hz: 1,
+            resample_mode: 2,
         };
         assert.throws( () => babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs));
     });
@@ -275,6 +276,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_invalid_resample_3', function() {
         let decodeArgs = {
             frame_rate_hz: 172,
+            resample_mode: 2,
         };
         assert.throws( () => babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs));
     });
@@ -282,6 +284,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_no_change_1', function() {
         let decodeArgs = {
             frame_rate_hz: COF_FRAME_RATE_HZ,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
@@ -290,6 +293,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_1', function() {
         let decodeArgs = {
             frame_rate_hz: 22050,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 1246464, 22050);
@@ -298,6 +302,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_2', function() {
         let decodeArgs = {
             frame_rate_hz: 11025,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 623232, 11025);
@@ -306,6 +311,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_3', function() {
         let decodeArgs = {
             frame_rate_hz: 88200,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 4985856, 88200);
@@ -314,6 +320,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_4', function() {
         let decodeArgs = {
             frame_rate_hz: 4410,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 249293, 4410);
@@ -322,6 +329,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_5', function() {
         let decodeArgs = {
             frame_rate_hz: 44099,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 2492872, 44099);
@@ -331,6 +339,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_6', function() {
         let decodeArgs = {
             frame_rate_hz: 48000,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 2713392, 48000);
@@ -340,6 +349,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_7', function() {
         let decodeArgs = {
             frame_rate_hz: 60000,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 3391739, 60000);
@@ -348,6 +358,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_8', function() {
         let decodeArgs = {
             frame_rate_hz: 88200,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 4985856, 88200);
@@ -357,6 +368,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_9', function() {
         let decodeArgs = {
             frame_rate_hz: 96000,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 5426783, 96000);
@@ -365,6 +377,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_10', function() {
         let decodeArgs = {
             frame_rate_hz: 200,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 11306, 200);
@@ -373,6 +386,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_11', function() {
         let decodeArgs = {
             frame_rate_hz: 2000,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 113058, 2000);
@@ -381,6 +395,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
     it('test_circus_of_freaks_resample_12', function() {
         let decodeArgs = {
             frame_rate_hz: 173,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 9780, 173);
@@ -393,6 +408,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
             end_time_milliseconds: 60000,
             frame_rate_hz: 48000,
             zero_pad_ending: true,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 2880000, 48000);
@@ -404,6 +420,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
             end_time_milliseconds: 60000,
             frame_rate_hz: 44099,
             zero_pad_ending: true,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 2645940, 44099);
@@ -415,6 +432,7 @@ describe('FloatWaveform.fromEncodedArray', function() {
             end_time_milliseconds: 60000,
             frame_rate_hz: 22050,
             zero_pad_ending: true,
+            resample_mode: 2,
         };
         let waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
         assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, 22050);

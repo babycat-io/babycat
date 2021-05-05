@@ -1,6 +1,8 @@
 use crate::backend::errors::Error;
+#[cfg(feature = "enable-libsamplerate")]
 use crate::backend::resample::common::validate_args;
 
+#[allow(unused_variables)]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
