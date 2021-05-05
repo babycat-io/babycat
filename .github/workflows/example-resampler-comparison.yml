@@ -28,5 +28,5 @@ jobs:
           components: rustfmt, clippy
           target: wasm32-unknown-unknown
 
-    - name: Run Rust tests
+    - name: Run example-resampler-comparison
       run: make example-resampler-comparison
