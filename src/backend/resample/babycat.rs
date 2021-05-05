@@ -16,7 +16,7 @@ fn lanczos_kernel(x: f32, a: f32) -> f32 {
     0.0
 }
 
-pub fn compute_sample(
+fn compute_sample(
     input_audio: &[f32],
     frame_idx: f32,
     channel_idx: usize,

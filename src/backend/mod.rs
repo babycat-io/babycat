@@ -5,7 +5,7 @@ mod errors;
 mod float_waveform;
 mod int_waveform;
 mod named_result;
-mod resample;
+pub mod resample;
 mod waveform;
 
 pub use batch_args::*;

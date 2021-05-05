@@ -96,4 +96,4 @@ bench: bench-rust
 # example ===========================================================
 
 example-resampler-comparison: vendor
-	$(CARGO) run --release --all-features --package babycat-lib-resample --example resampler_comparison
+	$(CARGO) run --release --example resampler_comparison
