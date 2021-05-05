@@ -1,4 +1,88 @@
-[workspace]
-members = [
-    "babycat"
+[package]
+name = "babycat"
+version = "0.1.0"
+authors = ["Neocrym Records Inc <engineering@neocrym.com>"]
+edition = "2018"
+description = "An audio decoding and manipulation library, with bindings for C, Python, and WebAssembly."
+readme = "../README.md"
+homepage = "https://babycat.io"
+repository = "https://github.com/babycat-io/babycat"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["rlib", "cdylib", "staticlib"]
+
+[build-dependencies]
+# for c frontend
+cbindgen = "0.19"
+
+[dependencies]
+float-cmp= "0.8"
+hound = "3.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# for multithreading
+rayon = { version = "1.5", optional = true }
+
+# for libsamplerate
+samplerate = { version = "0.2", optional = true }
+
+# for webassembly frontend
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
+
+# for binary targets
+structopt = { version = "0.3", optional = true }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.2"
+
+[dependencies.symphonia]
+version = "0.2"
+features = [
+    "aac",
+    "flac",
+    "mp3",
+    "pcm",
+    "isomp4",
+    "wav",
+    "ogg",
+]
+
+[features]
+default = ["frontend-rust"]
+
+enable-filesystem = []
+enable-multithreading = ["rayon"]
+enable-libsamplerate = ["samplerate"]
+
+enable-all-backend-features = [
+    "enable-filesystem",
+    "enable-multithreading",
+    "enable-libsamplerate",
+]
+
+frontend-rust = [
+    "enable-all-backend-features",
+]
+frontend-rust-binary = [
+    "enable-all-backend-features",
+    "structopt"
+]
+frontend-wasm = [
+    "wasm-bindgen"
+]
+frontend-python = [
+    "enable-all-backend-features"
+]
+frontend-c = [
+    "enable-all-backend-features"
+]
+
+[package.metadata.maturin]
+requires-dist = ["numpy >= 1.16.0"]
+classifier = [
+    "Programming Language :: Rust"
 ]

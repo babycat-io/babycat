@@ -68,10 +68,10 @@ build-rust: vendor
 	$(CARGO) build --release
 
 build-wasm-nodejs: vendor
-	$(WASM_PACK) build --release --target=nodejs --out-dir=../target/wasm/nodejs
+	$(WASM_PACK) build --release --target=nodejs --out-dir=../target/wasm/nodejs -- --features=frontend-wasm
 
 build-wasm-web: vendor
-	$(WASM_PACK) build --release --target=web --out-dir=../target/wasm/web
+	$(WASM_PACK) build --release --target=web --out-dir=../target/wasm/web -- --features=frontend-wasm
 
 build: build-rust build-wasm-nodejs build-wasm-web
 

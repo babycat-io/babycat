@@ -478,7 +478,7 @@ mod test_float_waveform_from_bytes {
     use crate::backend::waveform::Waveform;
     use std::io::Cursor;
 
-    const COF_FILENAME: &str = "../audio-for-tests/circus-of-freaks/track.mp3";
+    const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.mp3";
     const COF_NUM_CHANNELS: u32 = 2;
     const COF_NUM_FRAMES: u64 = 2492928;
     const COF_FRAME_RATE_HZ: u32 = 44100;
@@ -501,12 +501,12 @@ mod test_float_waveform_from_file {
     use crate::FloatWaveform;
     use crate::Waveform;
 
-    const COF_FILENAME: &str = "../audio-for-tests/circus-of-freaks/track.mp3";
+    const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.mp3";
     const COF_NUM_CHANNELS: u32 = 2;
     const COF_NUM_FRAMES: u64 = 2492928;
     const COF_FRAME_RATE_HZ: u32 = 44100;
 
-    const LCT_FILENAME: &str = "../audio-for-tests/left-channel-tone/track.mp3";
+    const LCT_FILENAME: &str = "./audio-for-tests/left-channel-tone/track.mp3";
     const LCT_NUM_CHANNELS: u32 = 2;
     const LCT_NUM_FRAMES: u64 = 1325952;
     const LCT_FRAME_RATE_HZ: u32 = 44100;
@@ -1044,42 +1044,42 @@ mod test_float_waveform_from_file {
 mod test_float_waveform_from_many_filenames {
     use crate::{BatchArgs, DecodeArgs, FloatWaveform, Waveform};
 
-    const AT_FILENAME: &str = "../audio-for-tests/andreas-theme/track.mp3";
+    const AT_FILENAME: &str = "./audio-for-tests/andreas-theme/track.mp3";
     const AT_NUM_CHANNELS: u32 = 2;
     const AT_NUM_FRAMES: u64 = 9586944;
     const AT_FRAME_RATE_HZ: u32 = 44100;
 
-    const BT_FILENAME: &str = "../audio-for-tests/blippy-trance/track.mp3";
+    const BT_FILENAME: &str = "./audio-for-tests/blippy-trance/track.mp3";
     const BT_NUM_CHANNELS: u32 = 2;
     const BT_NUM_FRAMES: u64 = 5294592;
     const BT_FRAME_RATE_HZ: u32 = 44100;
 
-    const COF_FILENAME: &str = "../audio-for-tests/circus-of-freaks/track.mp3";
+    const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.mp3";
     const COF_NUM_CHANNELS: u32 = 2;
     const COF_NUM_FRAMES: u64 = 2492928;
     const COF_FRAME_RATE_HZ: u32 = 44100;
 
-    const LCT_FILENAME: &str = "../audio-for-tests/left-channel-tone/track.mp3";
+    const LCT_FILENAME: &str = "./audio-for-tests/left-channel-tone/track.mp3";
     const LCT_NUM_CHANNELS: u32 = 2;
     const LCT_NUM_FRAMES: u64 = 1325952;
     const LCT_FRAME_RATE_HZ: u32 = 44100;
 
-    const MONO_DTMF_FILENAME: &str = "../audio-for-tests/mono-dtmf-tones/track.mp3";
+    const MONO_DTMF_FILENAME: &str = "./audio-for-tests/mono-dtmf-tones/track.mp3";
     const MONO_DTMF_NUM_CHANNELS: u32 = 1;
     const MONO_DTMF_NUM_FRAMES: u64 = 443520;
     const MONO_DTMF_FRAME_RATE_HZ: u32 = 44100;
 
-    const OHFY_FILENAME: &str = "../audio-for-tests/on-hold-for-you/track.mp3";
+    const OHFY_FILENAME: &str = "./audio-for-tests/on-hold-for-you/track.mp3";
     const OHFY_NUM_CHANNELS: u32 = 2;
     const OHFY_NUM_FRAMES: u64 = 9620352;
     const OHFY_FRAME_RATE_HZ: u32 = 44100;
 
-    const TMS_FILENAME: &str = "../audio-for-tests/tone-missing-sounds/track.mp3";
+    const TMS_FILENAME: &str = "./audio-for-tests/tone-missing-sounds/track.mp3";
     const TMS_NUM_CHANNELS: u32 = 1;
     const TMS_NUM_FRAMES: u64 = 1325952;
     const TMS_FRAME_RATE_HZ: u32 = 44100;
 
-    const VR_FILENAME: &str = "../audio-for-tests/voxel-revolution/track.mp3";
+    const VR_FILENAME: &str = "./audio-for-tests/voxel-revolution/track.mp3";
     const VR_NUM_CHANNELS: u32 = 2;
     const VR_NUM_FRAMES: u64 = 5728896;
     const VR_FRAME_RATE_HZ: u32 = 44100;

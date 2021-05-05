@@ -11,7 +11,7 @@ pub struct BatchArgs {
 impl Default for BatchArgs {
     fn default() -> Self {
         BatchArgs {
-            num_workers: DEFAULT_NUM_WORKERS as usize
+            num_workers: DEFAULT_NUM_WORKERS as usize,
         }
     }
 }
