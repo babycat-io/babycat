@@ -1,4 +1,4 @@
-use crate::errors::Error;
+use crate::backend::errors::Error;
 
 pub fn get<T: Copy>(v: &[T], frame: usize, channel_idx: usize, num_channels: usize) -> T {
     v[frame * num_channels + channel_idx]
@@ -9,14 +9,14 @@ pub fn validate_args(
     output_frame_rate_hz: u32,
     num_channels: u32,
 ) -> Result<(), Error> {
-    if input_frame_rate_hz == 0 {
-        return Err(Error::WrongInputFrameRate(input_frame_rate_hz));
-    }
-    if output_frame_rate_hz == 0 {
-        return Err(Error::WrongOutputFrameRate(output_frame_rate_hz));
+    if input_frame_rate_hz == 0 || output_frame_rate_hz == 0 {
+        return Err(Error::WrongFrameRate(
+            input_frame_rate_hz,
+            output_frame_rate_hz,
+        ));
     }
     if num_channels == 0 {
-        return Err(Error::WrongNumChannels(num_channels));
+        return Err(Error::ResamplingError);
     }
     if (input_frame_rate_hz > output_frame_rate_hz)
         && (input_frame_rate_hz as f64 / output_frame_rate_hz as f64 > 256.0)

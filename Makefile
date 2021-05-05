@@ -68,10 +68,10 @@ build-rust: vendor
 	$(CARGO) build --release
 
 build-wasm-nodejs: vendor
-	$(WASM_PACK) build --target=nodejs --out-dir=../target/wasm/nodejs --release babycat-binding-wasm
+	$(WASM_PACK) build --release --target=nodejs --out-dir=../target/wasm/nodejs
 
 build-wasm-web: vendor
-	$(WASM_PACK) build --target=web --out-dir=../target/wasm/web --release babycat-binding-wasm
+	$(WASM_PACK) build --release --target=web --out-dir=../target/wasm/web
 
 build: build-rust build-wasm-nodejs build-wasm-web
 

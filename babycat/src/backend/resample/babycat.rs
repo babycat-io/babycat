@@ -1,6 +1,7 @@
-use crate::common::get;
-use crate::common::get_num_output_frames;
-use crate::errors::Error;
+use crate::backend::errors::Error;
+use crate::backend::resample::common::get;
+use crate::backend::resample::common::get_num_output_frames;
+use crate::backend::resample::common::validate_args;
 use std::f32::consts::PI;
 
 const KERNEL_A: i32 = 5;
@@ -42,7 +43,7 @@ pub fn resample(
     num_channels: u32,
     input_audio: &[f32],
 ) -> Result<Vec<f32>, Error> {
-    crate::common::validate_args(input_frame_rate_hz, output_frame_rate_hz, num_channels)?;
+    validate_args(input_frame_rate_hz, output_frame_rate_hz, num_channels)?;
     let output_num_frames = get_num_output_frames(
         input_audio,
         input_frame_rate_hz,

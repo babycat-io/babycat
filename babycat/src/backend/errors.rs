@@ -1,12 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
-macro_rules! leak_str {
-    ($a:expr) => {
-        Box::leak($a.to_owned().into_boxed_str())
-    };
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Error {
     // Raised when a function is called that requires a feature that
@@ -29,6 +23,7 @@ pub enum Error {
     //
     // Resampling errors
     ResamplingError,
+    ResamplingErrorWithMessage(&'static str),
     WrongFrameRate(u32, u32),
     WrongFrameRateRatio(u32, u32),
     //
@@ -67,6 +62,10 @@ impl Error {
 
             Error::ResamplingError => "ResamplingError".to_string(),
 
+            Error::ResamplingErrorWithMessage(msg) => {
+                format!("ResamplingErrorWithMessage({})", msg)
+            }
+
             Error::WrongFrameRate(f1, f2) => format!("WrongFrameRate({},{})", f1, f2),
 
             Error::WrongFrameRateRatio(f1, f2) => format!("WrongFrameRateRatio({},{})", f1, f2),
@@ -102,6 +101,8 @@ impl fmt::Display for Error {
             Error::UnknownEncodeError => write!(f, "Unknown encoding error."),
 
             Error::ResamplingError => write!(f, "Unknown error when resampling to a different frame rate."),
+
+            Error::ResamplingErrorWithMessage(msg) => write!(f, "Unknown error when resampling to a different frame rate: {}", msg),
 
             Error::WrongFrameRate(f1, f2) => write!(f, "Cannot resample the audio to the given frame rate. You asked to resample the audio to a frame rate of {} hz when the audio's original frame rate is {} hz.", f2,f1),
             Error::WrongFrameRateRatio(f1, f2) => write!(f, "We currently only support resampling when the ratio between input and output frame rates is 256 or less (whether upsampling or downsampling). We were given input and output frame rates of {} and {}", f1, f2),

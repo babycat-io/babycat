@@ -1,4 +1,6 @@
-use crate::errors::Error;
+use crate::backend::errors::Error;
+use crate::backend::resample::common::validate_args;
+//use crate::leak_str;
 
 pub fn resample(
     input_frame_rate_hz: u32,
@@ -6,7 +8,7 @@ pub fn resample(
     num_channels: u32,
     input_audio: &[f32],
 ) -> Result<Vec<f32>, Error> {
-    crate::common::validate_args(input_frame_rate_hz, output_frame_rate_hz, num_channels)?;
+    validate_args(input_frame_rate_hz, output_frame_rate_hz, num_channels)?;
 
     match samplerate::convert(
         input_frame_rate_hz as u32,
@@ -23,9 +25,9 @@ pub fn resample(
                     input_frame_rate_hz,
                     output_frame_rate_hz,
                 )),
-                _ => Err(Error::UnknownError(Box::leak(
-                    err.to_string().into_boxed_str(),
-                ))),
+                _ => Err(Error::ResamplingErrorWithMessage(
+                    leak_str!(err.to_string()),
+                )),
             }
         }
     }
