@@ -25,7 +25,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-rust fmt fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-rust fmt fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison
 
 # help ==============================================================
 
@@ -69,6 +69,9 @@ fmt: fmt-c fmt-rust
 
 # fmt-check =========================================================
 
+fmt-check-c:
+	$(CLANG_FORMAT) --dry-run -Werror tests-c/*
+
 fmt-check-rust:
 	$(CARGO) fmt -- --check
 
@@ -107,18 +110,18 @@ build: build-rust build-wasm-nodejs build-wasm-web
 
 # test ==============================================================
 
+test-c: vendor babycat.h
+	$(CARGO) build --release --no-default-features --features=frontend-c
+	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	./target/release/test_c
+
 test-rust: vendor
 	$(CARGO) test --features=frontend-rust
 
 test-wasm-nodejs: build-wasm-nodejs
 	cd tests-wasm-nodejs && $(NPM) run test
 
-test-c: vendor babycat.h
-	$(CARGO) build --release --no-default-features --features=frontend-c
-	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
-	./target/release/test_c
-
-test: test-rust test-wasm-nodejs
+test: test-rust test-wasm-nodejs test-c
 
 
 # bench =============================================================

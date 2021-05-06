@@ -4,37 +4,46 @@ Makefile commands:
 Many commands operate on codebases of one language. If you want to
 only affect one language, then use the `-lang` suffix.
 
+--
 clean                             Cleans the workspace of build and
                                   temporary files.
 
+---
 init                              Initializes your working environment
-                                  by installing various build tools.
-
-init-nodejs
-
+init-nodejs                       by installing various build tools.
 init-rust
 
+--
 vendor                           Vendor Rust dependencies into the
                                  `vendor/` subdirectory on the
                                  filesystem.
 
+--
 fmt                              Automatically format code.
-
+fmt-c
 fmt-rust
 
-lint                             Lint code for errors.
+--
+fmt-check                        Check formatting, but do not fix
+fmt-check-c                      anything. Useful for CI.
+fmt-check-rust
 
+--
+lint                             Lint code for errors.
 lint-rust
 
+--
 docs                             Generate documentation.
-
 docs-rust
 
+--
+babycat.h                        Build a C header file that describe
+                                 Babycat's C API.
+--
 build                            Build the babycat libraries
-                                 and bindings.
+build-rust                       and bindings.
 
-build-rust
-
+--
 build-wasm-nodejs               Builds the WebAssembly bindings to
                                 be used in the NodeJS runtime.
 
@@ -43,15 +52,16 @@ build-wasm-web                  Builds the WebAssembly bindings to
                                 not require a JavaScript bundler
                                 like Webpack.
 
+--
 test                            Run all unit and integration tests.
-
+test-c
 test-rust
-
 test-wasm-nodejs
 
+--
 bench                           Run benchmarks.
-
 bench-rust
 
+--
 example-resampler-comparison    Run the sample rate conversion
                                 example.
