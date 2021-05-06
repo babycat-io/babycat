@@ -59,7 +59,7 @@ features = [
 ]
 
 [features]
-default = ["frontend-rust", "frontend-python"]
+default = ["frontend-rust"]
 
 enable-filesystem = []
 enable-multithreading = ["rayon"]
