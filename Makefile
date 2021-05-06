@@ -1,6 +1,7 @@
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
 CLANG_FORMAT ?= clang-format
+DOCKER_COMPOSE ?= docker-compose
 NPM ?= npm
 PYTHON ?= python3
 WASM_PACK ?= wasm-pack
@@ -46,7 +47,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-rust fmt fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-rust fmt fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -56,7 +57,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target venv
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti
 
 # init ==============================================================
 
@@ -141,6 +142,9 @@ babycat.h:
 build-python: vendor init-python
 	$(PYTHON) -m pip $(WHEEL_CMD)
 
+build-python-manylinux: docker-build-pip
+	$(DOCKER_COMPOSE) run --rm --user=$$(id -u):$$(id -g) pip $(WHEEL_CMD)
+
 build-rust: vendor
 	$(CARGO) build --release --features=frontend-rust
 
@@ -183,3 +187,25 @@ bench: bench-rust
 
 example-resampler-comparison: vendor
 	$(CARGO) run --release --example resampler_comparison
+
+# docker ============================================================
+
+docker/rust/.ti: docker-compose.yml docker/rust/Dockerfile
+	$(DOCKER_COMPOSE) build cargo
+	@touch docker/rust/.ti
+
+docker/main/.ti: docker/rust/.ti docker-compose.yml docker/main/Dockerfile
+	$(DOCKER_COMPOSE) build main
+	@touch docker/main/.ti
+
+docker/pip/.ti: docker/rust/.ti docker-compose.yml docker/pip/Dockerfile
+	$(DOCKER_COMPOSE) build pip
+	@touch docker/pip/.ti
+
+docker-build-cargo: docker/rust/.ti
+
+docker-build-main: docker/main/.ti
+
+docker-build-pip: docker/pip/.ti
+
+docker-build: docker-build-cargo docker-build-main docker-build-pip

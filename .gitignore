@@ -16,6 +16,11 @@ docs/python/_build
 .DS_Store
 .vscode
 
+# Files ending in `.ti` are used by our Makefile to remember when
+# we have already built something. We don't want to check these
+# files into Git.
+*.ti
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

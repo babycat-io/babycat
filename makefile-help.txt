@@ -49,6 +49,9 @@ build                           Build the babycat libraries+bindings.
 build-python                    Build a Python abi3 wheel for the
                                 current operating system.
 
+build-python-manylinux          Build a Python manylinux wheel using
+                                a Docker container.
+
 build-rust                      Build a Rust library.
 
 build-wasm-nodejs               Builds the WebAssembly bindings to
@@ -72,3 +75,23 @@ bench-rust
 --
 example-resampler-comparison    Run the sample rate conversion
                                 example.
+
+--
+                                Manage Docker containers for this
+                                project. We have three containers:
+
+                                - cargo: Rust and Cargo
+
+                                - main: Many versions of Python and
+                                  developer tools
+
+                                - pip: A container for building
+                                  manylinux images
+
+docker-build                    These commands build the containers.
+
+docker-build-cargo
+
+docker-build-main
+
+docker-build-pip
