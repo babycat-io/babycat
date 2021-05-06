@@ -10,6 +10,7 @@
   "license": "MIT",
   "devDependencies": {
     "mocha": "^8.3.2",
+    "prettier": "2.2.1",
     "webpack": "^5.36.1",
     "webpack-cli": "^4.6.0"
   }
