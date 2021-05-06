@@ -5,45 +5,52 @@ Many commands operate on codebases of one language. If you want to
 only affect one language, then use the `-lang` suffix.
 
 --
-clean                             Cleans the workspace of build and
-                                  temporary files.
+clean                           Cleans the workspace of build and
+                                temporary files.
 
 ---
-init                              Initializes your working environment
-init-nodejs                       by installing various build tools.
+init                            Initializes your working environment
+init-nodejs                     by installing various build tools.
+init-python
 init-rust
 
 --
-vendor                           Vendor Rust dependencies into the
-                                 `vendor/` subdirectory on the
-                                 filesystem.
+vendor                          Vendor Rust dependencies into the
+                                `vendor/` subdirectory on the
+                                filesystem.
 
 --
-fmt                              Automatically format code.
+fmt                             Automatically format code.
 fmt-c
+fmt-python
 fmt-rust
 
 --
-fmt-check                        Check formatting, but do not fix
-fmt-check-c                      anything. Useful for CI.
+fmt-check                       Check formatting, but do not fix
+fmt-check-c                     anything. Useful for CI.
+fmt-check-python
 fmt-check-rust
 
 --
-lint                             Lint code for errors.
+lint                            Lint code for errors.
+lint-python
 lint-rust
 
 --
-docs                             Generate documentation.
+docs                            Generate documentation.
 docs-rust
 
 --
-babycat.h                        Build a C header file that describe
-                                 Babycat's C API.
+babycat.h                       Build a C header file that describe
+                                Babycat's C API.
 --
-build                            Build the babycat libraries
-build-rust                       and bindings.
+build                           Build the babycat libraries+bindings.
 
---
+build-python                    Build a Python abi3 wheel for the
+                                current operating system.
+
+build-rust                      Build a Rust library.
+
 build-wasm-nodejs               Builds the WebAssembly bindings to
                                 be used in the NodeJS runtime.
 

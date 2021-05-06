@@ -1,6 +1,9 @@
 # the oldest version of NumPy that babycat works with
 numpy==1.16.0
 
+# helps us write and run tests
+pytest==6.2.4
+
 # black formats python source code
 black==20.8b1
 
