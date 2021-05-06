@@ -111,6 +111,8 @@ pub extern "C" fn babycat_init_default_decode_args() -> DecodeArgs {
     }
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_free(waveform: *mut FloatWaveform) {
     Box::from_raw(waveform);
@@ -125,6 +127,8 @@ pub extern "C" fn babycat_float_waveform_from_frames_of_silence(
     FloatWaveform::from_frames_of_silence(frame_rate_hz, num_channels, num_frames).into()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub extern "C" fn babycat_float_waveform_from_milliseconds_of_silence(
     frame_rate_hz: u32,
@@ -135,6 +139,8 @@ pub extern "C" fn babycat_float_waveform_from_milliseconds_of_silence(
         .into()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes_with_hint(
     encoded_bytes: *mut u8,
@@ -156,6 +162,8 @@ pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes_with_hint(
     .into()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes(
     encoded_bytes: *mut u8,
@@ -167,6 +175,8 @@ pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes(
     FloatWaveform::from_encoded_bytes(&encoded_bytes_vec, decode_args).into()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_from_file(
     filename: *const c_char,
@@ -176,6 +186,8 @@ pub unsafe extern "C" fn babycat_float_waveform_from_file(
     FloatWaveform::from_file(filename_rust, decode_args).into()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_frame_rate_hz(
     waveform: *mut FloatWaveform,
@@ -183,6 +195,8 @@ pub unsafe extern "C" fn babycat_float_waveform_get_frame_rate_hz(
     (*(waveform)).frame_rate_hz()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_num_channels(
     waveform: *mut FloatWaveform,
@@ -190,6 +204,8 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_channels(
     (*(waveform)).num_channels()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_num_frames(
     waveform: *mut FloatWaveform,
@@ -197,6 +213,8 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_frames(
     (*(waveform)).num_frames()
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_num_samples(
     waveform: *mut FloatWaveform,
@@ -205,6 +223,8 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_samples(
     w.num_frames() * w.num_channels() as u64
 }
 
+///
+/// # Safety
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_interleaved_samples(
     waveform: *mut FloatWaveform,
