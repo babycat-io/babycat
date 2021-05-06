@@ -15,10 +15,6 @@ license = "MIT"
 name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
-[build-dependencies]
-# for c frontend
-cbindgen = "0.19"
-
 [dependencies]
 base64 = "0.13"
 float-cmp= "0.8"
