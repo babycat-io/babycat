@@ -35,6 +35,10 @@ samplerate = { version = "0.2", optional = true }
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
 js-sys = { version = "0.3.50", optional = true }
 
+# for python frontend
+numpy = { version = "0.13", optional = true }
+pyo3 = { version = "0.13", optional = true }
+
 # for binary targets
 structopt = { version = "0.3", optional = true }
 
@@ -54,7 +58,7 @@ features = [
 ]
 
 [features]
-default = ["frontend-rust"]
+default = ["frontend-rust", "frontend-python"]
 
 enable-filesystem = []
 enable-multithreading = ["rayon"]
@@ -78,7 +82,12 @@ frontend-wasm = [
     "js-sys"
 ]
 frontend-python = [
-    "enable-all-backend-features"
+    "enable-all-backend-features",
+    "numpy",
+    "pyo3",
+    "pyo3/extension-module",
+    "pyo3/abi3",
+    "pyo3/abi3-py36",
 ]
 frontend-c = [
     "enable-all-backend-features"

@@ -1,0 +1,23 @@
+# the oldest version of NumPy that babycat works with
+numpy==1.16.0
+
+# black formats python source code
+black==20.8b1
+
+# isort sorts python source code
+isort==5.8.0
+
+# pylint warns of linting errors
+pylint==2.7.4
+
+# type annotations
+mypy==0.812
+
+# Sphinx makes our documentation
+Sphinx==3.5.4
+
+# type hints in documentation
+sphinx-autodoc-typehints==1.11.1
+
+# our favorite Sphinx theme
+furo==2021.4.11b34
