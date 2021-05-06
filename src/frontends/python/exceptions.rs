@@ -81,15 +81,17 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
 
     exceptions_submodule.setattr(
         "__doc__",
-        "This submodule contains all exceptions raised by babycat, excluding built-in exceptions like :py:class:`FileNotFoundError`.",
+        "Contains all built-in exceptions raised by Babycat.
+
+        However, Babycat does raise a few exceptions that are not included
+        in this module, such as like :py:class:`FileNotFoundError`.",
     )?;
 
     let babycat_error = py.get_type::<BabycatError>();
     babycat_error.setattr("__module__", "babycat.exceptions")?;
     babycat_error.setattr(
         "__doc__",
-        "This exception is the parent class for all exceptions raised by
-    babycat--once again, excluding built-in exceptions like :py:class:`FileNotFoundError`.",
+        "Parent class for all Babycat exceptions.",
     )?;
     exceptions_submodule.add("BabycatError", babycat_error)?;
 
@@ -97,7 +99,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     feature_not_compiled.setattr("__module__", "babycat.exceptions")?;
     feature_not_compiled.setattr(
         "__doc__",
-        "Raised when you try to use a feature not compiled into your version of Babycat.",
+        "Raised when you are trying to use a feature that wasn't included at compile-time.",
     )?;
     exceptions_submodule.add("FeatureNotCompiled", feature_not_compiled)?;
 
@@ -105,11 +107,12 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     wrong_time_offset.setattr("__module__", "babycat.exceptions")?;
     wrong_time_offset.setattr(
         "__doc__",
-        "Raised when the time offsets (``start_time_milliseconds`` and
-    ``end_time_milliseconds`` are invalid.
+        "Raised when ``start_time_milliseconds`` and/or ``end_time_milliseconds`` is invalid.
     
-    One case of the offsets being invalid is when the end time
-    is before the start time.",
+        For example, this exception is raised if you specify an
+        ``end_time_milliseconds`` that would actually be *before*
+        the ``start_time_milliseconds``.
+        ",
     )?;
 
     exceptions_submodule.add("WrongTimeOffset", wrong_time_offset)?;
@@ -118,10 +121,11 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     wrong_num_channels.setattr("__module__", "babycat.exceptions")?;
     wrong_num_channels.setattr(
         "__doc__",
-        "Raised when the user has requested more channels than the audio has.
+        "Raised when you want more channels than the audio has.
     
-    For example, this exception will be raised when the user has
-    set `num_channels` to 3 and the audio stream only has 2 channels.",
+        For example, if you passed ``num_channels = 3`` as a
+        decoding argument, but the audio file only has two channels,
+        then we'll raise this exception.",
     )?;
     exceptions_submodule.add("WrongNumChannels", wrong_num_channels)?;
 
@@ -129,7 +133,12 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     wrong_num_channels_and_mono.setattr("__module__", "babycat.exceptions")?;
     wrong_num_channels_and_mono.setattr(
         "__doc__",
-        "Raised when the user sets both ``convert_to_mono=True`` and ``num_channels=``.",
+        "Raised when the user sets both ``convert_to_mono = True`` and ``num_channels = 1``.
+
+        The ``num_channels`` flag is used to select the *first* channel in a
+        (potentially) multi-channel audio file. the ``convert_to_mono`` flag
+        takes all selected channels and flattens them into a mono channel.
+        It is redundant to set ``num_channels = 1`` and also ``convert_to_mono = True``.",
     )?;
     exceptions_submodule.add("WrongNumChannelsAndMono", wrong_num_channels_and_mono)?;
 
@@ -138,7 +147,17 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     cannot_zero_pad_without_specified_length.setattr("__module__", "babycat.exceptions")?;
     cannot_zero_pad_without_specified_length.setattr(
         "__doc__",
-        "Raised when ``zero_pad_ending`` is passed without also setting ``end_time_milliseconds``.",
+        "Raised when ``zero_pad_ending`` is set without setting ``end_time_milliseconds``.
+        
+        The ``zero_pad_ending`` argument is used to pad the ending of an
+        audio waveform with zeros if the audio file runs out of audio
+        from offsets ``start_time_milliseconds`` to ``end_time_milliseconds``.
+
+        If you have not set an ``end_time_milliseconds``, then Babycat
+        will return all of the audio from ``start_time_milliseconds``
+        to the end of the audio file. In this context,
+        ``zero_pad_ending = True`` is not meaningful.
+        ",
     )?;
     exceptions_submodule.add(
         "CannotZeroPadWithoutSpecifiedLength",
@@ -149,8 +168,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     unknown_input_encoding.setattr("__module__", "babycat.exceptions")?;
     unknown_input_encoding.setattr(
         "__doc__",
-        "Raised when we cannot decode the audio byte stream into one of our
-    supported codecs.",
+        "Raised when we failed to detect valid audio in the input data.",
     )?;
     exceptions_submodule.add("UnknownInputEncoding", unknown_input_encoding)?;
 
@@ -166,7 +184,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     unknown_encode_error.setattr("__module__", "babycat.exceptions")?;
     unknown_encode_error.setattr(
         "__doc__",
-        "Raised when we failed to encode an audio stream.",
+        "Raised when we failed to encode an audio stream into an output format.",
     )?;
     exceptions_submodule.add("UnknownEncodeError", unknown_encode_error)?;
 
@@ -174,8 +192,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     resampling_error.setattr("__module__", "babycat.exceptions")?;
     resampling_error.setattr(
         "__doc__",
-        "Raised when the user wants to reencode the audio to a different sample rate
-    and we are unable to.",
+        "Raised when we failed to resample the waveform.",
     )?;
     exceptions_submodule.add("ResamplingError", resampling_error)?;
 
@@ -183,8 +200,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     wrong_frame_rate.setattr("__module__", "babycat.exceptions")?;
     wrong_frame_rate.setattr(
         "__doc__",
-        "Raised when the user wants to reencode the input audio stream to a
-    new frame rate, but that frame rate is invalid.",
+        "Raised when the user set ``frame_rate_hz`` to a value that we cannot resample to.",
     )?;
     exceptions_submodule.add("WrongFrameRate", wrong_frame_rate)?;
 
@@ -192,7 +208,13 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     wrong_frame_rate_ratio.setattr("__module__", "babycat.exceptions")?;
     wrong_frame_rate_ratio.setattr(
         "__doc__",
-        "Raised when the ratio between the input and output frame rates is greater than 256.",
+        "Raised when ``frame_rate_hz`` would upsample or downsample by a factor ``>= 256``.
+
+        The ratio between ``frame_rate_hz`` and the audio's original frame rate
+        has to be less than 256--in both cases where ``frame_rate_hz`` 
+        is less than the audio's frame rate (downsampling) or greater
+        than the audio's frame rate (upsampling).
+        ",
     )?;
     exceptions_submodule.add("WrongFrameRateRatio", wrong_frame_rate_ratio)?;
 
