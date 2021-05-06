@@ -1,5 +1,7 @@
 use crate::backend::Waveform;
+use numpy::{IntoPyArray, PyArray2};
 use pyo3::prelude::*;
+use pyo3::PyObjectProtocol;
 
 #[pyclass(module = "babycat")]
 #[derive(Clone, Debug)]
@@ -43,6 +45,44 @@ impl From<crate::backend::NamedResult<crate::backend::FloatWaveform, crate::back
     }
 }
 
+impl std::fmt::Display for FloatWaveformNamedResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.waveform {
+            Some(waveform) => {
+                write!(
+                    f,
+                    "<babycat.FloatWaveformNamedResult name: {} waveform: {}>",
+                    self.name, waveform
+                )
+            }
+            None => match self.error {
+                Some(error) => {
+                    write!(
+                        f,
+                        "<babycat.FloatWaveformNamedResult name: {} error: {}>",
+                        self.name,
+                        error.to_string()
+                    )
+                }
+                None => {
+                    write!(
+                        f,
+                        "<babycat.FloatWaveformNamedResult name: {} and no value>",
+                        self.name,
+                    )
+                }
+            },
+        }
+    }
+}
+
+#[pyproto]
+impl PyObjectProtocol for FloatWaveformNamedResult {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{}", self))
+    }
+}
+
 #[pyclass(module = "babycat")]
 #[derive(Clone, Debug)]
 pub struct FloatWaveform {
@@ -52,6 +92,25 @@ pub struct FloatWaveform {
 impl From<crate::backend::FloatWaveform> for FloatWaveform {
     fn from(inner: crate::backend::FloatWaveform) -> FloatWaveform {
         FloatWaveform { inner }
+    }
+}
+
+impl std::fmt::Display for FloatWaveform {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "<babycat.FloatWaveform frame_rate_hz: {} num_channels: {} num_frames: {}>",
+            self.inner.frame_rate_hz(),
+            self.inner.num_channels(),
+            self.inner.num_frames(),
+        )
+    }
+}
+
+#[pyproto]
+impl PyObjectProtocol for FloatWaveform {
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{}", self))
     }
 }
 
@@ -275,5 +334,18 @@ impl FloatWaveform {
     #[getter]
     pub fn get_num_frames(&self) -> u64 {
         self.inner.num_frames()
+    }
+
+    pub fn numpy(&self, py: Python) -> Py<PyArray2<f32>> {
+        self.inner
+            .interleaved_samples()
+            .to_owned()
+            .into_pyarray(py)
+            .reshape([
+                self.inner.num_frames() as usize,
+                self.inner.num_channels() as usize,
+            ])
+            .unwrap()
+            .into()
     }
 }
