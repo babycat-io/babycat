@@ -85,6 +85,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     )?;
 
     let babycat_error = py.get_type::<BabycatError>();
+    babycat_error.setattr("__module__", "babycat.exceptions")?;
     babycat_error.setattr(
         "__doc__",
         "This exception is the parent class for all exceptions raised by
@@ -93,13 +94,15 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add("BabycatError", babycat_error)?;
 
     let feature_not_compiled = py.get_type::<FeatureNotCompiled>();
+    feature_not_compiled.setattr("__module__", "babycat.exceptions")?;
     feature_not_compiled.setattr(
         "__doc__",
         "Raised when you try to use a feature not compiled into your version of Babycat.",
     )?;
-    exceptions_submodule.add("FeatureNotCompiled", babycat_error)?;
+    exceptions_submodule.add("FeatureNotCompiled", feature_not_compiled)?;
 
     let wrong_time_offset = py.get_type::<WrongTimeOffset>();
+    wrong_time_offset.setattr("__module__", "babycat.exceptions")?;
     wrong_time_offset.setattr(
         "__doc__",
         "Raised when the time offsets (``start_time_milliseconds`` and
@@ -108,9 +111,11 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     One case of the offsets being invalid is when the end time
     is before the start time.",
     )?;
+
     exceptions_submodule.add("WrongTimeOffset", wrong_time_offset)?;
 
     let wrong_num_channels = py.get_type::<WrongNumChannels>();
+    wrong_num_channels.setattr("__module__", "babycat.exceptions")?;
     wrong_num_channels.setattr(
         "__doc__",
         "Raised when the user has requested more channels than the audio has.
@@ -121,6 +126,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add("WrongNumChannels", wrong_num_channels)?;
 
     let wrong_num_channels_and_mono = py.get_type::<WrongNumChannelsAndMono>();
+    wrong_num_channels_and_mono.setattr("__module__", "babycat.exceptions")?;
     wrong_num_channels_and_mono.setattr(
         "__doc__",
         "Raised when the user sets both ``convert_to_mono=True`` and ``num_channels=``.",
@@ -129,6 +135,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
 
     let cannot_zero_pad_without_specified_length =
         py.get_type::<CannotZeroPadWithoutSpecifiedLength>();
+    cannot_zero_pad_without_specified_length.setattr("__module__", "babycat.exceptions")?;
     cannot_zero_pad_without_specified_length.setattr(
         "__doc__",
         "Raised when ``zero_pad_ending`` is passed without also setting ``end_time_milliseconds``.",
@@ -139,6 +146,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     )?;
 
     let unknown_input_encoding = py.get_type::<UnknownInputEncoding>();
+    unknown_input_encoding.setattr("__module__", "babycat.exceptions")?;
     unknown_input_encoding.setattr(
         "__doc__",
         "Raised when we cannot decode the audio byte stream into one of our
@@ -147,6 +155,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add("UnknownInputEncoding", unknown_input_encoding)?;
 
     let unknown_decode_error = py.get_type::<UnknownDecodeError>();
+    unknown_decode_error.setattr("__module__", "babycat.exceptions")?;
     unknown_decode_error.setattr(
         "__doc__",
         "Raised when we failed to decode the input audio stream, but we don't know why.",
@@ -154,13 +163,15 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add("UnknownDecodeError", unknown_decode_error)?;
 
     let unknown_encode_error = py.get_type::<UnknownEncodeError>();
+    unknown_encode_error.setattr("__module__", "babycat.exceptions")?;
     unknown_encode_error.setattr(
         "__doc__",
         "Raised when we failed to encode an audio stream.",
     )?;
-    exceptions_submodule.add("UnknownEncodeError", unknown_decode_error)?;
+    exceptions_submodule.add("UnknownEncodeError", unknown_encode_error)?;
 
     let resampling_error = py.get_type::<ResamplingError>();
+    resampling_error.setattr("__module__", "babycat.exceptions")?;
     resampling_error.setattr(
         "__doc__",
         "Raised when the user wants to reencode the audio to a different sample rate
@@ -169,6 +180,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add("ResamplingError", resampling_error)?;
 
     let wrong_frame_rate = py.get_type::<WrongFrameRate>();
+    wrong_frame_rate.setattr("__module__", "babycat.exceptions")?;
     wrong_frame_rate.setattr(
         "__doc__",
         "Raised when the user wants to reencode the input audio stream to a
@@ -177,6 +189,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add("WrongFrameRate", wrong_frame_rate)?;
 
     let wrong_frame_rate_ratio = py.get_type::<WrongFrameRateRatio>();
+    wrong_frame_rate_ratio.setattr("__module__", "babycat.exceptions")?;
     wrong_frame_rate_ratio.setattr(
         "__doc__",
         "Raised when the ratio between the input and output frame rates is greater than 256.",
