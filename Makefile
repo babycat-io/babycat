@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -141,10 +141,17 @@ lint: lint-rust lint-python
 
 # docs ==============================================================
 
-docs-rust: vendor
-	$(CARGO) doc --all-features --no-deps
+docs-python: init-python
+	$(MAKE) -C docs/python.babycat.io dirhtml
 
-docs: docs-rust
+docs-rust: vendor
+	rm -rf docs/rust.babycat.io/build
+	$(CARGO) doc --release --lib --frozen --no-deps
+	mv target/doc docs/rust.babycat.io/build
+	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
+
+
+docs: docs-python docs-rust
 
 # build =============================================================
 
