@@ -352,6 +352,29 @@ impl FloatWaveform {
         )
     }
 
+    pub fn from_encoded_bytes_with_hint(
+        encoded_bytes: &[u8],
+        decode_args: DecodeArgs,
+        file_extension: &str,
+        mime_type: &str,
+    ) -> Result<Self, Error> {
+        let owned = encoded_bytes.to_owned();
+        let encoded_stream = std::io::Cursor::new(owned);
+        Self::from_encoded_stream_with_hint(encoded_stream, decode_args, file_extension, mime_type)
+    }
+
+    pub fn from_encoded_bytes(
+        encoded_bytes: &[u8],
+        decode_args: DecodeArgs,
+    ) -> Result<Self, Error> {
+        Self::from_encoded_bytes_with_hint(
+            encoded_bytes,
+            decode_args,
+            DEFAULT_FILE_EXTENSION,
+            DEFAULT_MIME_TYPE,
+        )
+    }
+
     #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, decode_args: DecodeArgs) -> Result<Self, Error> {
         let pathname = std::path::Path::new(filename);

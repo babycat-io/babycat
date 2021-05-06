@@ -105,6 +105,13 @@ pub struct NamedFloatWaveformResult {
 }
 
 #[no_mangle]
+pub extern "C" fn babycat_init_default_decode_args() -> DecodeArgs {
+    DecodeArgs {
+        ..Default::default()
+    }
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_free(waveform: *mut FloatWaveform) {
     Box::from_raw(waveform);
 }
@@ -126,6 +133,38 @@ pub extern "C" fn babycat_float_waveform_from_milliseconds_of_silence(
 ) -> *mut FloatWaveform {
     FloatWaveform::from_milliseconds_of_silence(frame_rate_hz, num_channels, duration_milliseconds)
         .into()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes_with_hint(
+    encoded_bytes: *mut u8,
+    encoded_bytes_len: usize,
+    decode_args: DecodeArgs,
+    file_extension: *const c_char,
+    mime_type: *const c_char,
+) -> FloatWaveformResult {
+    let encoded_bytes_vec =
+        Vec::<u8>::from_raw_parts(encoded_bytes, encoded_bytes_len, encoded_bytes_len);
+    let file_extension_str = CStr::from_ptr(file_extension).to_str().unwrap();
+    let mime_type_str = CStr::from_ptr(mime_type).to_str().unwrap();
+    FloatWaveform::from_encoded_bytes_with_hint(
+        &encoded_bytes_vec,
+        decode_args,
+        file_extension_str,
+        mime_type_str,
+    )
+    .into()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes(
+    encoded_bytes: *mut u8,
+    encoded_bytes_len: usize,
+    decode_args: DecodeArgs,
+) -> FloatWaveformResult {
+    let encoded_bytes_vec =
+        Vec::<u8>::from_raw_parts(encoded_bytes, encoded_bytes_len, encoded_bytes_len);
+    FloatWaveform::from_encoded_bytes(&encoded_bytes_vec, decode_args).into()
 }
 
 #[no_mangle]

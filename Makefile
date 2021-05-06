@@ -115,7 +115,7 @@ test-wasm-nodejs: build-wasm-nodejs
 
 test-c: vendor babycat.h
 	$(CARGO) build --release --no-default-features --features=frontend-c
-	$(CC) -g -Wall -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
 	./target/release/test_c
 
 test: test-rust test-wasm-nodejs
