@@ -1,6 +1,7 @@
 use crate::backend::Waveform;
 use numpy::{IntoPyArray, PyArray2};
 use pyo3::prelude::*;
+use pyo3::types::PyByteArray;
 use pyo3::PyObjectProtocol;
 
 #[pyclass(module = "babycat")]
@@ -220,6 +221,7 @@ impl FloatWaveform {
         ))
     }
 
+    #[cfg(feature = "enable-filesystem")]
     #[staticmethod]
     #[args(
         filename,
@@ -268,6 +270,7 @@ impl FloatWaveform {
         ))
     }
 
+    #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
     #[staticmethod]
     #[args(
         filenames,
@@ -336,6 +339,8 @@ impl FloatWaveform {
         self.inner.num_frames()
     }
 
+    #[args()]
+    #[text_signature = "()"]
     pub fn numpy(&self, py: Python) -> Py<PyArray2<f32>> {
         self.inner
             .interleaved_samples()
@@ -347,5 +352,21 @@ impl FloatWaveform {
             ])
             .unwrap()
             .into()
+    }
+
+    #[args()]
+    #[text_signature = "()"]
+    pub fn to_wav_buffer(&self, py: Python) -> PyResult<Py<PyAny>> {
+        match self.inner.to_wav_buffer() {
+            Ok(vec_u8) => Ok((*PyByteArray::new(py, &vec_u8)).to_object(py)),
+            Err(err) => Err(PyErr::from(err)),
+        }
+    }
+
+    #[cfg(feature = "enable-filesystem")]
+    #[args(filename)]
+    #[text_signature = "(filename)"]
+    pub fn to_wav_file(&self, filename: &str) -> PyResult<()> {
+        self.inner.to_wav_file(filename).map_err(PyErr::from)
     }
 }
