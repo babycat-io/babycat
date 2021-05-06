@@ -7,6 +7,7 @@ NPM ?= npm
 PRETTIER ?= ./tests-wasm-nodejs/node_modules/.bin/prettier
 PYTHON ?= python3
 WASM_PACK ?= wasm-pack
+VALGRIND ?= valgrind
 
 JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
@@ -51,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -174,6 +175,11 @@ test-c: vendor babycat.h
 	$(CARGO) build --release --no-default-features --features=frontend-c
 	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
 	./target/release/test_c
+
+test-c-valgrind: vendor babycat.h
+	$(CARGO) build --release --no-default-features --features=frontend-c
+	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	$(VALGRIND) --leak-check=full --show-leak-kinds=all ./target/release/test_c
 
 test-python: vendor init-python
 	$(ACTIVATE_VENV_CMD) && python3 -m pip install .
