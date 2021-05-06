@@ -41,6 +41,7 @@ structopt = { version = "0.3", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"
+criterion = { version = "0.3", features = ["html_reports"] }
 
 [dependencies.symphonia]
 version = "0.2"
