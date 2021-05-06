@@ -1,4 +1,6 @@
-# Configuration file for the Sphinx documentation builder.
+"""Configuration file for the Sphinx documentation builder."""
+from typing import Dict, List
+
 #
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
@@ -17,9 +19,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Babycat Python'
-copyright = '2021, Neocrym Records Inc.'
-author = 'Neocrym Records Inc.'
+project = "Babycat Python"
+copyright = "2021, Neocrym Records Inc."  # pylint: disable=redefined-builtin
+author = "Neocrym Records Inc."
 
 
 # -- General configuration ---------------------------------------------------
@@ -28,15 +30,26 @@ author = 'Neocrym Records Inc.'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx_autodoc_typehints",
+    "sphinx.ext.intersphinx",
 ]
 
+# This is a mapping to Sphinx documentation sites elsewhere on the Internet.
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+}
+
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns: List[str] = []
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -44,9 +57,16 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = "furo"
+html_show_sphinx = False
+html_copy_source = False
+html_show_source = False
+html_css_files = ["css/custom.css"]
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
+
+pygments_style = "colorful"
+pygments_dark_style = "fruity"

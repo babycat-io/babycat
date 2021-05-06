@@ -1,0 +1,52 @@
+
+/* Remove unnecessary styling on Sphinx reference links to code. */
+code.literal {
+    font-size: 90% !important;
+    font-weight: bold !important;
+    background: none !important;
+}
+
+a.reference {
+    text-decoration: none !important;
+}
+
+
+/* Space our classes and methods in our documentation. */
+dl.py.class {
+    margin-bottom: 6rem;
+}
+
+dl.py.method {
+    margin-bottom: 4rem;
+}
+
+dl.py.attribute {
+    margin-bottom: 2rem;
+}
+
+dl.field-list > dt {
+    padding-top: 1rem;
+}
+
+ul.simple > li {
+    margin-bottom: 1rem;
+}
+
+
+/* Fix some issues with the Pygments fruity theme in dark mode. */
+.highlight .s2 {
+    background: none !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .highlight .go {
+        color: #888888 !important;
+        background: none !important;
+    }
+}
+
+
+/* Make the admoniton box font a normal size. */
+.admonition, .admonition-title {
+    font-size: 100% !important;
+}

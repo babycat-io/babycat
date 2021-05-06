@@ -89,10 +89,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
 
     let babycat_error = py.get_type::<BabycatError>();
     babycat_error.setattr("__module__", "babycat.exceptions")?;
-    babycat_error.setattr(
-        "__doc__",
-        "Parent class for all Babycat exceptions.",
-    )?;
+    babycat_error.setattr("__doc__", "Parent class for all Babycat exceptions.")?;
     exceptions_submodule.add("BabycatError", babycat_error)?;
 
     let feature_not_compiled = py.get_type::<FeatureNotCompiled>();
@@ -190,10 +187,7 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
 
     let resampling_error = py.get_type::<ResamplingError>();
     resampling_error.setattr("__module__", "babycat.exceptions")?;
-    resampling_error.setattr(
-        "__doc__",
-        "Raised when we failed to resample the waveform.",
-    )?;
+    resampling_error.setattr("__doc__", "Raised when we failed to resample the waveform.")?;
     exceptions_submodule.add("ResamplingError", resampling_error)?;
 
     let wrong_frame_rate = py.get_type::<WrongFrameRate>();

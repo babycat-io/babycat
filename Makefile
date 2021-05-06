@@ -14,7 +14,7 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=target/python .
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-PYTHON_CODE_PATHS ?= tests-python
+PYTHON_CODE_PATHS ?= ./tests-python ./docs/python.babycat.io/source/conf.py
 
 # Windows and Unix have different paths for activating
 # Python virtualenvs.
@@ -142,7 +142,8 @@ lint: lint-rust lint-python
 # docs ==============================================================
 
 docs-python: init-python
-	$(MAKE) -C docs/python.babycat.io dirhtml
+	$(ACTIVATE_VENV_CMD) && pip install .
+	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/python.babycat.io dirhtml
 
 docs-rust: vendor
 	rm -rf docs/rust.babycat.io/build
