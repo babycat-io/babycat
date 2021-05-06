@@ -137,7 +137,7 @@ docs: docs-rust
 
 babycat.h:
 	$(CBINDGEN) --quiet --output babycat.h
-	$(CLANG_FORMAT) -i babycat.h
+	@$(CLANG_FORMAT) -i babycat.h || true
 
 build-python: vendor init-python
 	$(PYTHON) -m pip $(WHEEL_CMD)
