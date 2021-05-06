@@ -6,6 +6,8 @@ autogen_warning = """/*
 """
 include_version = true
 language = "C"
+pragma_once = true
+include_guard = "BABYCAT_H"
 
 [export]
 # A prefix to add before the name of every item
