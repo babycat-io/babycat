@@ -369,4 +369,17 @@ impl FloatWaveform {
     pub fn to_wav_file(&self, filename: &str) -> PyResult<()> {
         self.inner.to_wav_file(filename).map_err(PyErr::from)
     }
+
+    pub fn _repr_html_(&self) -> PyResult<String> {
+        let wav = self.inner.to_wav_buffer()?;
+        let wav_buffer_base64 = base64::encode(&wav);
+        Ok(format!(
+            "
+<audio controls>
+    <source src='data:audio/wav;base64,{}' type='audio/wav' />
+    Your browser does not support the audio element.
+</audio>",
+            wav_buffer_base64
+        ))
+    }
 }
