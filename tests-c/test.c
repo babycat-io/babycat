@@ -8,8 +8,9 @@
 // so we know that the test succeeded.
 #define SUCCESS() fprintf(stderr, "Success: %s\n", __FUNCTION__)
 
-#define DECODE_COF(decode_args) babycat_float_waveform_from_file("./audio-for-tests/circus-of-freaks/track.mp3", decode_args)
-
+#define DECODE_COF(decode_args)                                                \
+  babycat_float_waveform_from_file(                                            \
+      "./audio-for-tests/circus-of-freaks/track.mp3", decode_args)
 
 static void test_float_waveform_from_file__test_circus_of_freaks_default_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
@@ -23,7 +24,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_default_1() {
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 1000;
   decode_args.end_time_milliseconds = 999;
@@ -33,7 +35,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offs
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 1000;
   decode_args.end_time_milliseconds = 1000;
@@ -42,7 +45,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offs
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 5;
   decode_args.end_time_milliseconds = 0;
@@ -52,7 +56,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_invalid_end_tim
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_get_channels_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_get_channels_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.num_channels = 1;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -65,7 +70,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_get_channels_1(
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_get_channels_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_get_channels_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.num_channels = 2;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -78,8 +84,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_get_channels_2(
   SUCCESS();
 }
 
-
-static void test_float_waveform_from_file__test_circus_of_freaks_get_channels_too_many_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_get_channels_too_many_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.num_channels = 3;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -87,7 +93,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_get_channels_to
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.num_channels = 2;
   decode_args.convert_to_mono = true;
@@ -101,7 +108,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.convert_to_mono = true;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -114,16 +122,19 @@ static void test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_invalid_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_invalid_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.num_channels = 1;
   decode_args.convert_to_mono = true;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
-  assert(waveform_result.error_num == babycat_ERROR_WRONG_NUM_CHANNELS_AND_MONO);
+  assert(waveform_result.error_num ==
+         babycat_ERROR_WRONG_NUM_CHANNELS_AND_MONO);
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 1;
@@ -137,7 +148,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 10;
   decode_args.end_time_milliseconds = 11;
@@ -151,7 +163,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_3() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_3() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 30000;
@@ -165,7 +178,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_4() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_4() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 15000;
   decode_args.end_time_milliseconds = 45000;
@@ -179,7 +193,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_5() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_5() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 30000;
   decode_args.end_time_milliseconds = 60000;
@@ -193,7 +208,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 1;
@@ -208,7 +224,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 10;
   decode_args.end_time_milliseconds = 11;
@@ -223,7 +240,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_3() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_3() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 30000;
@@ -238,8 +256,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_4() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_4() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 15000;
   decode_args.end_time_milliseconds = 45000;
@@ -254,7 +272,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_5() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_5() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 30000;
   decode_args.end_time_milliseconds = 60000;
@@ -269,7 +288,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_6() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_6() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
@@ -284,7 +304,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_7() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_7() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 90000;
@@ -299,8 +320,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_8() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_8() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 30000;
   decode_args.end_time_milliseconds = 90000;
@@ -315,7 +336,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_end_milliseconds_zero_pad_ending_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_end_milliseconds_zero_pad_ending_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.end_time_milliseconds = 90000;
   decode_args.zero_pad_ending = true;
@@ -329,7 +351,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_end_millisecond
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 1;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -337,7 +360,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_invalid_resampl
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 20;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -345,7 +369,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_invalid_resampl
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_3() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_3() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 172;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -353,7 +378,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_invalid_resampl
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_resample_no_change() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_resample_no_change() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 44100;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -365,7 +391,6 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_no_cha
   babycat_float_waveform_free(waveform);
   SUCCESS();
 }
-
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
@@ -432,7 +457,6 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_5() {
   SUCCESS();
 }
 
-
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_6() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 48000;
@@ -485,7 +509,6 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_9() {
   SUCCESS();
 }
 
-
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_10() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 200;
@@ -512,7 +535,6 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_11() {
   SUCCESS();
 }
 
-
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_12() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.frame_rate_hz = 173;
@@ -526,7 +548,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_12() {
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_1() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_1() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
@@ -542,7 +565,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_2() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_2() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
@@ -558,7 +582,8 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   SUCCESS();
 }
 
-static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_3() {
+static void
+test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_3() {
   babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
@@ -573,7 +598,6 @@ static void test_float_waveform_from_file__test_circus_of_freaks_start_end_milli
   babycat_float_waveform_free(waveform);
   SUCCESS();
 }
-
 
 int main() {
   printf("\n\n == Begin testing ==\n\n");
