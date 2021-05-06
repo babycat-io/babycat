@@ -20,6 +20,7 @@ crate-type = ["rlib", "cdylib", "staticlib"]
 cbindgen = "0.19"
 
 [dependencies]
+base64 = "0.13"
 float-cmp= "0.8"
 hound = "3.4"
 serde = { version = "1.0", features = ["derive"] }
