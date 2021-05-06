@@ -2,10 +2,13 @@ CBINDGEN ?= cbindgen
 CARGO ?= cargo
 CLANG_FORMAT ?= clang-format
 DOCKER_COMPOSE ?= docker-compose
+ESLINT ?= ./tests-wasm-nodejs/node_modules/.bin/eslint
 NPM ?= npm
 PRETTIER ?= ./tests-wasm-nodejs/node_modules/.bin/prettier
 PYTHON ?= python3
 WASM_PACK ?= wasm-pack
+
+JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
 WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=target/python .
 VENV_PATH ?= venv
@@ -94,7 +97,8 @@ fmt-c:
 	$(CLANG_FORMAT) -i tests-c/*.c
 
 fmt-javascript:
-	$(PRETTIER) --write tests-wasm-nodejs/test.js
+	$(ESLINT) --fix $(JAVASCRIPT_CODE_PATHS)
+	$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 
 fmt-python:
 	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
@@ -111,7 +115,8 @@ fmt-check-c:
 	$(CLANG_FORMAT) --dry-run -Werror tests-c/*
 
 fmt-check-javascript:
-	$(PRETTIER) --loglevel=silent --check tests-wasm-nodejs/test.js
+	$(ESLINT) $(JAVASCRIPT_CODE_PATHS)
+	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 
 fmt-check-python:
 	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)

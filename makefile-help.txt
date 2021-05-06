@@ -22,12 +22,14 @@ vendor                          Vendor Rust dependencies into the
 --
 fmt                             Automatically format code.
 fmt-c
+fmt-javascript
 fmt-python
 fmt-rust
 
 --
 fmt-check                       Check formatting, but do not fix
 fmt-check-c                     anything. Useful for CI.
+fmt-check-javascript
 fmt-check-python
 fmt-check-rust
 
