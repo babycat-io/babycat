@@ -18,7 +18,7 @@ pub fn resample(
 ) -> Result<Vec<f32>, Error> {
     match resample_mode {
         DEFAULT_RESAMPLE_MODE => {
-            if cfg!(feature="enable-libsamplerate") {
+            if cfg!(feature = "enable-libsamplerate") {
                 libsamplerate::resample(
                     input_frame_rate_hz,
                     output_frame_rate_hz,
@@ -33,7 +33,7 @@ pub fn resample(
                     input_audio,
                 )
             }
-        },
+        }
 
         RESAMPLE_MODE_LIBSAMPLERATE => libsamplerate::resample(
             input_frame_rate_hz,
