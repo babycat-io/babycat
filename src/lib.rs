@@ -10,5 +10,5 @@ mod backend;
 
 #[cfg(feature = "frontend-rust")]
 pub use crate::backend::*;
-#[cfg(not(feature = "frontend-rust"))]
+
 pub mod frontends;
