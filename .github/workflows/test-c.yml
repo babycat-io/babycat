@@ -1,0 +1,37 @@
+name: test-c
+
+defaults:
+  run:
+    shell: bash
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-c:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        #os: [ubuntu-20.04, macos-10.15]
+        os: [ubuntu-20.04, macos-10.15, windows-2019]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: 1.50.0
+          override: true
+          components: rustfmt, clippy
+          target: wasm32-unknown-unknown
+
+    - name: Check C code formatting
+      if: matrix.os == 'ubuntu-20.04'
+      run: make fmt-check-c
+
+    - name: Build with Makefile
+      run: make test-c
