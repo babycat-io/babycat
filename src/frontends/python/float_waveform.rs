@@ -501,7 +501,7 @@ impl FloatWaveform {
     ///     >>> batch[2].name
     ///     'does-not-exist'
     ///     >>> batch[2].exception
-    ///     FileNotFoundError('Cannot find the given filename does-not-exist.')
+    ///     FileNotFoundError('Cannot find the given filename does-not-exist.',)
     ///     >>> print(batch[2].waveform)
     ///     None
     ///     >>>
