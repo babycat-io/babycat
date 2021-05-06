@@ -1,5 +1,5 @@
 """Configuration file for the Sphinx documentation builder."""
-from typing import Dict, List
+from typing import List
 
 #
 # This file only contains a selection of the most common options. For a full
