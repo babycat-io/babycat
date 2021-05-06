@@ -17,12 +17,23 @@ pub fn resample(
     resample_mode: u32,
 ) -> Result<Vec<f32>, Error> {
     match resample_mode {
-        DEFAULT_RESAMPLE_MODE => libsamplerate::resample(
-            input_frame_rate_hz,
-            output_frame_rate_hz,
-            num_channels,
-            input_audio,
-        ),
+        DEFAULT_RESAMPLE_MODE => {
+            if cfg!(feature="enable-libsamplerate") {
+                libsamplerate::resample(
+                    input_frame_rate_hz,
+                    output_frame_rate_hz,
+                    num_channels,
+                    input_audio,
+                )
+            } else {
+                lanczos::resample(
+                    input_frame_rate_hz,
+                    output_frame_rate_hz,
+                    num_channels,
+                    input_audio,
+                )
+            }
+        },
 
         RESAMPLE_MODE_LIBSAMPLERATE => libsamplerate::resample(
             input_frame_rate_hz,
