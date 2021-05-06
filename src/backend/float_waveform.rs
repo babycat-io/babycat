@@ -331,7 +331,7 @@ impl FloatWaveform {
             }
         }
 
-        let num_frames = (buffer.len() / num_channels as usize) as u64;
+        let num_frames = buffer.len() as u64 / num_channels as u64;
         Ok(FloatWaveform {
             frame_rate_hz: final_frame_rate_hz,
             num_channels,
@@ -433,6 +433,27 @@ impl FloatWaveform {
 
     pub fn interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
+    }
+
+    pub fn resample(&self, frame_rate_hz: u32) -> Result<Self, Error> {
+        self.resample_by_mode(frame_rate_hz, DEFAULT_RESAMPLE_MODE)
+    }
+
+    pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> Result<Self, Error> {
+        let interleaved_samples = resample(
+            self.frame_rate_hz,
+            frame_rate_hz,
+            self.num_channels,
+            &self.interleaved_samples,
+            resample_mode,
+        )?;
+        let num_frames = interleaved_samples.len() as u64 / self.num_channels as u64;
+        Ok(Self {
+            interleaved_samples,
+            frame_rate_hz,
+            num_channels: self.num_channels,
+            num_frames,
+        })
     }
 
     pub fn to_wav_buffer(&self) -> Result<Vec<u8>, Error> {

@@ -11,6 +11,10 @@ license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[[bench]]
+name = "resample_benchmark"
+harness = false
+
 [lib]
 name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
