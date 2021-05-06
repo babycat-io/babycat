@@ -3,6 +3,7 @@ CARGO ?= cargo
 CLANG_FORMAT ?= clang-format
 DOCKER_COMPOSE ?= docker-compose
 NPM ?= npm
+PRETTIER ?= ./tests-wasm-nodejs/node_modules/.bin/prettier
 PYTHON ?= python3
 WASM_PACK ?= wasm-pack
 
@@ -47,7 +48,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-rust fmt fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -92,6 +93,9 @@ vendor: vendor/.t
 fmt-c:
 	$(CLANG_FORMAT) -i tests-c/*.c
 
+fmt-javascript:
+	$(PRETTIER) --write tests-wasm-nodejs/test.js
+
 fmt-python:
 	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
@@ -99,12 +103,15 @@ fmt-python:
 fmt-rust:
 	$(CARGO) fmt
 
-fmt: fmt-c fmt-python fmt-rust
+fmt: fmt-c fmt-javascript fmt-python fmt-rust
 
 # fmt-check =========================================================
 
 fmt-check-c:
 	$(CLANG_FORMAT) --dry-run -Werror tests-c/*
+
+fmt-check-javascript:
+	$(PRETTIER) --loglevel=silent --check tests-wasm-nodejs/test.js
 
 fmt-check-python:
 	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
@@ -113,7 +120,7 @@ fmt-check-python:
 fmt-check-rust:
 	$(CARGO) fmt -- --check
 
-fmt-check: fmt-check-c fmt-check-python fmt-check-rust
+fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
 
 # lint ==============================================================
 
