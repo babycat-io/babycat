@@ -62,7 +62,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rfv target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__
+	rm -rfv target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml/
 
 # init ==============================================================
 
@@ -143,6 +143,7 @@ lint: lint-rust lint-python
 
 docs-python: init-python
 	$(ACTIVATE_VENV_CMD) && pip install .
+	rm -rf docs/python.babycat.io/build/dirhtml/
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/python.babycat.io dirhtml
 
 docs-rust: vendor
@@ -150,7 +151,6 @@ docs-rust: vendor
 	$(CARGO) doc --release --lib --frozen --no-deps
 	mv target/doc docs/rust.babycat.io/build
 	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
-
 
 docs: docs-python docs-rust
 
