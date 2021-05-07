@@ -11,5 +11,9 @@ mod backend;
 #[cfg(feature = "frontend-rust")]
 pub use crate::backend::*;
 
-#[cfg(any(feature = "frontend-c", feature = "frontend-python", feature = "frontend-wasm"))]
+#[cfg(any(
+    feature = "frontend-c",
+    feature = "frontend-python",
+    feature = "frontend-wasm"
+))]
 pub mod frontends;
