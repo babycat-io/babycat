@@ -438,7 +438,7 @@ impl FloatWaveform {
     ///     ...     frame_rate_hz=48000,
     ///     ... )
     ///     >>> waveform
-    ///     <babycat.FloatWaveform: 10434769 frames, 2 channels, 48000 hz>
+    ///     <babycat.FloatWaveform: 1440000 frames, 2 channels, 48000 hz>
     ///
     /// Args:
     ///     filename(str): The path to an audio file on the local
