@@ -3,6 +3,11 @@ use std::fmt;
 use crate::backend::waveform::Waveform;
 use serde::{Deserialize, Serialize};
 
+/// Represents a fixed-length audio waveform as a `Vec<i16>`.
+///
+/// This struct should only be used when needed to store or transmit
+/// uncompressed audio data. For more operations on audio, it is better
+/// to work with a [FloatWaveform](crate::FloatWaveform).
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IntWaveform {
     interleaved_samples: Vec<i16>,

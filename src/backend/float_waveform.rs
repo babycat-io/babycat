@@ -24,6 +24,7 @@ use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::waveform::Waveform;
 
+/// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct FloatWaveform {
     interleaved_samples: Vec<f32>,
@@ -64,6 +65,7 @@ impl fmt::Debug for FloatWaveform {
 }
 
 impl FloatWaveform {
+    /// Constructs a `FloatWaveform` from an already-decoded vector of 32-bit float samples.
     pub fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<f32>) -> Self {
         let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
         FloatWaveform {
@@ -73,6 +75,7 @@ impl FloatWaveform {
             num_frames,
         }
     }
+    /// Creates a silent waveform measured in frames.
     pub fn from_frames_of_silence(frame_rate_hz: u32, num_channels: u32, num_frames: u64) -> Self {
         FloatWaveform {
             frame_rate_hz,
@@ -91,6 +94,7 @@ impl FloatWaveform {
         Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
     }
 
+    /// Decodes audio from an input stream, using a user-specified decoding hint.
     pub fn from_encoded_stream_with_hint<R: 'static + Read>(
         encoded_stream: R,
         decode_args: DecodeArgs,
@@ -340,6 +344,7 @@ impl FloatWaveform {
         })
     }
 
+    /// Decodes audio from an input stream.
     pub fn from_encoded_stream<R: 'static + Read>(
         encoded_stream: R,
         decode_args: DecodeArgs,
@@ -352,6 +357,7 @@ impl FloatWaveform {
         )
     }
 
+    /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
     pub fn from_encoded_bytes_with_hint(
         encoded_bytes: &[u8],
         decode_args: DecodeArgs,
@@ -363,6 +369,7 @@ impl FloatWaveform {
         Self::from_encoded_stream_with_hint(encoded_stream, decode_args, file_extension, mime_type)
     }
 
+    /// Decodes audio stored in an in-memory byte array.
     pub fn from_encoded_bytes(
         encoded_bytes: &[u8],
         decode_args: DecodeArgs,
@@ -375,6 +382,7 @@ impl FloatWaveform {
         )
     }
 
+    /// Decodes audio stored in a local file.
     #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, decode_args: DecodeArgs) -> Result<Self, Error> {
         let pathname = std::path::Path::new(filename);
@@ -409,6 +417,7 @@ impl FloatWaveform {
         Self::from_encoded_stream_with_hint(file, decode_args, file_extension, DEFAULT_MIME_TYPE)
     }
 
+    /// Decodes a list of audio files in parallel.
     #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
     pub fn from_many_files(
         filenames: &[&str],
@@ -431,14 +440,17 @@ impl FloatWaveform {
         })
     }
 
+    /// Returns of channel-interleaved samples.
     pub fn interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
     }
 
+    /// Resamples the waveform.
     pub fn resample(&self, frame_rate_hz: u32) -> Result<Self, Error> {
         self.resample_by_mode(frame_rate_hz, DEFAULT_RESAMPLE_MODE)
     }
 
+    /// Resamples the audio using a specific resampler.
     pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> Result<Self, Error> {
         let interleaved_samples = resample(
             self.frame_rate_hz,
@@ -456,6 +468,7 @@ impl FloatWaveform {
         })
     }
 
+    /// Encdoes the waveform into a WAV-encoded byte array.
     pub fn to_wav_buffer(&self) -> Result<Vec<u8>, Error> {
         let writer_spec = hound::WavSpec {
             channels: self.num_channels as u16,
@@ -481,6 +494,7 @@ impl FloatWaveform {
         Ok(cursor.into_inner())
     }
 
+    /// Writes the waveform to the filesystem as a WAV file.
     #[cfg(feature = "enable-filesystem")]
     pub fn to_wav_file(&self, filename: &str) -> Result<(), Error> {
         let writer_spec = hound::WavSpec {
