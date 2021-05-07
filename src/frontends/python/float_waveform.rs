@@ -130,6 +130,8 @@ impl FloatWaveform {
     /// Creates a silent waveform of ``num_frames`` frames.
     ///
     /// Example:
+    ///     **Creating 1000 frames of silence (in stereo).**
+    ///
     ///     >>> from babycat import FloatWaveform
     ///     >>> FloatWaveform.from_frames_of_silence(
     ///     ...    frame_rate_hz=44100,
@@ -168,6 +170,8 @@ impl FloatWaveform {
     /// Creates a silent waveform of ``duration_milliseconds`` milliseconds.
     ///
     /// Example:
+    ///     **Create 30 seconds of silence (in stereo).**
+    ///
     ///     >>> from babycat import FloatWaveform
     ///     >>> FloatWaveform.from_milliseconds_of_silence(
     ///     ...    frame_rate_hz=44100,
@@ -207,9 +211,10 @@ impl FloatWaveform {
         .into()
     }
 
-    /// Returns a decoded waveform from encoded audio in a :py:class:`bytes` object.
+    /// Decodes audio stored as ``bytes``.
     ///
     /// Example:
+    ///     **Decode from bytes while auto-detecting the format as MP3.**
     ///
     ///     >>> from babycat import FloatWaveform
     ///     >>> with open("audio-for-tests/andreas-theme/track.mp3", "rb") as fh:
@@ -218,9 +223,62 @@ impl FloatWaveform {
     ///     >>> waveform
     ///     <babycat.FloatWaveform: 9586944 frames, 2 channels, 44100 hz>
     ///
+    /// Example:
+    ///     **Decode from bytes with a file extension hint.**
+    ///
+    ///     >>> waveform2 = FloatWaveform.from_encoded_bytes(
+    ///     ...     the_bytes,
+    ///     ...     file_extension="mp3",
+    ///     ... )
+    ///
     /// Args:
     ///     encoded_bytes(bytes): A :py:class:`bytes` object
     ///         containing an *encoded* audio file, such as MP3 file.
+    ///
+    ///     start_time_milliseconds(int, optional): We discard
+    ///         any audio before this millisecond offset. By default, this
+    ///         does nothing and the audio is decoded from the beginning.
+    ///         Negative offsets are invalid.
+    ///
+    ///     end_time_milliseconds(int, optional): We discard
+    ///         any audio after this millisecond offset. By default,
+    ///         this does nothing and the audio is decoded all the way
+    ///         to the end. If ``start_time_milliseconds`` is specified,
+    ///         then ``end_time_milliseconds`` must be greater. The resulting
+    ///
+    ///     frame_rate_hz(int, optional): A destination frame rate to resample
+    ///         the audio to. Do not specify this parameter if you wish
+    ///         Babycat to preserve the audio's original frame rate.
+    ///         This does nothing if ``frame_rate_hz`` is equal to the
+    ///         audio's original frame rate.
+    ///
+    ///     num_channels(int, optional): Set this to a positive integer ``n``
+    ///         to select the *first* ``n`` channels stored in the
+    ///         audio file. By default, Babycat will return all of the channels
+    ///         in the original audio. This will raise an exception
+    ///         if you specify a ``num_channels`` greater than the actual
+    ///         number of channels in the audio.
+    ///
+    ///     convert_to_mono(bool, optional): Set to ``True`` to average all channels
+    ///         into a single monophonic (mono) channel. If
+    ///         ``num_channels = n`` is also specified, then only the
+    ///         first ``n`` channels will be averaged. Note that
+    ///         ``convert_to_mono`` cannot be set to ``True`` while
+    ///         also setting ``num_channels = 1``.
+    ///
+    ///     zero_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will zero-pad the ending of the decoded waveform
+    ///         to ensure that the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``zero_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``
+    ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///
+    ///     resample_mode(int, optional): Sets which resampling method
+    ///         is used if you have set ``frame_rate_hz``. This
+    ///         usually defaults to the highest-accuracy resampler
+    ///         compiled into Babycat.
     ///
     ///     file_extension(str, optional): An *optional hint* of the input audio file's
     ///         encoding. An example of a valid value is ``"mp3"``. Babycat
@@ -234,6 +292,46 @@ impl FloatWaveform {
     ///
     /// Returns:
     ///     FloatWaveform: Returns a waveform decoded from ``encoded_bytes``.
+    ///
+    /// Raises:
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
+    ///
+    ///     babycat.exceptions.WrongTimeOffset: Raised when
+    ///         ``start_time_milliseconds``and/or ``end_time_milliseconds``
+    ///         is invalid.
+    ///
+    ///     babycat.exceptions.WrongNumChannels: Raised when you specified
+    ///         a value for ``num_channels`` that is greater than the
+    ///         number of channels the audio has.
+    ///
+    ///     babycat.exceptions.WrongNumChannelsAndMono: Raised when the
+    ///         user sets both ``convert_to_mono = True`` and
+    ///         ``num_channels = 1``.
+    ///
+    ///     babycat.exceptions.CannotZeroPadWithoutSpecifiedLength: Raised
+    ///         when ``zero_pad_ending`` is set without setting
+    ///         ``end_time_milliseconds``.
+    ///
+    ///     babycat.exceptions.UnknownInputEncoding: Raised when we
+    ///         failed to detect valid audio in the input data.
+    ///
+    ///     babycat.exceptions.UnknownDecodeError: Raised when we
+    ///         failed to decode the input audio stream, but
+    ///         we don't know why.
+    ///
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
+    ///
+    ///     babycat.exceptions.WrongFrameRate: Raised when the
+    ///         user set ``frame_rate_hz`` to a value that we
+    ///         cannot resample to.
+    ///
+    ///     babycat.exceptions.WrongFrameRateRatio: Raised
+    ///         when ``frame_rate_hz`` would upsample or
+    ///         downsample by a factor ``>= 256``. Try resampling in
+    ///         smaller increments.
     ///
     #[staticmethod]
     #[args(
@@ -291,9 +389,10 @@ impl FloatWaveform {
         ))
     }
 
-    /// Returns a decoded waveform from an audio file on the local filesystem.
+    /// Decodes audio stored in a local file.
     ///
     /// Example:
+    ///     **Decode an entire audio file with default arguments.**
     ///
     ///     >>> from babycat import FloatWaveform
     ///     >>> waveform = FloatWaveform.from_file(
@@ -311,6 +410,7 @@ impl FloatWaveform {
     ///     (9586944, 2)
     ///
     /// Example:
+    ///     **Decode the first 30 seconds of the audio file.**
     ///
     ///     >>> waveform = FloatWaveform.from_file(
     ///     ...     "audio-for-tests/andreas-theme/track.mp3",
@@ -320,6 +420,8 @@ impl FloatWaveform {
     ///     <babycat.FloatWaveform: 1323000 frames, 2 channels, 44100 hz>
     ///
     /// Example:
+    ///     **Decode the entire audio file and resampling up to 48,000hz.**
+    ///
     ///     >>> waveform = FloatWaveform.from_file(
     ///     ...     "audio-for-tests/andreas-theme/track.mp3",
     ///     ...     frame_rate_hz=48000,
@@ -327,9 +429,19 @@ impl FloatWaveform {
     ///     >>> waveform
     ///     <babycat.FloatWaveform: 10434769 frames, 2 channels, 48000 hz>
     ///
+    /// Example:
+    ///     **Decode the first 30 seconds and resample up to 48,000hz.**
+    ///
+    ///     >>> waveform = FloatWaveform.from_file(
+    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     end_time_milliseconds=30_000,
+    ///     ...     frame_rate_hz=48000,
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 10434769 frames, 2 channels, 48000 hz>
     ///
     /// Args:
-    ///     filename (str): The path to an audio file on the local
+    ///     filename(str): The path to an audio file on the local
     ///         filesystem.
     ///
     ///     start_time_milliseconds(int, optional): We discard
@@ -388,26 +500,44 @@ impl FloatWaveform {
     ///         resolves to a directory on the local
     ///         instead of a file.
     ///
-    ///     babycat.exceptions.FeatureNotCompiled: Raised when a runtime feature
-    ///         is requested
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
     ///
-    ///     babycat.exceptions.WrongTimeOffset: dd
+    ///     babycat.exceptions.WrongTimeOffset: Raised when
+    ///         ``start_time_milliseconds``and/or ``end_time_milliseconds``
+    ///         is invalid.
     ///
-    ///     babycat.exceptions.WrongNumChannels: dd
+    ///     babycat.exceptions.WrongNumChannels: Raised when you specified
+    ///         a value for ``num_channels`` that is greater than the
+    ///         number of channels the audio has.
     ///
-    ///     babycat.exceptions.WrongNumChannelsAndMono: dd
+    ///     babycat.exceptions.WrongNumChannelsAndMono: Raised when the
+    ///         user sets both ``convert_to_mono = True`` and
+    ///         ``num_channels = 1``.
     ///
-    ///     babycat.exceptions.CannotZeroPadWithoutSpecifiedLength: dd
+    ///     babycat.exceptions.CannotZeroPadWithoutSpecifiedLength: Raised
+    ///         when ``zero_pad_ending`` is set without setting
+    ///         ``end_time_milliseconds``.
     ///
-    ///     babycat.exceptions.UnknownInputEncoding: dd
+    ///     babycat.exceptions.UnknownInputEncoding: Raised when we
+    ///         failed to detect valid audio in the input data.
     ///
-    ///     babycat.exceptions.UnknownDecodeError: dd
+    ///     babycat.exceptions.UnknownDecodeError: Raised when we
+    ///         failed to decode the input audio stream, but
+    ///         we don't know why.
     ///
-    ///     babycat.exceptions.ResamplingError: dd
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
     ///
-    ///     babycat.exceptions.WrongFrameRate: dd
+    ///     babycat.exceptions.WrongFrameRate: Raised when the
+    ///         user set ``frame_rate_hz`` to a value that we
+    ///         cannot resample to.
     ///
-    ///     babycat.exceptions.WrongFrameRateRatio: dd
+    ///     babycat.exceptions.WrongFrameRateRatio: Raised
+    ///         when ``frame_rate_hz`` would upsample or
+    ///         downsample by a factor ``>= 256``. Try resampling in
+    ///         smaller increments.
     ///
     #[cfg(feature = "enable-filesystem")]
     #[staticmethod]
@@ -458,9 +588,11 @@ impl FloatWaveform {
         ))
     }
 
-    /// Decodes audio files in parallel.
+    /// Uses multithreading in Rust to decode many audio files in parallel.
+    ///
     ///
     /// Example:
+    ///     **(Attempt to) decode three files.**
     ///
     ///     In this example, we succesfully decode two MP3 files with
     ///     the default decoding arguments. Then, we demonstrate
@@ -518,7 +650,52 @@ impl FloatWaveform {
     /// Args:
     ///     filenames(list[str]): A :py:class:`list` of filenames--each as
     ///         :py:class:`str`--to decode in parallel.
-    ///         
+    ///
+    ///     start_time_milliseconds(int, optional): We discard
+    ///         any audio before this millisecond offset. By default, this
+    ///         does nothing and the audio is decoded from the beginning.
+    ///         Negative offsets are invalid.
+    ///
+    ///     end_time_milliseconds(int, optional): We discard
+    ///         any audio after this millisecond offset. By default,
+    ///         this does nothing and the audio is decoded all the way
+    ///         to the end. If ``start_time_milliseconds`` is specified,
+    ///         then ``end_time_milliseconds`` must be greater. The resulting
+    ///
+    ///     frame_rate_hz(int, optional): A destination frame rate to resample
+    ///         the audio to. Do not specify this parameter if you wish
+    ///         Babycat to preserve the audio's original frame rate.
+    ///         This does nothing if ``frame_rate_hz`` is equal to the
+    ///         audio's original frame rate.
+    ///
+    ///     num_channels(int, optional): Set this to a positive integer ``n``
+    ///         to select the *first* ``n`` channels stored in the
+    ///         audio file. By default, Babycat will return all of the channels
+    ///         in the original audio. This will raise an exception
+    ///         if you specify a ``num_channels`` greater than the actual
+    ///         number of channels in the audio.
+    ///
+    ///     convert_to_mono(bool, optional): Set to ``True`` to average all channels
+    ///         into a single monophonic (mono) channel. If
+    ///         ``num_channels = n`` is also specified, then only the
+    ///         first ``n`` channels will be averaged. Note that
+    ///         ``convert_to_mono`` cannot be set to ``True`` while
+    ///         also setting ``num_channels = 1``.
+    ///
+    ///     zero_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will zero-pad the ending of the decoded waveform
+    ///         to ensure that the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``zero_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``
+    ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///
+    ///     resample_mode(int, optional): Sets which resampling method
+    ///         is used if you have set ``frame_rate_hz``. This
+    ///         usually defaults to the highest-accuracy resampler
+    ///         compiled into Babycat.
+    ///
     ///     num_workers(int, optional): The number of threads--*Rust threads*, not Python
     ///         threads--to use for parallel decoding of the audio files in
     ///         ``filenames``. By default, Babycat creates the same
@@ -528,7 +705,9 @@ impl FloatWaveform {
     /// Returns:
     ///     list[FloatWaveformNamedResult]: A list of objects that contain
     ///     a :py:class:`~babycat.FloatWaveform` for every successful encoding
-    ///     and a Python exception for every failed encoding.
+    ///     and a Python exception for every failed encoding. Look at
+    ///     the ``"Raises"`` section of :py:meth:`FloatWaveform.decode_from_filename`
+    ///     for a list of possible exceptions that can be returned by this method.
     ///
     #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
     #[staticmethod]
@@ -664,6 +843,19 @@ impl FloatWaveform {
 
     /// Encodes the waveform into a :py:class:`bytearray` in the WAV format.
     ///
+    /// Example:
+    ///     **Decode an MP3 file and re-encode it as WAV.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> waveform = FloatWaveform.from_file(
+    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 9586944 frames, 2 channels, 44100 hz>
+    ///     >>> arr = waveform.to_wav_buffer()
+    ///     >>> type(arr)
+    ///     >>> len(arr)
+    ///
     /// Returns:
     ///     bytearray: The encoded WAV file.
     ///
@@ -681,6 +873,17 @@ impl FloatWaveform {
     }
 
     /// Writes the waveform to the filesystem as a WAV file.
+    ///
+    /// Example:
+    ///     **Decode an MP3 file and re-encode it as WAV.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> waveform = FloatWaveform.from_file(
+    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 9586944 frames, 2 channels, 44100 hz>
+    ///     >>> waveform.to_wav_file("track.wav")
     ///
     /// Args:
     ///     filename(str): The filename to write the WAV file to.

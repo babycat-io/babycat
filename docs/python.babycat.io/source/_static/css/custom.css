@@ -1,3 +1,42 @@
+/* Make a bold statement. */
+h1, h2, h3 {
+    font-weight: 700;
+}
+
+
+/* Set up headers on the home page. */
+.mega-hero-img {
+    display: block;
+    margin: 0 auto 0 auto;
+    width: 35em;
+    height: auto;
+}
+
+h1.mega-header {
+    font-size: 3rem;
+}
+
+h2.mega-header {
+    font-size: 2rem;
+    margin-top: 5rem;
+}
+
+h3.mega-header {
+    font-size: 1.25rem;
+    margin-top: 3rem;
+}
+
+.mega-bigbullet {
+    margin-left: 1rem;
+}
+
+.mega-bigbullet:before {
+    content: '»  ';
+    position: relative;
+    bottom: .1em;
+    color: #368ce2;
+}
+
 
 /* Remove unnecessary styling on Sphinx reference links to code. */
 code.literal {
@@ -13,23 +52,19 @@ a.reference {
 
 /* Space our classes and methods in our documentation. */
 dl.py.class {
-    margin-bottom: 6rem;
+    margin-bottom: 6em;
 }
 
 dl.py.method {
-    margin-bottom: 4rem;
+    margin-bottom: 4em;
 }
 
 dl.py.attribute {
-    margin-bottom: 2rem;
-}
-
-dl.field-list > dt {
-    padding-top: 1rem;
+    margin-bottom: 2em;
 }
 
 ul.simple > li {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5em;
 }
 
 
@@ -49,4 +84,12 @@ ul.simple > li {
 /* Make the admoniton box font a normal size. */
 .admonition, .admonition-title {
     font-size: 100% !important;
+}
+
+/* Make headings inside docstrings bigger. */
+dl.c .field-list dt, dl.cpp .field-list dt, dl.js .field-list dt, dl.py .field-list dt, p.rubric {
+    padding-top: 1.75em !important;
+    font-size: 120% !important;
+    text-transform: uppercase;
+    font-weight: 600;
 }
