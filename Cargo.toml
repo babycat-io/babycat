@@ -50,8 +50,9 @@ pyo3 = { version = "0.13", optional = true }
 env_logger = { version = "0.8", optional = true }
 structopt = { version = "0.3", optional = true }
 rodio = { version = "0.13.1", optional = true }
-tui = { version = "0.15", optional = true }
-termion = { version = "1.5", optional = true }
+tui = { version = "0.15", default-features = false, features = ["crossterm"], optional = true }
+crossterm = { version = "0.19", optional = true }
+
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"
@@ -88,7 +89,7 @@ frontend-binary = [
     "structopt",
     "rodio",
     "tui",
-    "termion",
+    "crossterm",
 ]
 frontend-rust = [
     "enable-all-backend-features",
