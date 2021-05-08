@@ -65,36 +65,6 @@ impl fmt::Debug for FloatWaveform {
 }
 
 impl FloatWaveform {
-    /// Constructs a `FloatWaveform` from an already-decoded vector of 32-bit float samples.
-    ///
-    /// # Examples
-    ///
-    /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
-    /// Note that the input vector contains 88,200 audio samples--which we divide into
-    /// 44,100 frames containing two samples each.
-    /// ```
-    /// use babycat::FloatWaveform;
-    ///
-    /// let frame_rate_hz = 44100;
-    /// let num_channels = 2;
-    /// let raw_uncompressed_audio: Vec<f32> = vec![0.0_f32; 88200];
-    /// let waveform = FloatWaveform::new(frame_rate_hz, num_channels, raw_uncompressed_audio);
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
-    /// );
-    /// ```
-    ///
-    pub fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<f32>) -> Self {
-        let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
-        FloatWaveform {
-            interleaved_samples,
-            frame_rate_hz,
-            num_channels,
-            num_frames,
-        }
-    }
-
     /// Decodes audio stored in an in-memory byte array.
     ///
     /// # Examples
@@ -589,11 +559,6 @@ impl FloatWaveform {
         Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
     }
 
-    /// Returns of channel-interleaved samples.
-    pub fn interleaved_samples(&self) -> &[f32] {
-        &self.interleaved_samples
-    }
-
     /// Resamples the waveform.
     ///
     /// ```
@@ -695,7 +660,37 @@ impl FloatWaveform {
     }
 }
 
-impl crate::backend::waveform::Waveform for FloatWaveform {
+impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
+    /// Constructs a `FloatWaveform` from an already-decoded vector of 32-bit float samples.
+    ///
+    /// # Examples
+    ///
+    /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
+    /// Note that the input vector contains 88,200 audio samples--which we divide into
+    /// 44,100 frames containing two samples each.
+    /// ```
+    /// use babycat::FloatWaveform;
+    ///
+    /// let frame_rate_hz = 44100;
+    /// let num_channels = 2;
+    /// let raw_uncompressed_audio: Vec<f32> = vec![0.0_f32; 88200];
+    /// let waveform = FloatWaveform::new(frame_rate_hz, num_channels, raw_uncompressed_audio);
+    /// assert_eq!(
+    ///     format!("{:?}", waveform),
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
+    /// );
+    /// ```
+    ///
+    fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<f32>) -> Self {
+        let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
+        FloatWaveform {
+            interleaved_samples,
+            frame_rate_hz,
+            num_channels,
+            num_frames,
+        }
+    }
+
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
@@ -706,5 +701,10 @@ impl crate::backend::waveform::Waveform for FloatWaveform {
 
     fn num_frames(&self) -> u64 {
         self.num_frames
+    }
+
+    /// Returns of channel-interleaved samples.
+    fn interleaved_samples(&self) -> &[f32] {
+        &self.interleaved_samples
     }
 }

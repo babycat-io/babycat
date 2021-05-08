@@ -1,4 +1,6 @@
-pub trait Waveform {
+pub trait Waveform<T> {
+    fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<T>) -> Self;
+
     /// The frame rate (or sample rate) of the audio in memory.
     ///
     /// This returns how many audio frames represent one second of audio.
@@ -14,4 +16,7 @@ pub trait Waveform {
     /// Therefore, the total number of samples
     /// is `num_frames * num_channels`.
     fn num_frames(&self) -> u64;
+
+    /// Return the waveform as a slice of interleaved samples.
+    fn interleaved_samples(&self) -> &[T];
 }

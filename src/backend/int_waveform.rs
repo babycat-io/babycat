@@ -47,7 +47,17 @@ impl fmt::Debug for IntWaveform {
     }
 }
 
-impl crate::backend::waveform::Waveform for IntWaveform {
+impl crate::backend::waveform::Waveform<i16> for IntWaveform {
+    fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<i16>) -> Self {
+        let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
+        IntWaveform {
+            interleaved_samples,
+            frame_rate_hz,
+            num_channels,
+            num_frames,
+        }
+    }
+
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
@@ -59,20 +69,8 @@ impl crate::backend::waveform::Waveform for IntWaveform {
     fn num_frames(&self) -> u64 {
         self.num_frames
     }
-}
 
-impl IntWaveform {
-    pub fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<i16>) -> Self {
-        let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
-        IntWaveform {
-            interleaved_samples,
-            frame_rate_hz,
-            num_channels,
-            num_frames,
-        }
-    }
-
-    pub fn interleaved_samples(&self) -> &[i16] {
+    fn interleaved_samples(&self) -> &[i16] {
         &self.interleaved_samples
     }
 }
