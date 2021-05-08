@@ -15,6 +15,11 @@ license = "MIT"
 name = "resample_benchmark"
 harness = false
 
+[[bin]]
+name = "babycat"
+path = "src/bin/babycat/main.rs"
+required-features = ["frontend-binary"]
+
 [lib]
 name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
@@ -25,6 +30,7 @@ float-cmp= "0.8"
 hound = "3.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+log = { version = "0.4", features = ["serde"]}
 
 # for multithreading
 rayon = { version = "1.5", optional = true }
@@ -41,6 +47,7 @@ numpy = { version = "0.13", optional = true }
 pyo3 = { version = "0.13", optional = true }
 
 # for binary targets
+env_logger = { version = "0.8", optional = true }
 structopt = { version = "0.3", optional = true }
 
 [dev-dependencies]
@@ -72,6 +79,11 @@ enable-all-backend-features = [
     "enable-libsamplerate",
 ]
 
+frontend-binary = [
+    "enable-all-backend-features",
+    "env_logger",
+    "structopt",
+]
 frontend-rust = [
     "enable-all-backend-features",
 ]
