@@ -22,15 +22,15 @@ use crate::backend::common::milliseconds_to_frames;
 use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
+use crate::backend::sample_rescaling::i16_to_f32;
+use crate::backend::sample_rescaling::i32_to_f32;
 use crate::backend::waveform::Waveform;
 
 /// Retrieves a sample from a Symphonia AudioBuffer with frame and channel indexes.
 fn get_sample(audio_buffer_ref: &AudioBufferRef, frame_idx: usize, channel_idx: usize) -> f32 {
     match audio_buffer_ref {
         AudioBufferRef::F32(ref buf_f32) => buf_f32.chan(channel_idx)[frame_idx],
-        AudioBufferRef::S32(ref buf_i32) => {
-            (buf_i32.chan(channel_idx)[frame_idx] as f32) / (0x7FFFFFFF as f32)
-        }
+        AudioBufferRef::S32(ref buf_i32) => i32_to_f32(buf_i32.chan(channel_idx)[frame_idx]),
     }
 }
 
@@ -48,7 +48,7 @@ impl From<crate::backend::int_waveform::IntWaveform> for FloatWaveform {
         let buffer: Vec<f32> = item
             .interleaved_samples()
             .iter()
-            .map(|val| (*val as f32) / 0x8000 as f32)
+            .map(|val| i16_to_f32(*val))
             .collect();
 
         FloatWaveform {

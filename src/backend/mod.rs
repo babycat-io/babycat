@@ -6,6 +6,7 @@ mod float_waveform;
 mod int_waveform;
 mod named_result;
 pub mod resample;
+mod sample_rescaling;
 mod waveform;
 
 pub use batch_args::*;

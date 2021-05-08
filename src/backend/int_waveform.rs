@@ -1,5 +1,6 @@
 use std::fmt;
 
+use crate::backend::sample_rescaling::f32_to_i16;
 use crate::backend::waveform::Waveform;
 use serde::{Deserialize, Serialize};
 
@@ -21,7 +22,7 @@ impl From<crate::backend::float_waveform::FloatWaveform> for IntWaveform {
         let buffer: Vec<i16> = item
             .interleaved_samples()
             .iter()
-            .map(|val| ((*val) * 0x8000 as f32) as i16)
+            .map(|val| f32_to_i16(*val))
             .collect();
 
         IntWaveform {
