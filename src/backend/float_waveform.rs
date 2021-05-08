@@ -669,7 +669,7 @@ impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     /// Note that the input vector contains 88,200 audio samples--which we divide into
     /// 44,100 frames containing two samples each.
     /// ```
-    /// use babycat::FloatWaveform;
+    /// use babycat::{FloatWaveform, Waveform};
     ///
     /// let frame_rate_hz = 44100;
     /// let num_channels = 2;
