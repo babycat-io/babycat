@@ -94,50 +94,203 @@ impl FloatWaveform {
             num_frames,
         }
     }
-    /// Creates a silent waveform measured in frames.
+
+    /// Decodes audio stored in an in-memory byte array.
     ///
     /// # Examples
-    /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
     /// ```
     /// use babycat::FloatWaveform;
     ///
-    /// let waveform = FloatWaveform::from_frames_of_silence(44100, 2, 44100);
+    /// let encoded_bytes: Vec<u8> = std::fs::read("audio-for-tests/andreas-theme/track.mp3").unwrap();
+    ///
+    /// let decode_args = Default::default();
+    ///
+    /// let waveform = FloatWaveform::from_encoded_bytes(
+    ///     &encoded_bytes,
+    ///     decode_args,
+    /// ).unwrap();
     /// assert_eq!(
     ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}"
     /// );
     /// ```
-    ///
-    pub fn from_frames_of_silence(frame_rate_hz: u32, num_channels: u32, num_frames: u64) -> Self {
-        FloatWaveform {
-            frame_rate_hz,
-            num_channels,
-            num_frames,
-            interleaved_samples: vec![0.0; (num_channels as u64 * num_frames) as usize],
-        }
+    pub fn from_encoded_bytes(
+        encoded_bytes: &[u8],
+        decode_args: DecodeArgs,
+    ) -> Result<Self, Error> {
+        Self::from_encoded_bytes_with_hint(
+            encoded_bytes,
+            decode_args,
+            DEFAULT_FILE_EXTENSION,
+            DEFAULT_MIME_TYPE,
+        )
     }
 
-    /// Create a silent waveform measured in milliseconds.
+    /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
+    pub fn from_encoded_bytes_with_hint(
+        encoded_bytes: &[u8],
+        decode_args: DecodeArgs,
+        file_extension: &str,
+        mime_type: &str,
+    ) -> Result<Self, Error> {
+        let owned = encoded_bytes.to_owned();
+        let encoded_stream = std::io::Cursor::new(owned);
+        Self::from_encoded_stream_with_hint(encoded_stream, decode_args, file_extension, mime_type)
+    }
+
+    /// Decodes audio stored in a local file.
     ///
     /// # Examples
-    /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
+    /// **Decode one audio file with the default decoding arguments:**
     /// ```
-    /// use babycat::FloatWaveform;
+    /// use babycat::{DecodeArgs, FloatWaveform};
     ///
-    /// let waveform = FloatWaveform::from_milliseconds_of_silence(44100, 2, 1000);
+    /// let waveform = FloatWaveform::from_file(
+    ///    "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     Default::default(),
+    /// ).unwrap();
+    ///
     /// assert_eq!(
     ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
     /// );
     /// ```
     ///
-    pub fn from_milliseconds_of_silence(
-        frame_rate_hz: u32,
-        num_channels: u32,
-        duration_milliseconds: u64,
-    ) -> Self {
-        let num_frames = milliseconds_to_frames(frame_rate_hz, duration_milliseconds);
-        Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
+    /// **Decode only the first 30 seconds and upsample to 48khz:**
+    /// ```
+    /// use babycat::{DecodeArgs, FloatWaveform};
+    ///
+    /// let decode_args = DecodeArgs {
+    ///     end_time_milliseconds: 30000,
+    ///     frame_rate_hz: 48000,
+    ///     ..Default::default()
+    /// };
+    /// let waveform = FloatWaveform::from_file(
+    ///    "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     decode_args,
+    /// ).unwrap();
+    ///
+    /// assert_eq!(
+    ///     format!("{:?}", waveform),
+    ///     "FloatWaveform { frame_rate_hz: 48000, num_channels: 2, num_frames: 1440000}"
+    /// );
+    /// ```
+    #[cfg(feature = "enable-filesystem")]
+    pub fn from_file(filename: &str, decode_args: DecodeArgs) -> Result<Self, Error> {
+        let pathname = std::path::Path::new(filename);
+        let file = match std::fs::File::open(pathname) {
+            Ok(f) => f,
+            Err(err) => match err.kind() {
+                std::io::ErrorKind::NotFound => {
+                    return Err(Error::FileNotFound(Box::leak(
+                        filename.to_owned().into_boxed_str(),
+                    )));
+                }
+                _ => {
+                    return Err(Error::UnknownIOError);
+                }
+            },
+        };
+        if let Ok(metadata) = file.metadata() {
+            if metadata.is_dir() {
+                return Err(Error::FilenameIsADirectory(Box::leak(
+                    filename.to_owned().into_boxed_str(),
+                )));
+            }
+        }
+        let file_extension = match pathname.extension() {
+            Some(os_str) => match os_str.to_str() {
+                Some(str) => str,
+                None => DEFAULT_FILE_EXTENSION,
+            },
+            None => DEFAULT_FILE_EXTENSION,
+        };
+
+        Self::from_encoded_stream_with_hint(file, decode_args, file_extension, DEFAULT_MIME_TYPE)
+    }
+
+    /// Decodes a list of audio files in parallel.
+    ///
+    /// # Examples
+    /// **(Attempt to) decode three files:**
+    ///
+    /// In this example, we process three filenames and demonstrate how to handle errors.
+    /// The first two files are successfully processed, and we catch a
+    /// [crate::Error::FileNotFound] error when processing the third file.
+    /// ```
+    /// use babycat::{Error, FloatWaveform, NamedResult};
+    ///
+    /// let filenames = &[
+    ///     "audio-for-tests/andreas-theme/track.mp3",
+    ///     "audio-for-tests/blippy-trance/track.mp3",
+    ///     "does-not-exist",
+    /// ];
+    /// let decode_args = Default::default();
+    /// let batch_args = Default::default();
+    /// let batch = babycat::FloatWaveform::from_many_files(
+    ///     filenames,
+    ///     decode_args,
+    ///     batch_args
+    /// );
+    ///
+    /// fn display_result(nr: &NamedResult<FloatWaveform, Error>) -> String {
+    ///     match &nr.result {
+    ///         Ok(waveform) => format!("\nSuccess: {}:\n{:?}", nr.name, waveform),
+    ///         Err(err) => format!("\nFailure: {}:\n{}", nr.name, err),
+    ///     }
+    /// }
+    /// assert_eq!(
+    ///     display_result(&batch[0]),
+    ///      "
+    /// Success: audio-for-tests/andreas-theme/track.mp3:
+    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}",
+    /// );
+    /// assert_eq!(
+    ///     display_result(&batch[1]),
+    ///      "
+    /// Success: audio-for-tests/blippy-trance/track.mp3:
+    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5294592}",
+    /// );
+    /// assert_eq!(
+    ///     display_result(&batch[2]),
+    ///      "
+    /// Failure: does-not-exist:
+    /// Cannot find the given filename does-not-exist.",
+    /// );
+    /// ```
+    #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+    pub fn from_many_files(
+        filenames: &[&str],
+        decode_args: DecodeArgs,
+        batch_args: BatchArgs,
+    ) -> Vec<NamedResult<Self, Error>> {
+        let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
+            .num_threads(batch_args.num_workers)
+            .build()
+            .unwrap();
+
+        thread_pool.install(|| {
+            filenames
+                .par_iter()
+                .map(|filename| NamedResult {
+                    name: (*filename).to_string(),
+                    result: Self::from_file(&filename, decode_args),
+                })
+                .collect::<Vec<NamedResult<Self, Error>>>()
+        })
+    }
+
+    /// Decodes audio from an input stream.
+    pub fn from_encoded_stream<R: 'static + Read>(
+        encoded_stream: R,
+        decode_args: DecodeArgs,
+    ) -> Result<Self, Error> {
+        Self::from_encoded_stream_with_hint(
+            encoded_stream,
+            decode_args,
+            DEFAULT_FILE_EXTENSION,
+            DEFAULT_MIME_TYPE,
+        )
     }
 
     /// Decodes audio from an input stream, using a user-specified decoding hint.
@@ -390,202 +543,50 @@ impl FloatWaveform {
         })
     }
 
-    /// Decodes audio from an input stream.
-    pub fn from_encoded_stream<R: 'static + Read>(
-        encoded_stream: R,
-        decode_args: DecodeArgs,
-    ) -> Result<Self, Error> {
-        Self::from_encoded_stream_with_hint(
-            encoded_stream,
-            decode_args,
-            DEFAULT_FILE_EXTENSION,
-            DEFAULT_MIME_TYPE,
-        )
-    }
-
-    /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
-    pub fn from_encoded_bytes_with_hint(
-        encoded_bytes: &[u8],
-        decode_args: DecodeArgs,
-        file_extension: &str,
-        mime_type: &str,
-    ) -> Result<Self, Error> {
-        let owned = encoded_bytes.to_owned();
-        let encoded_stream = std::io::Cursor::new(owned);
-        Self::from_encoded_stream_with_hint(encoded_stream, decode_args, file_extension, mime_type)
-    }
-
-    /// Decodes audio stored in an in-memory byte array.
+    /// Creates a silent waveform measured in frames.
     ///
     /// # Examples
+    /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
     /// ```
     /// use babycat::FloatWaveform;
     ///
-    /// let encoded_bytes: Vec<u8> = std::fs::read("audio-for-tests/andreas-theme/track.mp3").unwrap();
-    ///
-    /// let decode_args = Default::default();
-    ///
-    /// let waveform = FloatWaveform::from_encoded_bytes(
-    ///     &encoded_bytes,
-    ///     decode_args,
-    /// ).unwrap();
+    /// let waveform = FloatWaveform::from_frames_of_silence(44100, 2, 44100);
     /// assert_eq!(
     ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}"
-    /// );
-    /// ```
-    pub fn from_encoded_bytes(
-        encoded_bytes: &[u8],
-        decode_args: DecodeArgs,
-    ) -> Result<Self, Error> {
-        Self::from_encoded_bytes_with_hint(
-            encoded_bytes,
-            decode_args,
-            DEFAULT_FILE_EXTENSION,
-            DEFAULT_MIME_TYPE,
-        )
-    }
-
-    /// Decodes audio stored in a local file.
-    ///
-    /// # Examples
-    /// **Decode one audio file with the default decoding arguments:**
-    /// ```
-    /// use babycat::{DecodeArgs, FloatWaveform};
-    ///
-    /// let waveform = FloatWaveform::from_file(
-    ///    "audio-for-tests/circus-of-freaks/track.mp3",
-    ///     Default::default(),
-    /// ).unwrap();
-    ///
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
     /// );
     /// ```
     ///
-    /// **Decode only the first 30 seconds and upsample to 48khz:**
-    /// ```
-    /// use babycat::{DecodeArgs, FloatWaveform};
-    ///
-    /// let decode_args = DecodeArgs {
-    ///     end_time_milliseconds: 30000,
-    ///     frame_rate_hz: 48000,
-    ///     ..Default::default()
-    /// };
-    /// let waveform = FloatWaveform::from_file(
-    ///    "audio-for-tests/circus-of-freaks/track.mp3",
-    ///     decode_args,
-    /// ).unwrap();
-    ///
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 48000, num_channels: 2, num_frames: 1440000}"
-    /// );
-    /// ```
-    #[cfg(feature = "enable-filesystem")]
-    pub fn from_file(filename: &str, decode_args: DecodeArgs) -> Result<Self, Error> {
-        let pathname = std::path::Path::new(filename);
-        let file = match std::fs::File::open(pathname) {
-            Ok(f) => f,
-            Err(err) => match err.kind() {
-                std::io::ErrorKind::NotFound => {
-                    return Err(Error::FileNotFound(Box::leak(
-                        filename.to_owned().into_boxed_str(),
-                    )));
-                }
-                _ => {
-                    return Err(Error::UnknownIOError);
-                }
-            },
-        };
-        if let Ok(metadata) = file.metadata() {
-            if metadata.is_dir() {
-                return Err(Error::FilenameIsADirectory(Box::leak(
-                    filename.to_owned().into_boxed_str(),
-                )));
-            }
+    pub fn from_frames_of_silence(frame_rate_hz: u32, num_channels: u32, num_frames: u64) -> Self {
+        FloatWaveform {
+            frame_rate_hz,
+            num_channels,
+            num_frames,
+            interleaved_samples: vec![0.0; (num_channels as u64 * num_frames) as usize],
         }
-        let file_extension = match pathname.extension() {
-            Some(os_str) => match os_str.to_str() {
-                Some(str) => str,
-                None => DEFAULT_FILE_EXTENSION,
-            },
-            None => DEFAULT_FILE_EXTENSION,
-        };
-
-        Self::from_encoded_stream_with_hint(file, decode_args, file_extension, DEFAULT_MIME_TYPE)
     }
 
-    /// Decodes a list of audio files in parallel.
+    /// Create a silent waveform measured in milliseconds.
     ///
     /// # Examples
-    /// **(Attempt to) decode three files:**
-    ///
-    /// In this example, we process three filenames and demonstrate how to handle errors.
-    /// The first two files are successfully processed, and we catch a
-    /// [crate::Error::FileNotFound] error when processing the third file.
+    /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
     /// ```
-    /// use babycat::{Error, FloatWaveform, NamedResult};
+    /// use babycat::FloatWaveform;
     ///
-    /// let filenames = &[
-    ///     "audio-for-tests/andreas-theme/track.mp3",
-    ///     "audio-for-tests/blippy-trance/track.mp3",
-    ///     "does-not-exist",
-    /// ];
-    /// let decode_args = Default::default();
-    /// let batch_args = Default::default();
-    /// let batch = babycat::FloatWaveform::from_many_files(
-    ///     filenames,
-    ///     decode_args,
-    ///     batch_args
-    /// );
-    ///
-    /// fn display_result(nr: &NamedResult<FloatWaveform, Error>) -> String {
-    ///     match &nr.result {
-    ///         Ok(waveform) => format!("\nSuccess: {}:\n{:?}", nr.name, waveform),
-    ///         Err(err) => format!("\nFailure: {}:\n{}", nr.name, err),
-    ///     }
-    /// }
+    /// let waveform = FloatWaveform::from_milliseconds_of_silence(44100, 2, 1000);
     /// assert_eq!(
-    ///     display_result(&batch[0]),
-    ///      "
-    /// Success: audio-for-tests/andreas-theme/track.mp3:
-    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}",
-    /// );
-    /// assert_eq!(
-    ///     display_result(&batch[1]),
-    ///      "
-    /// Success: audio-for-tests/blippy-trance/track.mp3:
-    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5294592}",
-    /// );
-    /// assert_eq!(
-    ///     display_result(&batch[2]),
-    ///      "
-    /// Failure: does-not-exist:
-    /// Cannot find the given filename does-not-exist.",
+    ///     format!("{:?}", waveform),
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
     /// );
     /// ```
-    #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
-    pub fn from_many_files(
-        filenames: &[&str],
-        decode_args: DecodeArgs,
-        batch_args: BatchArgs,
-    ) -> Vec<NamedResult<Self, Error>> {
-        let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
-            .num_threads(batch_args.num_workers)
-            .build()
-            .unwrap();
-
-        thread_pool.install(|| {
-            filenames
-                .par_iter()
-                .map(|filename| NamedResult {
-                    name: (*filename).to_string(),
-                    result: Self::from_file(&filename, decode_args),
-                })
-                .collect::<Vec<NamedResult<Self, Error>>>()
-        })
+    ///
+    pub fn from_milliseconds_of_silence(
+        frame_rate_hz: u32,
+        num_channels: u32,
+        duration_milliseconds: u64,
+    ) -> Self {
+        let num_frames = milliseconds_to_frames(frame_rate_hz, duration_milliseconds);
+        Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
     }
 
     /// Returns of channel-interleaved samples.
