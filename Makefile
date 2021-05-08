@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test dotest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -202,6 +202,16 @@ test-wasm-nodejs: build-wasm-nodejs
 
 test: test-rust test-python test-wasm-nodejs test-c
 
+
+# doctest ==========================================================
+
+doctest-python: init-python
+	$(ACTIVATE_VENV_CMD) && pytest tests-python/test_doctests.py
+
+doctest-rust: vendor
+	cargo test --doc
+
+doctest: doctest-rust doctest-python
 
 # bench =============================================================
 

@@ -74,6 +74,11 @@ test-rust
 test-wasm-nodejs
 
 --
+doctest                         Run *ONLY* tests that are written in
+doctest-python                  documentation strings.
+doctest-rust
+
+--
 bench                           Run benchmarks.
 bench-rust
 
