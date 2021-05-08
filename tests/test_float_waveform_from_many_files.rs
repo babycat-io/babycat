@@ -1,6 +1,6 @@
 mod fixtures;
 
-mod test_float_waveform_from_many_filenames {
+mod test_float_waveform_from_many_files {
     use crate::fixtures::*;
     use babycat::{BatchArgs, DecodeArgs, FloatWaveform, Waveform};
 
