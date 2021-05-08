@@ -24,6 +24,16 @@ use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::waveform::Waveform;
 
+/// Retrieves a sample from a Symphonia AudioBuffer with frame and channel indexes.
+fn get_sample(audio_buffer_ref: &AudioBufferRef, frame_idx: usize, channel_idx: usize) -> f32 {
+    match audio_buffer_ref {
+        AudioBufferRef::F32(ref buf_f32) => buf_f32.chan(channel_idx)[frame_idx],
+        AudioBufferRef::S32(ref buf_i32) => {
+            (buf_i32.chan(channel_idx)[frame_idx] as f32) / (0x7FFFFFFF as f32)
+        }
+    }
+}
+
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct FloatWaveform {
@@ -404,7 +414,7 @@ impl FloatWaveform {
             match decoder.decode(&packet) {
                 // Decode errors are not fatal.
                 // We will just try to decode the next packet.
-                Err(symphonia::core::errors::Error::DecodeError(_)) => {
+                Err(symphonia::core::errors::Error::DecodeError(..)) => {
                     continue;
                 }
 
@@ -414,21 +424,13 @@ impl FloatWaveform {
                 }
 
                 Ok(decoded_buffer_ref) => {
-                    // Decode the packet into an AudioBufferRef of float32 values.
-                    let decoded_buffer = match decoded_buffer_ref {
-                        AudioBufferRef::F32(buf) => buf,
-                        AudioBufferRef::S32(int_buf) => {
-                            std::borrow::Cow::Owned(int_buf.make_equivalent())
-                        }
+                    let num_frames_in_packet = match decoded_buffer_ref {
+                        AudioBufferRef::F32(ref buf_f32) => buf_f32.frames(),
+                        AudioBufferRef::S32(ref buf_i32) => buf_i32.frames(),
                     };
 
-                    // Collect references to buffers for each audio channel.
-                    let channel_buffers: Vec<Vec<f32>> = (0..selected_num_channels)
-                        .map(|channel_idx| decoded_buffer.chan(channel_idx as usize).to_vec())
-                        .collect();
-
                     // Iterate over all of the samples in the current packet.
-                    for current_sample_in_packet in 0..decoded_buffer.frames() {
+                    for current_sample_in_packet in 0..num_frames_in_packet {
                         current_sample += 1;
 
                         // If the current sample is before our start offset,
@@ -448,16 +450,24 @@ impl FloatWaveform {
                         // then we append the average value of the selected input channels.
                         if decode_args.convert_to_mono {
                             let mut current_sample_sum: f32 = 0.0_f32;
-                            for channel in channel_buffers.iter() {
-                                current_sample_sum += channel[current_sample_in_packet];
+                            for channel_idx in 0..selected_num_channels {
+                                current_sample_sum += get_sample(
+                                    &decoded_buffer_ref,
+                                    current_sample_in_packet,
+                                    channel_idx as usize,
+                                );
                             }
-                            current_sample_sum /= channel_buffers.len() as f32;
+                            current_sample_sum /= selected_num_channels as f32;
                             buffer.push(current_sample_sum);
                         } else {
                             // Iterate over every channel buffer in the sample and
                             // append its value to our return type.
-                            for channel in channel_buffers.iter() {
-                                buffer.push(channel[current_sample_in_packet]);
+                            for channel_idx in 0..selected_num_channels {
+                                buffer.push(get_sample(
+                                    &decoded_buffer_ref,
+                                    current_sample_in_packet,
+                                    channel_idx as usize,
+                                ));
                             }
                         }
                     }
