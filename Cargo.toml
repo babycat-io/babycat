@@ -50,6 +50,8 @@ pyo3 = { version = "0.13", optional = true }
 env_logger = { version = "0.8", optional = true }
 structopt = { version = "0.3", optional = true }
 rodio = { version = "0.13.1", optional = true }
+tui = { version = "0.15", optional = true }
+termion = { version = "1.5", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.2"
@@ -85,6 +87,8 @@ frontend-binary = [
     "env_logger",
     "structopt",
     "rodio",
+    "tui",
+    "termion",
 ]
 frontend-rust = [
     "enable-all-backend-features",
