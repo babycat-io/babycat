@@ -383,6 +383,42 @@ impl FloatWaveform {
     }
 
     /// Decodes audio stored in a local file.
+    ///
+    /// # Examples
+    /// **Decode one audio file with the default decoding arguments:**
+    /// ```
+    /// use babycat::{DecodeArgs, FloatWaveform};
+    ///
+    /// let waveform = FloatWaveform::from_file(
+    ///    "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     Default::default(),
+    /// ).unwrap();
+    ///
+    /// assert_eq!(
+    ///     format!("{:?}", waveform),
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    /// );
+    /// ```
+    ///
+    /// **Decode only the first 30 seconds and upsample to 48khz:**
+    /// ```
+    /// use babycat::{DecodeArgs, FloatWaveform};
+    ///
+    /// let decode_args = DecodeArgs {
+    ///     end_time_milliseconds: 30000,
+    ///     frame_rate_hz: 48000,
+    ///     ..Default::default()
+    /// };
+    /// let waveform = FloatWaveform::from_file(
+    ///    "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     decode_args,
+    /// ).unwrap();
+    ///
+    /// assert_eq!(
+    ///     format!("{:?}", waveform),
+    ///     "FloatWaveform { frame_rate_hz: 48000, num_channels: 2, num_frames: 1440000}"
+    /// );
+    /// ```
     #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, decode_args: DecodeArgs) -> Result<Self, Error> {
         let pathname = std::path::Path::new(filename);
@@ -418,6 +454,54 @@ impl FloatWaveform {
     }
 
     /// Decodes a list of audio files in parallel.
+    ///
+    /// # Examples
+    /// **(Attempt to) decode three files:**
+    /// 
+    /// In this example, we process three filenames and demonstrate how to handle errors.
+    /// The first two files are successfully processed, and we catch a
+    /// [crate::Error::FileNotFound] error when processing the third file.
+    /// ```
+    /// use babycat::{Error, FloatWaveform, NamedResult};
+    ///
+    /// let filenames = &[
+    ///     "audio-for-tests/andreas-theme/track.mp3",
+    ///     "audio-for-tests/blippy-trance/track.mp3",
+    ///     "does-not-exist",
+    /// ];
+    /// let decode_args = Default::default();
+    /// let batch_args = Default::default();
+    /// let batch = babycat::FloatWaveform::from_many_files(
+    ///     filenames,
+    ///     decode_args,
+    ///     batch_args
+    /// );
+    ///
+    /// fn display_result(nr: &NamedResult<FloatWaveform, Error>) -> String {
+    ///     match &nr.result {
+    ///         Ok(waveform) => format!("\nSuccess: {}:\n{:?}", nr.name, waveform),
+    ///         Err(err) => format!("\nFailure: {}:\n{}", nr.name, err),
+    ///     }
+    /// }
+    /// assert_eq!(
+    ///     display_result(&batch[0]),
+    ///      "
+    /// Success: audio-for-tests/andreas-theme/track.mp3:
+    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}",
+    /// );
+    /// assert_eq!(
+    ///     display_result(&batch[1]),
+    ///      "
+    /// Success: audio-for-tests/blippy-trance/track.mp3:
+    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5294592}",
+    /// );
+    /// assert_eq!(
+    ///     display_result(&batch[2]),
+    ///      "
+    /// Failure: does-not-exist:
+    /// Cannot find the given filename does-not-exist.",
+    /// );
+    /// ```
     #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
     pub fn from_many_files(
         filenames: &[&str],
@@ -446,6 +530,31 @@ impl FloatWaveform {
     }
 
     /// Resamples the waveform.
+    ///
+    /// ```
+    /// use babycat::FloatWaveform;
+    ///
+    /// let waveform = FloatWaveform::from_file(
+    ///     "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     Default::default()
+    /// ).unwrap();
+    /// assert_eq!(
+    ///    format!("{:?}", waveform),
+    ///    "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    /// );
+    /// 
+    /// let upsampled = waveform.resample(96000).unwrap();
+    /// assert_eq!(
+    ///    format!("{:?}", upsampled),
+    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5426783}"
+    /// );
+    ///
+    /// let downsampled = waveform.resample(8252).unwrap();
+    /// assert_eq!(
+    ///    format!("{:?}", downsampled),
+    ///    "FloatWaveform { frame_rate_hz: 8252, num_channels: 2, num_frames: 466478}"
+    /// );
+    /// ```
     pub fn resample(&self, frame_rate_hz: u32) -> Result<Self, Error> {
         self.resample_by_mode(frame_rate_hz, DEFAULT_RESAMPLE_MODE)
     }
