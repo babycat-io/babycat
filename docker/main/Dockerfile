@@ -1,4 +1,4 @@
-FROM babycat/rust AS base
+FROM babycat/ubuntu-minimal AS base
 
 ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
@@ -24,19 +24,12 @@ RUN apt-get update \
     clang \
     # Install tools for compiling binaries that statically-link to musl.
     musl-tools \
-    # libsamplerate needs to be built by cmake.
-    cmake \
-    # Install other build tools.
-    clang-format \
-    pkg-config \
     # These are libraries for manipulating with audio.
-    # The Python package "pydub" needs these.
+    # The Python package "pydub" needs these. Babycat does not.
     ffmpeg \
     libavcodec-extra \
-    # These dependencies are necessary to build the Python cryptography package.
-    # wasm-bindgen also needs libssl-dev. Probably other packages too.
+    # libffi-dev is needed to build the Python cryptography package.
     libffi-dev \
-    libssl-dev \
     # Now we list the installable dependencies for Valgrind, which we compile below.
     libc6-dbg \
     # Install pip. All of the Python versions are going to share
@@ -82,5 +75,5 @@ RUN tar xf valgrind.tar.bz2 \
     && cd .. \
     && rm -rf valgrind.tar.bz2 valgrind-${VALGRIND_VERSION}
 
-# Install additional Rust tools.
-RUN cargo install cargo-valgrind cbindgen flamegraph wasm-pack
+# Install optional Rust tools.
+RUN cargo install cargo-valgrind flamegraph

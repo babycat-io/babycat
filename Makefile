@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test dotest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test dotest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -231,7 +231,11 @@ docker/rust/.ti: docker-compose.yml docker/rust/Dockerfile
 	$(DOCKER_COMPOSE) build cargo
 	@touch docker/rust/.ti
 
-docker/main/.ti: docker/rust/.ti docker-compose.yml docker/main/Dockerfile
+docker/ubuntu-minimal/.ti: docker/rust/.ti docker-compose.yml docker/ubuntu-minimal/Dockerfile
+	$(DOCKER_COMPOSE) build ubuntu-minimal
+	@touch docker/ubuntu-minimal/.ti
+
+docker/main/.ti: docker/ubuntu-minimal/.ti docker-compose.yml docker/main/Dockerfile
 	$(DOCKER_COMPOSE) build main
 	@touch docker/main/.ti
 
@@ -241,8 +245,10 @@ docker/pip/.ti: docker/rust/.ti docker-compose.yml docker/pip/Dockerfile
 
 docker-build-cargo: docker/rust/.ti
 
+docker-build-ubuntu-minimal: docker/ubuntu-minimal/.ti
+
 docker-build-main: docker/main/.ti
 
 docker-build-pip: docker/pip/.ti
 
-docker-build: docker-build-cargo docker-build-main docker-build-pip
+docker-build: docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip

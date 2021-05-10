@@ -46,6 +46,7 @@ docs-rust
 --
 babycat.h                       Build a C header file that describe
                                 Babycat's C API.
+
 --
 build                           Build the babycat libraries+bindings.
 
@@ -87,21 +88,20 @@ example-resampler-comparison    Run the sample rate conversion
                                 example.
 
 --
-                                Manage Docker containers for this
-                                project. We have three containers:
+docker-build                    Manage Docker containers for this
+                                project. We have four container
+                                images. These commands build the
+                                containers:
 
-                                - cargo: Rust and Cargo
+docker-build-cargo              - cargo: Rust and Cargo. The base
+                                  for the below three images.
 
-                                - main: Many versions of Python and
-                                  developer tools
+docker-build-ubuntu-minimal     - ubuntu-minimal: The minimal Ubuntu
+                                  installation needed to compile
+                                  Babycat.
 
-                                - pip: A container for building
-                                  manylinux images
+docker-build-main               - main: Many versions of Python and
+                                  developer tools.
 
-docker-build                    These commands build the containers.
-
-docker-build-cargo
-
-docker-build-main
-
-docker-build-pip
+docker-build-pip                - pip: A container for building
+                                  manylinux images.

@@ -1,7 +1,12 @@
+# These are Docker images that are not required to use
+# or compile Babycat, but they contain development tools
+# that help when testing Babycat.
+
 version: "3.9"
 
 services:
-  # Rust and Cargo in a Docker container.
+  # Rust in a Docker container.
+  # We use the `cargo` command as the entrypoint.
   cargo:
     build:
       network: host
@@ -9,8 +14,25 @@ services:
     image: babycat/rust
     init: true
     network_mode: host
-  # A big Docker container that contains many versions of
-  # Python and various debugging tools.
+
+  # The minimal Ubuntu installation to compile Babycat.
+  # This depends on the above Rust/Cargo Docker image.
+  ubuntu-minimal:
+    build:
+      network: host
+      context: ./docker/ubuntu-minimal
+    image: babycat/ubuntu-minimal
+    init: true
+    network_mode: host
+    working_dir: /host
+    volumes:
+      - type: bind
+        source: "."
+        target: /host
+
+  # A gigantic Docker container that contains multiple
+  # Python versions and other development tools.
+  # This depends on the above ubuntu-minimal Docker image.
   main:
     build:
       network: host
@@ -23,7 +45,9 @@ services:
       - type: bind
         source: "."
         target: /host
-  # A container for the purpose of building manylinux wheels.
+
+  # A container used for building manylinux wheels.
+  # We use the pip command as the Docker entrypoint.
   pip:
     build:
       network: host
