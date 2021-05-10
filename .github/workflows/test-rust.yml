@@ -30,7 +30,9 @@ jobs:
 
     - name: Install ALSA development headers
       if: matrix.os == 'ubuntu-20.04'
-      run: sudo apt-get install libasound2-dev
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends libasound2-dev
 
     - name: Check Rust formatting
       if: matrix.os == 'ubuntu-20.04'
