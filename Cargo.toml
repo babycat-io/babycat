@@ -49,8 +49,7 @@ pyo3 = { version = "0.13", optional = true }
 # for binary targets
 env_logger = { version = "0.8", optional = true }
 structopt = { version = "0.3", optional = true }
-rodio = { version = "0.13.1", optional = true }
-tui = { version = "0.15", default-features = false, features = ["crossterm"], optional = true }
+rodio = { version = "0.13.1", default-features = false, optional = true }
 crossterm = { version = "0.19", optional = true }
 
 
@@ -76,34 +75,30 @@ default = ["frontend-rust"]
 enable-filesystem = []
 enable-multithreading = ["rayon"]
 enable-libsamplerate = ["samplerate"]
+enable-audio-playback = ["rodio"]
 
-enable-all-backend-features = [
+frontend-binary = [
     "enable-filesystem",
     "enable-multithreading",
     "enable-libsamplerate",
-]
-
-frontend-binary = [
-    "enable-all-backend-features",
+    "enable-audio-playback",
     "env_logger",
     "structopt",
-    "rodio",
-    "tui",
     "crossterm",
 ]
 frontend-rust = [
-    "enable-all-backend-features",
-]
-frontend-rust-binary = [
-    "enable-all-backend-features",
-    "structopt"
+    "enable-filesystem",
+    "enable-multithreading",
+    "enable-libsamplerate",
 ]
 frontend-wasm = [
     "wasm-bindgen",
     "js-sys"
 ]
 frontend-python = [
-    "enable-all-backend-features",
+    "enable-filesystem",
+    "enable-multithreading",
+    "enable-libsamplerate",
     "numpy",
     "pyo3",
     "pyo3/extension-module",
@@ -111,7 +106,9 @@ frontend-python = [
     "pyo3/abi3-py36",
 ]
 frontend-c = [
-    "enable-all-backend-features"
+    "enable-filesystem",
+    "enable-multithreading",
+    "enable-libsamplerate",
 ]
 
 [package.metadata.maturin]
