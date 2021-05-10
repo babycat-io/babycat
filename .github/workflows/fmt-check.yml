@@ -24,8 +24,7 @@ jobs:
           components: rustfmt, clippy
           target: wasm32-unknown-unknown
 
-    - name: Install ALSA development headers (only on Linux)
-      if: matrix.os == 'ubuntu-20.04'
+    - name: Install ALSA development headers
       run: |
         sudo apt-get update
         sudo apt-get install --yes --no-install-recommends libasound2-dev
