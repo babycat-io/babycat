@@ -3,7 +3,7 @@ pub trait UnwrapOrExit<T, E> {
     fn unwrap_or_exit(self) -> T;
 }
 
-impl<T, E: std::error::Error> UnwrapOrExit<T, E> for std::result::Result<T, E> {
+impl<T, E: std::fmt::Display> UnwrapOrExit<T, E> for std::result::Result<T, E> {
     fn unwrap_or_exit(self) -> T {
         match self {
             Ok(t) => t,

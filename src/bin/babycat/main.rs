@@ -4,6 +4,8 @@ mod command_args;
 mod commands;
 mod common;
 
+use crate::common::UnwrapOrExit;
+
 fn init_logging(level: log::LevelFilter) {
     let mut builder = env_logger::Builder::new();
     // We silence log messages from all non-babycat crates
@@ -45,5 +47,8 @@ fn main() {
             zero_pad_ending,
             &resample_mode,
         ),
+        command_args::SubcommandArgs::Play { input_filename } => {
+            commands::play::play(input_filename).unwrap_or_exit()
+        }
     }
 }

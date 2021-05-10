@@ -90,4 +90,8 @@ pub enum SubcommandArgs {
         )]
         resample_mode: String,
     },
+    Play {
+        #[structopt(long, display_order = 1, help = "The audio file to play")]
+        input_filename: String,
+    },
 }
