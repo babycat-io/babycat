@@ -66,8 +66,7 @@ Here is an example Python program that decodes and transforms a batch of audio f
 
    from babycat import FloatWaveform
 
-   # You can use any audio files you want, but we use these files
-   # in the babycat Git repo for testing.
+   # These are test files in the Babycat Git repository.
    filenames = [
       "audio-for-tests/andreas-theme/track.mp3",
       "audio-for-tests/blippy-trance/track.mp3",
@@ -76,20 +75,20 @@ Here is an example Python program that decodes and transforms a batch of audio f
 
    # Decode the filenames in parallel, releasing the Python GIL.
    batch = FloatWaveform.from_many_files(
-      # From each track, perform the followinwg transformations:
+
+      # Perform the following transformations on EACH track:
       filenames,
 
-      #  - Upsample the waveforms to 48khz.
+      #  - Upsample the audio to 48khz.
       frame_rate_hz=48_000,
 
-      #  - Averge all audio channels into a monophonic channel.
+      #  - Average all audio channels into a monophonic channel.
       convert_to_mono=True,
 
-      #  - Only select the first minute of audio from each track.
+      #  - Only select the first 60 seconds of audio.
       end_time_milliseconds=60_000,
 
-      #  - Pad the audio with silence if the original track is
-      #    shorter than one minute.
+      #  - If a track is shorter than 60 seconds, pad it with silence.
       zero_pad_ending=True,
    )
 

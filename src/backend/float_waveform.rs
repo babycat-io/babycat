@@ -196,7 +196,7 @@ impl FloatWaveform {
     ///
     /// In this example, we process three filenames and demonstrate how to handle errors.
     /// The first two files are successfully processed, and we catch a
-    /// [crate::Error::FileNotFound] error when processing the third file.
+    /// [`Error::FileNotFound`][crate::Error::FileNotFound] error when processing the third file.
     /// ```
     /// use babycat::{Error, FloatWaveform, NamedResult};
     ///
@@ -261,6 +261,10 @@ impl FloatWaveform {
     }
 
     /// Decodes audio from an input stream.
+    ///
+    /// [`FloatWaveform`][crate::FloatWaveform] will take ownership of the stream
+    /// and read it until the end. Therefore, you cannot provide an infinte-length
+    /// stream.
     pub fn from_encoded_stream<R: 'static + Read>(
         encoded_stream: R,
         decode_args: DecodeArgs,

@@ -8,7 +8,35 @@ use serde::{Deserialize, Serialize};
 ///
 /// This struct should only be used when needed to store or transmit
 /// uncompressed audio data. For more operations on audio, it is better
-/// to work with a [FloatWaveform](crate::FloatWaveform).
+/// to work with a [`FloatWaveform`](crate::FloatWaveform).
+///
+/// # Examples
+/// ```
+/// use babycat::{FloatWaveform, IntWaveform, Waveform};
+///
+///
+/// // The FloatWaveform stores audio samples as f32 values between -1.0 and 1.0.
+/// let float_waveform = FloatWaveform::from_file(
+///    "audio-for-tests/circus-of-freaks/track.mp3",
+///     Default::default(),
+/// ).unwrap();
+/// assert_eq!(
+///     format!("{:?}", float_waveform),
+///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+/// );
+/// println!("{:?}", &float_waveform.interleaved_samples()[30000..30005]);
+/// // [0.0238994, 0.08098572, 0.0208567, 0.09139156, 0.015145444]
+///
+///
+/// // The Intwaveform stores audio samples as i16 values between -32768 and 32767.
+/// let int_waveform = IntWaveform::from(float_waveform);
+/// assert_eq!(
+///     format!("{:?}", int_waveform),
+///     "IntWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+/// );
+/// println!("{:?}", &int_waveform.interleaved_samples()[30000..30005]);
+/// // [783, 2653, 683, 2994, 496]
+/// ```
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct IntWaveform {
     interleaved_samples: Vec<i16>,

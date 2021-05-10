@@ -72,12 +72,12 @@ pub struct DecodeArgs {
     /// into Babycat.
     ///
     /// Current valid values include:
-    /// * **[babycat::RESAMPLE_MODE_BABYCAT](crate::RESAMPLE_MODE_BABYCAT)**:
+    /// * [`RESAMPLE_MODE_BABYCAT`](crate::RESAMPLE_MODE_BABYCAT):
     ///   A custom resampler maintained within Babycat. This is designed
     ///   for speed and compatibility with compilation targets where
     ///   libsamplerate cannot be used.
     ///
-    /// * **[babycat::RESAMPLE_MODE_LIBSAMPLERATE](crate::RESAMPLE_MODE_LIBSAMPLERATE)**:
+    /// * [`RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE):
     ///   This uses [libsamplerate](http://www.mega-nerd.com/SRC/) at the
     ///   `SRC_SINC_BEST_QUALITY` setting. This option is only available if
     ///   it is enabled at compile-time, and is disabled for targets

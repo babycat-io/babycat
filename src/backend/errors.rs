@@ -3,33 +3,63 @@ use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Error {
-    // Raised when a function is called that requires a feature that
-    // was not compiled into the library.
+    /// Raised when you are trying to use a feature at runtime that was not included at compile-time.
+    ///
+    /// For example, you may receive this error if you are trying to resample
+    /// audio using a method that was not compiled for your target or binding.
     FeatureNotCompiled(&'static str),
     //
     // Input validation errors
+    /// Raised when [`DecodeArgs.start_time_milliseconds`][crate::DecodeArgs#structfield.start_time_milliseconds] or [`DecodeArgs.end_time_milliseconds`][crate::DecodeArgs#structfield.end_time_milliseconds] is invalid.
+    ///
+    /// For example, this error is raised if you set the end timestamp to be before
+    /// the start timestamp.
     WrongTimeOffset(u64, u64),
+    /// Raised when you wanted to decode more channels than the audio actually had.
     WrongNumChannels(u32, u32),
+    /// Raised if you specified [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono] as `true` and [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels] as 1.
+    ///
+    /// Setting both parameters is redundant and contradictory. You should either use
+    /// [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono]
+    /// to flatten all channels or [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels] = 1 to select the first channel and discard the rest.
+    /// You can set [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels]
+    /// `n > 1` and use  [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono] to only flatten those `n` channels.
+    /// If you need to select channels in some other way, then do not provide either
+    /// [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono]
+    /// or [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels].
+    /// All channels will be decoded and you can decide what to do with them.
     WrongNumChannelsAndMono,
+    /// Raised if you set [`DecodeArgs.zero_pad_ending`][crate::DecodeArgs#structfield.zero_pad_ending] as `true` without also specifying [`DecodeArgs.end_time_milliseconds`][crate::DecodeArgs#structfield.end_time_milliseconds].
     CannotZeroPadWithoutSpecifiedLength,
     //
     // Decoding errors
+    /// Raised when we were not able to detect the encoded input as decodable audio.
     UnknownInputEncoding,
+    /// Raised when we were not able to decode the given (encoded) audio.
     UnknownDecodeError,
+    /// Raised when we were not able to decode the given (encoded) audio.
     UnknownDecodeErrorWithMessage(&'static str),
     //
     // Encoding errors
+    /// Raised when we encountered an unknown error when encoding a waveform into a particular format.
     UnknownEncodeError,
     //
     // Resampling errors
+    /// Raised when we were not able to resample the audio.
     ResamplingError,
+    // Also raised when we were not able to resample the audio.
     ResamplingErrorWithMessage(&'static str),
+    /// Raised when we cannot resample from the input frame rate to the output frame rate.
     WrongFrameRate(u32, u32),
+    /// Raised if you are trying upsample or downsample audio by a factor greater than 256.
     WrongFrameRateRatio(u32, u32),
     //
     // IO errors
+    /// Raised if you asked Babycat to read a file but gave it a path to a directory.
     FilenameIsADirectory(&'static str),
+    /// Raised if you asked Babycat to read a file that does not exist.
     FileNotFound(&'static str),
+    /// Raised when something else went wrong while doing I/O.
     UnknownIOError,
 }
 

@@ -1,3 +1,4 @@
+/// Methods common to all types of waveforms.
 pub trait Waveform<T> {
     fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<T>) -> Self;
 

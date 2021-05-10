@@ -1,3 +1,10 @@
+//! This module is not really part of Babycat's pubic API, but is made public
+//! to make benchmarking Babycat internals easier.
+//!
+//! If you want to use Babycat to resample audio, you should decode
+//! the audio into a [`FloatWaveform`][crate::FloatWaveform]
+//! and then use the [`FloatWaveform.resample()`][crate::FloatWaveform#method.resample] method.
+
 pub mod babycat;
 pub mod common;
 pub mod lanczos;
