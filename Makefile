@@ -101,7 +101,7 @@ fmt-javascript:
 	$(ESLINT) --fix $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 
-fmt-python:
+fmt-python: init-python
 	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 
@@ -119,7 +119,7 @@ fmt-check-javascript:
 	$(ESLINT) $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 
-fmt-check-python:
+fmt-check-python: init-python
 	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 
