@@ -1,0 +1,37 @@
+name: fmt-check
+
+defaults:
+  run:
+    shell: bash
+
+on: [push, pull_request]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt-check:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: "1.50.0"
+          override: true
+          components: rustfmt, clippy
+          target: wasm32-unknown-unknown
+
+    - name: Install ALSA development headers (only on Linux)
+      if: matrix.os == 'ubuntu-20.04'
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends libasound2-dev
+
+    - name: Check formatting
+      run: make fmt-check
+
+    - name: Lint code
+      run: make lint

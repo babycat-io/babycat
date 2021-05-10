@@ -28,19 +28,5 @@ jobs:
           components: rustfmt, clippy
           target: wasm32-unknown-unknown
 
-    - name: Install ALSA development headers
-      if: matrix.os == 'ubuntu-20.04'
-      run: |
-        sudo apt-get update
-        sudo apt-get install --yes --no-install-recommends libasound2-dev
-
-    - name: Check Rust formatting
-      if: matrix.os == 'ubuntu-20.04'
-      run: make fmt-check-rust
-
-    - name: lint Rust code
-      if: matrix.os == 'ubuntu-20.04'
-      run: make lint-rust
-
     - name: Run Rust tests
       run: make test-rust
