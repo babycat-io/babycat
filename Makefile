@@ -62,7 +62,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rfv target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml/
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml/
 
 # init ==============================================================
 

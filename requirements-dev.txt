@@ -23,4 +23,5 @@ Sphinx==3.5.4
 sphinx-autodoc-typehints==1.11.1
 
 # our favorite Sphinx theme
-furo==2021.4.11b34
+git+git://github.com/neocrym/furo@main#egg=furo
+

@@ -2,7 +2,14 @@
    :maxdepth: 3
    :hidden:
 
+   Home <self>
    babycat/index.rst
+
+.. toctree::
+   :maxdepth: 3
+   :hidden:
+   :caption: External Links
+
    babycat.io <https://babycat.io>
    Babycat on GitHub <https://github.com/babycat-io/babycat>
    Technology at Neocrym <https://technology.neocrym.com/>
