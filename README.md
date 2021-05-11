@@ -120,7 +120,7 @@ clang-format is a tool that ships with the Clang compiler. Babycat uses it to au
 On Windows, the best way to get clang-format is to download and install the LLVM toolchain. You can find Windows installers under the *Pre-Built Binaries* section of the [LLVM releases page](https://releases.llvm.org/download.html).
 
 ## Acknowledgements
-The first version of Babycat was an internal project at Neocrym written by [Ritik Neil Mishra](https://www.linkedin.com/in/ritikmishra). Since then, the code has been extended and open-sourced by [James Mishra](https://www.linkedin.com/in/jamesmishra).
+The first version of Babycat was an internal project at Neocrym written by [Ritik Mishra](https://www.linkedin.com/in/ritikmishra). Since then, the code has been extended and open-sourced by [James Mishra](https://www.linkedin.com/in/jamesmishra).
 
 Babycat is built on top of many high-quality open source packages, including:
 * [Symphonia](https://github.com/pdeljanov/Symphonia) by Philip Deljanov
