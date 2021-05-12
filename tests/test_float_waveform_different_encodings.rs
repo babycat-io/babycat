@@ -9,7 +9,7 @@ mod test_float_waveform_different_encodings {
     // The values for num_frames() in unit tests like these might have to change
     // if we make the different Symphonia decoders behave like each other.
     #[test]
-    fn lol() {
+    fn test_different_encodings_1() {
         let mp3_filenames = &[
             "./audio-for-tests/log-sweep/192kbps-cbr.mp3",
             "./audio-for-tests/log-sweep/224kbps-cbr.mp3",
@@ -43,6 +43,20 @@ mod test_float_waveform_different_encodings {
             assert_eq!(waveform.frame_rate_hz(), 44100);
             assert_eq!(waveform.num_channels(), 2);
             assert_eq!(waveform.num_frames(), 441000);
+        }
+        let wav_filenames = &[
+            "./audio-for-tests/log-sweep/f32.wav",
+            "./audio-for-tests/log-sweep/f64.wav",
+            "./audio-for-tests/log-sweep/i32.wav",
+        ];
+        for named_result in
+            FloatWaveform::from_many_files(wav_filenames, Default::default(), Default::default())
+        {
+            println!("{}", named_result.name);
+            let waveform = named_result.result.unwrap();
+            assert_eq!(waveform.frame_rate_hz(), 44100);
+            assert_eq!(waveform.num_channels(), 2);
+            //assert_eq!(waveform.num_frames(), 442049);
         }
     }
 }
