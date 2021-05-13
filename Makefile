@@ -14,7 +14,7 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=target/python .
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-PYTHON_CODE_PATHS ?= ./tests-python ./docs/python.babycat.io/source/conf.py
+PYTHON_CODE_PATHS ?= ./tests-python 
 
 # Windows and Unix have different paths for activating
 # Python virtualenvs.
@@ -102,8 +102,8 @@ fmt-javascript:
 	$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 
 fmt-python: init-python
-	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
-	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
+	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
 
 fmt-rust:
 	$(CARGO) fmt
@@ -120,8 +120,8 @@ fmt-check-javascript:
 	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 
 fmt-check-python: init-python
-	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
-	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
+	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
 
 fmt-check-rust:
 	$(CARGO) fmt -- --check
