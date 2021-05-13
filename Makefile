@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-root docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -141,6 +141,10 @@ lint: lint-rust lint-python
 
 # docs ==============================================================
 
+docs-c: init-python
+	rm -rf docs/c.babycat.io/build/dirhtml
+	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/c.babycat.io dirhtml
+
 docs-root: init-python
 	rm -rf docs/babycat.io/build/dirhtml
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/babycat.io dirhtml
@@ -156,7 +160,7 @@ docs-rust: vendor
 	mv target/doc docs/rust.babycat.io/build
 	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
 
-docs: docs-root docs-python docs-rust
+docs: docs-c docs-root docs-python docs-rust
 
 # build =============================================================
 

@@ -58,8 +58,8 @@ from GitHub. In order to build Babycat from the GitHub repository, you will need
 
 .. code:: bash
 
-    git clone https://github.com/scalarstop/scalarstop.git
-    cd scalarstop
+    git clone https://github.com/babycat-io/babycat.git
+    cd babycat
     python3 -m pip install .
 
 Usage
