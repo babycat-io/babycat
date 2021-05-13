@@ -39,9 +39,10 @@ lint-python
 lint-rust
 
 --
-docs                            Generate documentation.
-docs-python
-docs-rust
+docs                            Generate documentation for the domains:
+docs-root                        - babycat.io
+docs-python                      - python.babycat.io
+docs-rust                        - docs.rs (or rust.babycat.io)
 
 --
 babycat.h                       Build a C header file that describe

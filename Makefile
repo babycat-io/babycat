@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test dotest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-root docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -62,7 +62,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml/
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml docs/babycat.io/build/html
 
 # init ==============================================================
 
@@ -141,9 +141,13 @@ lint: lint-rust lint-python
 
 # docs ==============================================================
 
+docs-root: init-python
+	rm -rf docs/babycat.io/build/dirhtml
+	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/babycat.io dirhtml
+
 docs-python: init-python
 	$(ACTIVATE_VENV_CMD) && pip install .
-	rm -rf docs/python.babycat.io/build/dirhtml/
+	rm -rf docs/python.babycat.io/build/dirhtml
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/python.babycat.io dirhtml
 
 docs-rust: vendor
@@ -152,7 +156,7 @@ docs-rust: vendor
 	mv target/doc docs/rust.babycat.io/build
 	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
 
-docs: docs-python docs-rust
+docs: docs-root docs-python docs-rust
 
 # build =============================================================
 

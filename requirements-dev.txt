@@ -22,6 +22,8 @@ Sphinx==3.5.4
 # type hints in documentation
 sphinx-autodoc-typehints==1.11.1
 
+sphinx-inline-tabs==2021.4.11b9
+
 # our favorite Sphinx theme
 git+git://github.com/neocrym/furo@main#egg=furo
 
