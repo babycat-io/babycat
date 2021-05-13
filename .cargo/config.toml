@@ -4,8 +4,8 @@ replace-with = "vendored-sources"
 [source.vendored-sources]
 directory = "vendor"
 
-# These rustflags are necessary for linking babycat-binding-python to
-# Python development on Mac OS X.
+# These rustflags are necessary for building Babycat's Python bindings
+# on MacOS.
 [target.x86_64-apple-darwin]
 rustflags = [
   "-C", "link-arg=-undefined",
