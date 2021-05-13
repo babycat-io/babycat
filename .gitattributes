@@ -1,6 +1,6 @@
 # On Windows, we need to tell Git to not mess with the line endings
 
-# for vendored code and MP3 files (audio_for_tests).
+# for vendored code and MP3 files (audio-for-tests/).
 # This is important for the vendored code because altering the line
 # endings alters the checksums, which causes the build to fail.
 vendor/** binary
