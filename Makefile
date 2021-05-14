@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -190,6 +190,15 @@ docs-deploy-c:
 	sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
 	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
 
+# Used to build wasm.babycat.io.
+# The Netlify build image does not require us to create a virtualenv
+# when installing Python packages.
+docs-deploy-wasm:
+	rm -rf docs/wasm.babycat.io/build
+	python3 -m pip install --requirement requirements-dev.txt
+	sphinx-multiversion docs/wasm.babycat.io/source docs/wasm.babycat.io/build
+	cp -v docs/wasm.babycat.io/source/_redirects docs/wasm.babycat.io/build
+
 # build =============================================================
 
 babycat.h:
@@ -205,13 +214,16 @@ build-python-manylinux: docker-build-pip
 build-rust: vendor
 	$(CARGO) build --release --features=frontend-rust
 
+build-wasm-bundler: vendor
+	$(WASM_PACK) build --release --target=bundler --out-dir=./target/wasm/bundler -- --no-default-features --features=frontend-wasm
+
 build-wasm-nodejs: vendor
 	$(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
 
 build-wasm-web: vendor
 	$(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
 
-build: build-rust build-wasm-nodejs build-wasm-web
+build: build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web
 
 # test ==============================================================
 
