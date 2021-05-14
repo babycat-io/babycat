@@ -1,6 +1,6 @@
 [package]
 name = "babycat"
-version = "0.1.0"
+version = "0.0.0"
 authors = ["Neocrym Records Inc <engineering@neocrym.com>"]
 edition = "2018"
 description = "An audio decoding and manipulation library, with bindings for C, Python, and WebAssembly."
