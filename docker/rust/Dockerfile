@@ -20,10 +20,10 @@ ADD https://static.rust-lang.org/rustup/archive/${RUSTUP_VERSION}/${RUST_ARCH}/r
 
 RUN chmod +x rustup-init \
     && ./rustup-init -y --no-modify-path --profile minimal --default-toolchain ${RUST_VERSION} --default-host ${RUST_ARCH} \
-    && rm rustup-init \
-    && chmod -R a+w ${RUSTUP_HOME} ${CARGO_HOME}
+    && rm rustup-init
 
 ENV PATH ${CARGO_HOME}/bin:${PATH}
 
 RUN rustup component add rustfmt clippy
 RUN rustup target add x86_64-unknown-linux-musl wasm32-unknown-unknown
+RUN chmod -R a+w ${RUSTUP_HOME} ${CARGO_HOME}

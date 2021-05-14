@@ -5,20 +5,27 @@ SHELL ["/bin/bash", "-c"]
 
 WORKDIR /host
 
+ARG CURL_CMD="curl --fail --show-error --silent --location"
+
 # Install the main set of packages from the Debian repo.
 RUN apt-get update \
-    # We need gnupg2 for adding Apt keys.
-    && apt-get install --yes --no-install-recommends gnupg2 \
+    && apt-get install --yes --no-install-recommends \
+    curl \
+    gnupg2 \
+    software-properties-common \
+    && ${CURL_CMD} https://deb.nodesource.com/setup_14.x | bash - \
     # We enable all "source" repositories for Ubuntu.
     && sed -i 's/^# deb/deb/' /etc/apt/sources.list \
     # We add the deadsnakes PPA for different Python versions,
     # including the "source" repository.
     && echo 'deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu focal main' >> /etc/apt/sources.list \
     && echo 'deb-src http://ppa.launchpad.net/deadsnakes/ppa/ubuntu focal main'  >> /etc/apt/sources.list \
-    # Trust the deadsnake PPA's Apt key.
+    # Trust the deadsnakes PPA Apt key.
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 \
     && apt-get update \
     && apt-get install --yes --no-install-recommends \
+    # Install Node.js from the Node.js PPA
+    nodejs \
     # Install compilers.
     gcc \
     clang \
@@ -60,9 +67,7 @@ RUN apt-get update \
     python3.10 \
     python3.10-dev \
     python3.10-dbg \
-    python3.10-venv \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    python3.10-venv
 
 # Compile and install Valgrind.
 ENV VALGRIND_VERSION=3.16.1
