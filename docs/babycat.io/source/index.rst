@@ -1,6 +1,6 @@
 .. raw:: html
 
-   <img src="_static/images/1x/wordmark-on-transparent-with-black-text.png" class="mega-hero-img" />
+   <img src="_static/images/1x/babycat-wordmark-on-transparent-white-text-caption-1x.png" class="mega-hero-img" />
 
    <h1 class="mega-header centered">
       Babycat is a library for decoding and manipulating audio files.
