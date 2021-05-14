@@ -28,6 +28,9 @@ jobs:
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
 
+    - name: Set the version in our Cargo.toml
+      run: ./.version-bump.py ${{ steps.get_version.outputs.VERSION }}
+
     - name: Initialize the environment
       run: python3 -m pip install --upgrade pip wheel twine
 
