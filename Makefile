@@ -52,7 +52,7 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c babycat.h build-rust build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -161,6 +161,34 @@ docs-rust: vendor
 	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
 
 docs: docs-c docs-root docs-python docs-rust
+
+# docs-deploy =======================================================
+
+# Used to build babycat.io.
+# The Netlify (or CloudFlare Pages?) build image does not require us
+# to create a virtualenv when installing Python packages.
+docs-deploy-root:
+	python3 -m pip install --requirement requirements-dev.txt
+	make -C docs/babycat.io dirhtml
+
+# Used to build python.babycat.io.
+# The Netlify build image does not require us to create a virtualenv
+# when installing Python packages.
+docs-deploy-python:
+	rm -rf docs/python.babycat.io/build
+	python3 -m pip install --requirement requirements-dev.txt
+	python3 -m pip install .
+	sphinx-multiversion docs/python.babycat.io/source docs/python.babycat.io/build
+	cp -v docs/python.babycat.io/source/_redirects docs/python.babycat.io/build
+
+# Used to build c.babycat.io.
+# The Netlify build image does not require us to create a virtualenv
+# when installing Python packages.
+docs-deploy-c:
+	rm -rf docs/c.babycat.io/build
+	python3 -m pip install --requirement requirements-dev.txt
+	sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
+	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
 
 # build =============================================================
 
