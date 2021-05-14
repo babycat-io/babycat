@@ -254,7 +254,7 @@ docs-deploy-wasm:
 docs-deploy-rust:
 	rm -rf docs/rust.babycat.io/build
 	mkdir docs/rust.babycat.io/build
-	cp -v docs/wasm.babycat.io/source/_redirects docs/rust.babycat.io/build/_redirects
+	cp -v docs/rust.babycat.io/source/_redirects docs/rust.babycat.io/build/_redirects
 
 # build =============================================================
 
