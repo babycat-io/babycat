@@ -1,0 +1,6 @@
+# this is an example npmrc that we copy into JavaScript
+# project directories that we want to upload to NPM.
+# 
+# It assumes that the environment variable NPM_TOKEN
+# contains a token that will authenticate us to NPM
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
