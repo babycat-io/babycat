@@ -217,15 +217,15 @@ build-rust: vendor
 
 build-wasm-bundler: vendor
 	$(WASM_PACK) build --release --target=bundler --out-dir=./target/wasm/bundler -- --no-default-features --features=frontend-wasm
-	cp .npmrc-example ./target/wasm/bundler
+	cp .npmrc-example ./target/wasm/bundler/.npmrc
 
 build-wasm-nodejs: vendor
 	$(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
-	cp .npmrc-example ./target/wasm/nodejs
+	cp .npmrc-example ./target/wasm/nodejs/.npmrc
 
 build-wasm-web: vendor
 	$(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
-	cp .npmrc-example ./target/wasm/web
+	cp .npmrc-example ./target/wasm/web/.npmrc
 
 build: build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web
 
