@@ -25,6 +25,9 @@ sphinx-autodoc-typehints==1.11.1
 # used to display tabs in documentation
 sphinx-inline-tabs==2021.3.28b7
 
+# used to display multiple versions of the documentation
+sphinx-multiversion==0.2.4
+
 # our favorite Sphinx theme
 git+git://github.com/neocrym/furo@main#egg=furo
 

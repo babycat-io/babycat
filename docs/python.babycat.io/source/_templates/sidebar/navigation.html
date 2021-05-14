@@ -1,0 +1,14 @@
+<div class="sidebar-tree">
+  {{ furo_navigation_tree }}
+
+  <p class="caption"><span class="caption-text">Versions</span></p>
+  <ul>
+      {% for item in versions.branches %}
+        {% if current_version.name == item.name %}
+          <li class="current current-pagew toctree-l1"><a class="current reference internal" href="{{ item.url }}">{{ item.name }}</a></li>
+        {% else %}
+          <li class="toctree-l1"><a class="reference internal" href="{{ item.url }}">{{ item.name }}</a></li>
+        {% endif %}
+      {% endfor %}
+  </ul>
+</div>

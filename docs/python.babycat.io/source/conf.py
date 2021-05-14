@@ -35,6 +35,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
     "sphinx.ext.intersphinx",
+    "sphinx_multiversion",
 ]
 
 # This is a mapping to Sphinx documentation sites elsewhere on the Internet.
