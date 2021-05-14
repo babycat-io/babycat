@@ -4,7 +4,11 @@ defaults:
   run:
     shell: bash
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    tags-ignore:
+      - 'v*' # Don't run these tests twice when cutting a new version.
 
 env:
   CARGO_TERM_COLOR: always
