@@ -35,9 +35,11 @@ jobs:
       run: python3 -m pip install --upgrade pip wheel twine
 
     - name: Build Windows and MacOS Python wheels
+      if: matrix.os != 'ubuntu-20.04'
       run: make build-python
 
     - name: Build the manylinux Python wheel
+      if: matrix.os == 'ubuntu-20.04'
       run: make build-python-manylinux
 
     - name: Publish to PyPI

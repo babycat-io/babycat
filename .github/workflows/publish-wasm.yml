@@ -35,8 +35,10 @@ jobs:
 
     - name: Build the WebAssembly bundle
       run: make build-wasm-bundler
+      working-directory: ./target/wasm/bundler
 
     - name: Publish to NPM
       run: npm publish
+      working-directory: ./target/wasm/bundler
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
