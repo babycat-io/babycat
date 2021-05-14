@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://babycat.io"
 repository = "https://github.com/babycat-io/babycat"
 license = "MIT"
-include = ["Cargo.toml", "examples", "rust-toolchain.toml", "src", "tests"]
+include = ["Cargo.toml", "benches", "examples", "rust-toolchain.toml", "src", "tests"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
