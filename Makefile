@@ -1,20 +1,26 @@
+# These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
 CLANG_FORMAT ?= clang-format
 DOCKER_COMPOSE ?= docker-compose
-ESLINT ?= ./tests-wasm-nodejs/node_modules/.bin/eslint
-NPM ?= npm
-PRETTIER ?= ./tests-wasm-nodejs/node_modules/.bin/prettier
-PYTHON ?= python3
 WASM_PACK ?= wasm-pack
 VALGRIND ?= valgrind
 
+
+# These variables set the paths for Node/NPM/JavaScript tools.
+NPM ?= npm
+ESLINT ?= ./node_modules/.bin/eslint
+PRETTIER ?= ./node_modules/.bin/prettier
 JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
+
+# These variables set the paths for Python tools.
+PYTHON ?= python3
 WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=target/python .
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
 PYTHON_CODE_PATHS ?= ./tests-python 
+
 
 # Windows and Unix have different paths for activating
 # Python virtualenvs.
@@ -40,6 +46,7 @@ else
 	BABYCAT_SHARED_LIB_NAME ?= libbabycat
 endif
 
+
 # This sets the file extension for linking to shared libraries.
 # We typically use this when testing Babycat's C FFI bindings.
 ifeq ($(OS),Windows_NT)
@@ -52,7 +59,8 @@ else
 	endif
 endif
 
-.PHONY: help clean init-nodejs init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+
+.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -62,7 +70,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml docs/babycat.io/build/html
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml docs/babycat.io/build/html examples-wasm/decode/dist
 
 # init ==============================================================
 
@@ -73,7 +81,8 @@ $(VENV_PATH)/.t:
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
 	@touch $(VENV_PATH)/.t
 
-init-nodejs:
+init-javascript:
+	$(NPM) rebuild && $(NPM) install
 	cd tests-wasm-nodejs && $(NPM) rebuild && $(NPM) install
 
 init-python: $(VENV_PATH)/.t
@@ -83,7 +92,7 @@ init-rust:
 	rustup target add wasm32-unknown-unknown
 	cargo install cargo-valgrind cbindgen flamegraph wasm-pack
 
-init: init-nodejs init-python init-rust
+init: init-javascript init-python init-rust
 
 # vendor ============================================================
 

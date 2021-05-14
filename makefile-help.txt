@@ -10,7 +10,7 @@ clean                           Cleans the workspace of build and
 
 ---
 init                            Initializes your working environment
-init-nodejs                     by installing various build tools.
+init-javascript                 by installing various build tools.
 init-python
 init-rust
 
