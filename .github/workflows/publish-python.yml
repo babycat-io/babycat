@@ -1,0 +1,44 @@
+name: publish-python
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  publish-python:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-20.04, macos-10.15, windows-2019]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: "3.6"
+
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
+    - name: Initialize the environment
+      run: python3 -m pip install --upgrade pip wheel twine
+
+    - name: Build Windows and MacOS Python wheels
+      run: make build-python
+
+    - name: Build the manylinux Python wheel
+      run: make build-python-manylinux
+
+    - name: Publish to PyPI
+      run: twine upload --non-interactive target/python/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}

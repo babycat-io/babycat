@@ -1,0 +1,39 @@
+name: publish-wasm
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  publish-wasm:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: "14"
+
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+
+    - name: Initialize the environment
+      run: |
+        rustup target add wasm32-unknown-unknown
+        cargo install wasm-pack
+
+    - name: Build the WebAssembly bundle
+      run: make build-wasm-bundler
+
+    - name: Publish to NPM
+      run: npm publish
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

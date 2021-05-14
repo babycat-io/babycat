@@ -27,7 +27,7 @@ jobs:
     - name: Install wasm-pack
       run: cargo install wasm-pack
 
-    - name: Install NodeJS
+    - name: Install Node.js
       uses: actions/setup-node@v2
       with:
         node-version: 14
