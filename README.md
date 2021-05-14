@@ -1,3 +1,5 @@
+![Babycat Logo](https://babycat.io/_static/images/1x/babycat-wordmark-on-black-white-text-caption-1x.png "Babycat Logo")
+
 # Babycat is an audio decoding and manipulation library
 
 ## Intro
