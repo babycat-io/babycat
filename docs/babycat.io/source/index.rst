@@ -56,10 +56,6 @@
             <td class="thead">C</td>
             <td><a href="https://c.babycat.io" class="muted-link">c.babycat.io</a></td>
          </tr>
-         <tr>
-            <td class="thead">CLI</td>
-            <td><a href="https://cli.babycat.io" class="muted-link">cli.babycat.io</a></td>
-         </tr>
       </tbody>
    </table>
 
