@@ -70,6 +70,7 @@ $(VENV_PATH)/.t:
 	$(CREATE_VENV_CMD)
 	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
+	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
 	@touch $(VENV_PATH)/.t
 
 init-nodejs:
@@ -168,7 +169,7 @@ docs: docs-c docs-root docs-python docs-rust
 # The Netlify (or CloudFlare Pages?) build image does not require us
 # to create a virtualenv when installing Python packages.
 docs-deploy-root:
-	python3 -m pip install --requirement requirements-dev.txt
+	python3 -m pip install --requirement requirements-docs.txt
 	make -C docs/babycat.io dirhtml
 
 # Used to build python.babycat.io.
@@ -176,7 +177,7 @@ docs-deploy-root:
 # when installing Python packages.
 docs-deploy-python:
 	rm -rf docs/python.babycat.io/build
-	python3 -m pip install --requirement requirements-dev.txt
+	python3 -m pip install --requirement requirements-docs.txt
 	python3 -m pip install .
 	sphinx-multiversion docs/python.babycat.io/source docs/python.babycat.io/build
 	cp -v docs/python.babycat.io/source/_redirects docs/python.babycat.io/build
@@ -186,7 +187,7 @@ docs-deploy-python:
 # when installing Python packages.
 docs-deploy-c:
 	rm -rf docs/c.babycat.io/build
-	python3 -m pip install --requirement requirements-dev.txt
+	python3 -m pip install --requirement requirements-docs.txt
 	sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
 	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
 
@@ -195,7 +196,7 @@ docs-deploy-c:
 # when installing Python packages.
 docs-deploy-wasm:
 	rm -rf docs/wasm.babycat.io/build
-	python3 -m pip install --requirement requirements-dev.txt
+	python3 -m pip install --requirement requirements-docs.txt
 	sphinx-multiversion docs/wasm.babycat.io/source docs/wasm.babycat.io/build
 	cp -v docs/wasm.babycat.io/source/_redirects docs/wasm.babycat.io/build
 
