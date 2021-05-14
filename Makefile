@@ -249,7 +249,7 @@ test-rust: vendor
 	$(CARGO) test --features=frontend-rust
 
 test-wasm-nodejs: build-wasm-nodejs
-	cd tests-wasm-nodejs && $(NPM) run test`
+	cd tests-wasm-nodejs && $(NPM) run test
 
 test: test-rust test-python test-wasm-nodejs test-c
 
