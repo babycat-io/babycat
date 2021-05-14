@@ -65,7 +65,7 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c docs-c docs-wasm docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm docs-deploy-rust babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -183,24 +183,33 @@ cargo-build-release-frontend-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_N
 # docs ==============================================================
 
 docs-c: init-python
-	rm -rf docs/c.babycat.io/build/dirhtml
-	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/c.babycat.io dirhtml
+	rm -rf docs/c.babycat.io/build
+	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
+	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
+
+docs-wasm: init-python
+	rm -rf docs/wasm.babycat.io/build
+	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/wasm.babycat.io/source docs/wasm.babycat.io/build
+	cp -v docs/wasm.babycat.io/source/_redirects docs/wasm.babycat.io/build
 
 docs-root: init-python
-	rm -rf docs/babycat.io/build/dirhtml
+	rm -rf docs/babycat.io/build
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/babycat.io dirhtml
 
 docs-python: init-python install-babycat-python
-	rm -rf docs/python.babycat.io/build/dirhtml
-	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/python.babycat.io dirhtml
+	rm -rf docs/python.babycat.io/build
+	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/python.babycat.io/source docs/python.babycat.io/build
+	cp -v docs/python.babycat.io/source/_redirects docs/python.babycat.io/build
 
+# This is used to render documentation locally, but in production, we
+# redirect to docs.rs.
 docs-rust: vendor
 	rm -rf docs/rust.babycat.io/build
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --lib --frozen --no-deps
 	mv target/frontend-rust/doc docs/rust.babycat.io/build
-	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
+	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build
 
-docs: docs-c docs-root docs-python docs-rust
+docs: docs-c docs-wasm docs-root docs-python docs-rust
 
 # docs-deploy =======================================================
 
@@ -208,6 +217,7 @@ docs: docs-c docs-root docs-python docs-rust
 # The Netlify (or CloudFlare Pages?) build image does not require us
 # to create a virtualenv when installing Python packages.
 docs-deploy-root:
+	rm -rf docs/babycat.io/build
 	python3 -m pip install --requirement requirements-docs.txt
 	make -C docs/babycat.io dirhtml
 
@@ -238,6 +248,13 @@ docs-deploy-wasm:
 	python3 -m pip install --requirement requirements-docs.txt
 	sphinx-multiversion docs/wasm.babycat.io/source docs/wasm.babycat.io/build
 	cp -v docs/wasm.babycat.io/source/_redirects docs/wasm.babycat.io/build
+
+# ONLY deploy the redirects for the Rust documentation.
+# In production, we expect our Rust docs to be built by docs.rs
+docs-deploy-rust:
+	rm -rf docs/rust.babycat.io/build
+	mkdir docs/rust.babycat.io/build
+	cp -v docs/wasm.babycat.io/source/_redirects docs/rust.babycat.io/build/_redirects
 
 # build =============================================================
 
