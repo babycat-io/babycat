@@ -60,7 +60,7 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -105,7 +105,7 @@ vendor: vendor/.t
 # fmt ===============================================================
 
 fmt-c:
-	$(CLANG_FORMAT) -i tests-c/*.c
+	$(CLANG_FORMAT) -i tests-c/*.c examples-c/*.c
 
 fmt-javascript:
 	$(ESLINT) --fix $(JAVASCRIPT_CODE_PATHS)
@@ -285,6 +285,17 @@ bench: bench-rust
 
 example-resampler-comparison: vendor
 	$(CARGO) run --release --example resampler_comparison
+
+example-decode-rust: vendor
+	$(CARGO) run --release --example decode
+
+example-decode-python: vendor init-python
+	$(ACTIVATE_VENV_CMD) && pip install . && python3 examples-python/decode.py
+
+example-decode-c: vendor babycat.h
+	$(CARGO) build --release --no-default-features --features=frontend-c
+	$(CC) -Wall -o target/release/decode_c examples-c/decode.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	./target/release/decode_c
 
 # docker ============================================================
 

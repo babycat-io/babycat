@@ -77,14 +77,42 @@
 
 This is an example of taking an audio file on disk and returning the waveform in memory.
 
+This is an example of decoding a file named ``"audio.mp3"`` into memory and then
+printing:
+
+.. raw:: html
+
+   <ul>
+      <li>the number of frames in the audio</li>
+      <li>the number of channels</li>
+      <li>the frame rate</li>
+   </ul>
+
 
 .. tab:: Python
 
    .. code:: python
 
-      from babycat import FloatWaveform
+      #!/usr/bin/env python3
+      import babycat
 
-      waveform = FloatWaveform.from_file("audio.mp3")
+
+      def main():
+         try:
+            waveform = babycat.FloatWaveform.from_file("audio.mp3")
+         except (FileNotFoundError, babycat.exceptions.BabycatError) as exc:
+            print("Decoding error:", exc)
+            return
+         print(
+            f"Decoded {waveform.num_frames} frames with "
+            f"{waveform.num_channels} channels at "
+            f"{waveform.frame_rate_hz} hz"
+         )
+
+
+      if __name__ == "__main__":
+         main()
+
 
 .. tab:: Rust
 
@@ -93,10 +121,89 @@ This is an example of taking an audio file on disk and returning the waveform in
       use babycat::{DecodeArgs, FloatWaveform, Waveform};
 
       fn main() {
-         let decode_args: DecodeArgs = Default::default();
-         let waveform = FloatWaveform::from_file("audio.mp3", decode_args).unwrap();
+         let decode_args = DecodeArgs {
+            ..Default::default()
+         };
+         let waveform = match FloatWaveform::from_file("audio.mp3", decode_args) {
+            Ok(w) => w,
+            Err(err) => {
+                  println!("Decoding error: {}", err);
+                  return;
+            }
+         };
+         println!(
+            "Decoded {} frames with {} channels at {} hz",
+            waveform.num_frames(),
+            waveform.num_channels(),
+            waveform.frame_rate_hz(),
+         );
       }
 
+
+.. tab:: WebAssembly (Web)
+
+   .. code:: javascript
+
+      // In a web application, you can read an audio file using an
+      // <input type="file" /> DOM node.
+      // Here is an example of creating an input node and reading from it.
+
+      import { FloatWaveform } from "babycat";
+
+      function babycatDecode(arrayBuffer) {
+         const arr = new Uint8Array(arrayBuffer);
+         const waveform = FloatWaveform.fromEncodedArray(arr, {});
+         console.log("Decoded",
+            waveform.numFrames(),
+            "frames with",
+            waveform.numChannels(),
+            "at",
+            waveform.frameRateHz(),
+            "hz"
+         );
+      }
+
+      function handleFileUpload() {
+         this.files[0].arrayBuffer().then((arrayBuffer) => babycatDecode(arrayBuffer));
+      }
+
+      function createFileDialog() {
+         const fileUploader = document.createElement("input");
+         fileUploader.type = "file";
+         fileUploader.id = "fileUploader";
+         fileUploader.addEventListener("change", handleFileUpload, false);
+
+         return fileUploader;
+      }
+
+      document.body.appendChild(createFileDialog());
+
+
+.. tab:: C
+
+   .. code:: c
+
+      #include <stdio.h>
+      #include "babycat.h"
+
+
+      int main() {
+         babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+         babycat_FloatWaveformResult waveform_result =
+               babycat_float_waveform_from_file("audio.mp3", decode_args);
+         if (waveform_result.error_num != 0) {
+            printf("Decoding error: %u", waveform_result.error_num);
+            return 1;
+         }
+         struct babycat_FloatWaveform *waveform = waveform_result.result;
+         uint32_t num_frames = babycat_float_waveform_get_num_frames(waveform);
+         uint32_t num_channels = babycat_float_waveform_get_num_channels(waveform);
+         uint32_t frame_rate_hz = babycat_float_waveform_get_frame_rate_hz(waveform);
+         printf("Decoded %u frames with %u channels at %u hz\n", num_frames,
+                  num_channels, frame_rate_hz);
+
+         return 0;
+      }
 
 .. raw:: html
 
