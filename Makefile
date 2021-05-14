@@ -1,6 +1,10 @@
+# These are the Rust files being tracked by Git.
+RUST_SRC_FILES ?= $(shell git ls-files src)
+
 # These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
+RUSTUP ?= rustup
 CLANG_FORMAT ?= clang-format
 DOCKER_COMPOSE ?= docker-compose
 WASM_PACK ?= wasm-pack
@@ -16,7 +20,8 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
 # These variables set the paths for Python tools.
 PYTHON ?= python3
-WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=target/python .
+WHEEL_DIR ?= target/python
+WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
 PYTHON_CODE_PATHS ?= ./tests-python 
@@ -60,7 +65,7 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c docs-c docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
 
 # help ==============================================================
 
@@ -88,15 +93,15 @@ init-javascript:
 init-python: $(VENV_PATH)/.t
 
 init-rust:
-	rustup component add clippy rustfmt
-	rustup target add wasm32-unknown-unknown
-	cargo install cargo-valgrind cbindgen flamegraph wasm-pack
+	$(RUSTUP) component add clippy rustfmt
+	$(RUSTUP) target add wasm32-unknown-unknown
+	$(CARGO) install cargo-valgrind cbindgen flamegraph wasm-pack
 
 init: init-javascript init-python init-rust
 
 # vendor ============================================================
 
-vendor/.t: Cargo.toml $(wildcard */Cargo.toml)
+vendor/.t: Cargo.toml
 	$(CARGO) vendor --versioned-dirs --quiet
 	@touch vendor/.t
 
@@ -145,9 +150,35 @@ lint-python: init-python
 	$(ACTIVATE_VENV_CMD) && mypy $(PYTHON_CODE_PATHS)
 
 lint-rust: vendor
-	$(CARGO) clippy --all-features
+	CARGO_TARGET_DIR=target/all-features $(CARGO) clippy --release --all-features
 
 lint: lint-rust lint-python
+
+# cargo build commands ==============================================
+
+## all features
+target/all-features/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): vendor
+	CARGO_TARGET_DIR=target/all-features $(CARGO) build --release --all-features
+
+cargo-build-release-all-features: target/all-features/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+
+## frontend-rust
+target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): vendor
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --features=frontend-rust
+
+cargo-build-release-frontend-rust: target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+
+## frontend-wasm
+target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: vendor
+	CARGO_TARGET_DIR=target/frontend-wasm $(CARGO) build --release --features=frontend-wasm
+
+cargo-build-release-frontend-wasm: target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+
+## frontend-c
+target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: vendor
+	CARGO_TARGET_DIR=target/frontend-c $(CARGO) build --release --features=frontend-c
+
+cargo-build-release-frontend-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 # docs ==============================================================
 
@@ -159,15 +190,14 @@ docs-root: init-python
 	rm -rf docs/babycat.io/build/dirhtml
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/babycat.io dirhtml
 
-docs-python: init-python
-	$(ACTIVATE_VENV_CMD) && pip install .
+docs-python: init-python install-babycat-python
 	rm -rf docs/python.babycat.io/build/dirhtml
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/python.babycat.io dirhtml
 
 docs-rust: vendor
 	rm -rf docs/rust.babycat.io/build
-	$(CARGO) doc --release --lib --frozen --no-deps
-	mv target/doc docs/rust.babycat.io/build
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --lib --frozen --no-deps
+	mv target/frontend-rust/doc docs/rust.babycat.io/build
 	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build/
 
 docs: docs-c docs-root docs-python docs-rust
@@ -215,48 +245,48 @@ babycat.h:
 	$(CBINDGEN) --quiet --output babycat.h
 	@$(CLANG_FORMAT) -i babycat.h || true
 
-build-python: vendor init-python
+$(WHEEL_DIR)/*.whl: vendor/.t $(RUST_SRC_FILES)
 	$(PYTHON) -m pip $(WHEEL_CMD)
+
+build-python: $(WHEEL_DIR)/*.whl
+
+install-babycat-python: build-python init-python
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
 
 build-python-manylinux: docker-build-pip
 	$(DOCKER_COMPOSE) run --rm --user=$$(id -u):$$(id -g) pip $(WHEEL_CMD)
 
-build-rust: vendor
-	$(CARGO) build --release --features=frontend-rust
+build-rust: cargo-build-release-frontend-rust
 
 build-wasm-bundler: vendor
-	$(WASM_PACK) build --release --target=bundler --out-dir=./target/wasm/bundler -- --no-default-features --features=frontend-wasm
+	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=bundler --out-dir=./target/wasm/bundler -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/bundler/.npmrc
 
 build-wasm-nodejs: vendor
-	$(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
+	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/nodejs/.npmrc
 
 build-wasm-web: vendor
-	$(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
+	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/web/.npmrc
 
 build: build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web
 
 # test ==============================================================
 
-test-c: vendor babycat.h
-	$(CARGO) build --release --no-default-features --features=frontend-c
-	ls -l target/release
-	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
-	./target/release/test_c
+test-c: babycat.h cargo-build-release-frontend-c
+	$(CC) -g -Wall -Werror=unused-function -o target/test_c tests-c/test.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	./target/test_c
 
-test-c-valgrind: vendor babycat.h
-	$(CARGO) build --release --no-default-features --features=frontend-c
-	$(CC) -g -Wall -Werror=unused-function -o target/release/test_c tests-c/test.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
-	$(VALGRIND) --leak-check=full --show-leak-kinds=all ./target/release/test_c
+test-c-valgrind: babycat.h cargo-build-release-frontend-c
+	$(CC) -g -Wall -Werror=unused-function -o target/test_c tests-c/test.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	$(VALGRIND) --leak-check=full --show-leak-kinds=all ./target/test_c
 
-test-python: vendor init-python
-	$(ACTIVATE_VENV_CMD) && python3 -m pip install .
+test-python: install-babycat-python
 	$(ACTIVATE_VENV_CMD) && pytest
 
 test-rust: vendor
-	$(CARGO) test --features=frontend-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --features=frontend-rust
 
 test-wasm-nodejs: build-wasm-nodejs
 	cd tests-wasm-nodejs && $(NPM) run test
@@ -270,32 +300,31 @@ doctest-python: init-python
 	$(ACTIVATE_VENV_CMD) && pytest tests-python/test_doctests.py
 
 doctest-rust: vendor
-	cargo test --doc
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --doc
 
 doctest: doctest-rust doctest-python
 
 # bench =============================================================
 
 bench-rust:
-	$(CARGO) bench
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench
 
 bench: bench-rust
 
 # example ===========================================================
 
 example-resampler-comparison: vendor
-	$(CARGO) run --release --example resampler_comparison
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) run --release --example resampler_comparison
 
 example-decode-rust: vendor
-	$(CARGO) run --release --example decode
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) run --release --example decode
 
-example-decode-python: vendor init-python
-	$(ACTIVATE_VENV_CMD) && pip install . && python3 examples-python/decode.py
+example-decode-python: install-babycat-python
+	$(ACTIVATE_VENV_CMD) && python3 examples-python/decode.py
 
-example-decode-c: vendor babycat.h
-	$(CARGO) build --release --no-default-features --features=frontend-c
-	$(CC) -Wall -o target/release/decode_c examples-c/decode.c target/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
-	./target/release/decode_c
+example-decode-c: babycat.h cargo-build-release-frontend-c
+	$(CC) -Wall -o target/decode_c examples-c/decode.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	./target/decode_c
 
 # docker ============================================================
 
