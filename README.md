@@ -1,4 +1,4 @@
-![Babycat Logo](https://babycat.io/_static/images/1x/babycat-wordmark-on-black-white-text-caption-1x.png "Babycat Logo")
+![Babycat Logo](https://static.neocrym.com/images/babycat/v1/2x/babycat-body-icon-dark-social-media-cover--2x.png "Babycat Logo")
 
 # Babycat is an audio decoding and manipulation library
 
