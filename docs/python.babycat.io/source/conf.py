@@ -36,6 +36,7 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx.ext.intersphinx",
     "sphinx_multiversion",
+    "sphinxext.opengraph",
 ]
 
 # This is a mapping to Sphinx documentation sites elsewhere on the Internet.

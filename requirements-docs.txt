@@ -1,6 +1,9 @@
 # Sphinx makes our documentation
 Sphinx==3.5.4
 
+# adds metadata to Sphinx pages
+sphinxext-opengraph==0.4.1
+
 # type hints in documentation
 sphinx-autodoc-typehints==1.11.1
 

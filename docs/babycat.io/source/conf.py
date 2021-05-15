@@ -29,7 +29,7 @@ author = "Neocrym Records Inc."
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx_inline_tabs"]
+extensions = ["sphinx_inline_tabs", "sphinxext.opengraph"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -41,6 +41,8 @@ exclude_patterns: List[str] = []
 
 
 # -- Options for HTML output -------------------------------------------------
+
+ogp_image = "https://static.neocrym.com/images/babycat/v1/1x/babycat-body-icon-transparent-white-text-social-media-cover--1x.png"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
