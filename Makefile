@@ -75,7 +75,8 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/python.babycat.io/build/dirhtml docs/babycat.io/build/html examples-wasm/decode/dist
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/c.babycat.io/build docs/python.babycat.io/build docs/rust.babycat.io/build docs/wasm.babycat.io/build docs/babycat.io/build examples-wasm/decode/dist
+	find . -name '.DS_Store' -delete
 
 # init ==============================================================
 
