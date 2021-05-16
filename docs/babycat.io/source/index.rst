@@ -1,32 +1,31 @@
+
 .. raw:: html
 
    <img src="_static/global/images/babycat/v1/1x/babycat-body-icon-transparent-white-text-social-media-cover--1x.png" class="mega-hero-img only-dark" />
 
-   <h1 class="mega-header centered">
-      Babycat is a library for decoding and manipulating audio files.
-   </h1>
+Babycat is a library for decoding and manipulating audio files
+==============================================================
 
-   <h3 class="mega-header">
-      Babycat is written in Rust, with bindings to Python, C, and WebAssembly.
-   </h3>
+Babycat is written in Rust, with bindings to Python, C, and WebAssembly
+-----------------------------------------------------------------------
+Babycat is designed to help you manipulate audio, no matter what programming language you are using
 
-   <p>Babycat is designed to help you manipulate audio, no matter what programming language you are using.</p>
+Babycat is written and open-sourced at `Neocrym <https://www.neocrym.com>`_
+---------------------------------------------------------------------------
+At Neocrym, we use Babycat to decode and analyze tens of millions of songs.
 
-   <h3 class="mega-header">
-      Babycat was written and open-sourced at <a href="https://www.neocrym.com" class="muted-link">Neocrym</a>, where it is used to decode and analyze tens of millions of songs.
-   </h3>
+Decode MP3, FLAC, and WAV
+--------------------------
+Babycat currently supports demuxing/decoding MP3, FLAC,and WAV/PCM files into waveforms in memory, and then writing those waveforms back as WAV.
 
-   <p>Babycat is designed to process a lot of very different audio files with speed and parallelism.</p>
+Documentation and packages
+--------------------------
 
-   <p>Babycat currently supports demuxing/decoding MP3, FLAC, and WAV/PCM files into waveforms in memory, and then writing those waveforms back as WAV.</p>
+All Babycat source code, tests, and documentation are hosted in a single repository at `github.com/babycat-io/babycat <https://github.com/babycat-io/babycat>`_.
 
-   <h2 class="mega-header">
-      Documentation and packages
-   </h2>
+You can find online documentation and pre-compiled packages for each Babycat binding at the below locations:
 
-   <p>All Babycat source code, tests, and documentation is hosted in a single repository at <a href="https://github.com/babycat-io/babycat" class="muted-link">github.com/babycat-io/babycat</a>.</p>
-
-   <p>You can find online documentation and pre-compiled packages for each Babycat binding at the below locations.</p>
+.. raw:: html
 
    <table class="bigtable">
       <thead>
@@ -60,20 +59,18 @@
    </table>
 
 
-   <h2 class="mega-header">
-      Examples
-   </h2>
 
-   <p>The above documentation links have more information about how to use Babycat, but here are a few examples of how to use Babycat in each of the supported languages.</p>
+Examples
+--------
 
-   <h3 class="mega-header">
-      Decoding an audio file into a waveform.
-   </h3>
+The above documentation links have more information about how to use Babycat, but here are a few examples of how to use Babycat in each of the supported languages
 
+Decoding an audio file into a waveform
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is an example of taking an audio file on disk and returning the waveform in memory.
 
-This is an example of decoding a file named ``"audio.mp3"`` into memory and then
+This is an example of decoding a file named  ``'audio.mp3'``  into memory and then
 printing:
 
 .. raw:: html
