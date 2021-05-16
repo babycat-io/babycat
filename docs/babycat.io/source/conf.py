@@ -44,6 +44,10 @@ exclude_patterns: List[str] = []
 
 ogp_image = "https://static.neocrym.com/images/babycat/v1/1x/babycat-body-icon-dark-social-media-cover--1x.png"
 
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+    '<meta property="twitter:image" content="https://static.neocrym.com/images/babycat/v1/1x/babycat-body-icon-dark-social-media-cover--1x.png" />',
+]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
