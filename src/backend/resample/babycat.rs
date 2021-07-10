@@ -1,5 +1,9 @@
-use crate::{backend::errors::Error, resample::common::{get_num_output_frames, validate_args}};
+use crate::backend::{
+    errors::Error,
+    resample::common::{get_num_output_frames, validate_args},
+};
 
+#[allow(clippy::excessive_precision)]
 const KAISER_BEST_WINDOW: [f32; 32769] = include!("kaiser_best.txt");
 
 fn sinc(x: f32) -> f32 {
@@ -21,12 +25,17 @@ pub fn resample(
 
     let sample_ratio: f32 = (output_frame_rate_hz as f32) / (input_frame_rate_hz as f32);
 
-    let num_output_frames = get_num_output_frames(input_audio, input_frame_rate_hz, output_frame_rate_hz, num_channels);
+    let num_output_frames = get_num_output_frames(
+        input_audio,
+        input_frame_rate_hz,
+        output_frame_rate_hz,
+        num_channels,
+    );
     let ret_size = num_output_frames * (num_channels as usize);
     let mut ret: Vec<f32> = vec![0.0_f32; ret_size];
 
     // let (mut interp_win, precision, _) = sinc_window();
-    let mut interp_win = KAISER_BEST_WINDOW.clone();
+    let mut interp_win = KAISER_BEST_WINDOW;
     let precision = 512;
     if sample_ratio < 1.0 {
         for i in interp_win.iter_mut() {
@@ -131,7 +140,7 @@ pub fn sinc_window() -> (Vec<f32>, i32, f32) {
 
     let interp_win = taper.zip(sinc_win).map(|(t, s)| t * s).collect::<Vec<_>>();
 
-    return (interp_win, num_bits, rolloff);
+    (interp_win, num_bits, rolloff)
 }
 
 pub fn blackman_harris(n: i32) -> impl Iterator<Item = f32> {
@@ -149,9 +158,9 @@ pub fn blackman_harris(n: i32) -> impl Iterator<Item = f32> {
     let v3 = PI_4 / aaa;
     let v4 = PI_6 / aaa;
 
-    return (0..n).map(move |k| {
+    (0..n).map(move |k| {
         C1 - C2 * (v2 * k as f32).cos() + C3 * (v3 * k as f32).cos() - C4 * (v4 * k as f32).cos()
-    });
+    })
 }
 
 #[cfg(test)]
@@ -177,7 +186,7 @@ mod test {
 
         const EPSILON: f32 = 1e-6;
 
-        for (i, (actual, expected)) in actual_results.zip(expected_results).enumerate() {
+        for (_i, (actual, expected)) in actual_results.zip(expected_results).enumerate() {
             let error = (actual - expected).abs();
             assert!(error < EPSILON)
         }
