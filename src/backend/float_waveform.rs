@@ -574,7 +574,7 @@ impl FloatWaveform {
         Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
     }
 
-    /// Resamples the waveform.
+    /// Resamples the waveform using the default resampler.
     ///
     /// ```
     /// use babycat::FloatWaveform;

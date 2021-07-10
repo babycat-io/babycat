@@ -807,6 +807,91 @@ impl FloatWaveform {
         self.inner.num_frames()
     }
 
+    /// Resamples the waveform using the default resampler.
+    ///
+    /// Example:
+    ///     **Resample from 44,100 hz to 88,200 hz.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>>
+    ///     >>> waveform = FloatWaveform.from_frames_of_silence(
+    ///     ...     frame_rate_hz=44100,
+    ///     ...     num_channels=2,
+    ///     ...     num_frames=1000,
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 1000 frames, 2 channels, 44100 hz>
+    ///     >>> resampled = waveform.resample(11025)
+    ///     <babycat.FloatWaveform: 250 frames, 2 channels, 11025 hz>
+    ///
+    /// Returns:
+    ///     FloatWaveform: A new waveform resampled at the given
+    ///     frame rate.
+    ///
+    /// Raises:
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
+    ///
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
+    ///
+    #[args(frame_rate_hz)]
+    #[text_signature = "(
+        frame_rate_hz,
+    )"]
+    pub fn resample(&self, frame_rate_hz: u32) -> PyResult<Self> {
+        float_waveform_to_pyresult(self.inner.resample(frame_rate_hz))
+    }
+
+    /// Resamples the waveform with the resampler of your choice.
+    ///
+    /// Example:
+    ///     **Resample from 44,100 hz to 88,200 hz.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> from babycat.resample_mode import *
+    ///
+    ///     >>> waveform = FloatWaveform.from_frames_of_silence(
+    ///     ...     frame_rate_hz=44100,
+    ///     ...     num_channels=2,
+    ///     ...     num_frames=1000,
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 1000 frames, 2 channels, 44100 hz>
+    ///     >>> resampled = waveform.resample_by_mode(
+    ///     ...     frame_rate_hz=11025,
+    ///     ...     resample_mode=RESAMPLE_MODE_BABYCAT_SINC,
+    ///     ... )
+    ///     <babycat.FloatWaveform: 250 frames, 2 channels, 11025 hz>
+    ///
+    /// Args:
+    ///     frame_rate_hz(int): The frame rate to resample to.
+    ///
+    ///     resample_mode(int): The resampler to use. This has to be
+    ///         one of the constants in :py:mod:`babycat.resample_mode`.
+    ///
+    /// Returns:
+    ///     FloatWaveform: A new waveform resampled at the given
+    ///     frame rate.
+    ///
+    /// Raises:
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
+    ///
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
+    ///
+    #[args("*", frame_rate_hz, resample_mode)]
+    #[text_signature = "(
+        frame_rate_hz,
+        resample_mode,
+    )"]
+    pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> PyResult<Self> {
+        float_waveform_to_pyresult(self.inner.resample_by_mode(frame_rate_hz, resample_mode))
+    }
+
     /// Returns the waveform as a 2D :py:class:`numpy.ndarray` array with shape ``(frames, channels)``
     ///
     /// Babycat internally stores decoded audio as a Rust ``Vec<f32>``.
