@@ -132,8 +132,10 @@ fn benchmark_all_funcs(
 }
 
 fn main() {
-    let small_vector_1: Vec<f32> = vec![-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0];
-    let sine_wave_1: Vec<f32> = make_sine_wave(512.0, 44100, 10);
+    let small_vector: Vec<f32> = vec![-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0];
+
+    let sine_wave: Vec<f32> = make_sine_wave(512.0, 44100, 10);
+
     let blippy_trance: Vec<f32> = FloatWaveform::from_file(
         "audio-for-tests/blippy-trance/track.mp3",
         Default::default(),
@@ -142,8 +144,20 @@ fn main() {
     .interleaved_samples()
     .to_owned();
 
-    benchmark_all_funcs("small_vector_1", 4, 8, 1, &small_vector_1);
-    benchmark_all_funcs("sine_wave_1", 44100, 22050, 1, &sine_wave_1);
+    let on_hold_for_you: Vec<f32> = FloatWaveform::from_file(
+        "audio-for-tests/on-hold-for-you/track.mp3",
+        Default::default(),
+    )
+    .unwrap()
+    .interleaved_samples()
+    .to_owned();
+
+    benchmark_all_funcs("small_vector_1", 4, 8, 1, &small_vector);
+    benchmark_all_funcs("sine_wave_1", 44100, 22050, 1, &sine_wave);
+    benchmark_all_funcs("sine_wave_2", 44100, 44099, 1, &sine_wave);
+    benchmark_all_funcs("sine_wave_3", 44100, 44101, 1, &sine_wave);
+    benchmark_all_funcs("sine_wave_4", 44100, 88200, 1, &sine_wave);
+
     benchmark_all_funcs("blippy_trance_1", 44100, 4410, 2, &blippy_trance);
     benchmark_all_funcs("blippy_trance_2", 44100, 11025, 2, &blippy_trance);
     benchmark_all_funcs("blippy_trance_3", 44100, 22050, 2, &blippy_trance);
@@ -152,4 +166,13 @@ fn main() {
     benchmark_all_funcs("blippy_trance_6", 44100, 88200, 2, &blippy_trance);
     benchmark_all_funcs("blippy_trance_7", 44100, 96000, 2, &blippy_trance);
     benchmark_all_funcs("blippy_trance_8", 44100, 22050, 2, &blippy_trance);
+
+    benchmark_all_funcs("on_hold_for_you_1", 44100, 4410, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_2", 44100, 11025, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_3", 44100, 22050, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_4", 44100, 44099, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_5", 44100, 48000, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_6", 44100, 88200, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_7", 44100, 96000, 2, &on_hold_for_you);
+    benchmark_all_funcs("on_hold_for_you_8", 44100, 22050, 2, &on_hold_for_you);
 }
