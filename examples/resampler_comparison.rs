@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
-use babycat::resample::lanczos::resample as lanczos_resample;
+use babycat::resample::babycat_lanczos::resample as lanczos_resample;
+use babycat::resample::babycat_sinc::resample as sinc_resample;
 use babycat::resample::libsamplerate::resample as libsamplerate_resample;
 use babycat::{FloatWaveform, Waveform};
 
@@ -75,13 +76,10 @@ fn benchmark_all_funcs(
     num_channels: u32,
     input: &[f32],
 ) {
-    let (lanczos_rms, lanczos_microseconds) = benchmark_func(
-        lanczos_resample,
-        input_frame_rate_hz,
-        output_frame_rate_hz,
-        num_channels,
-        &input,
-    );
+    // libsamplerate is the "reference" sampler that we compare
+    // all of the other resamplers to. That is because libsamplerate
+    // should be the best because of all of the science and engineering
+    // behind it.
     let (libsamplerate_rms, libsamplerate_microseconds) = benchmark_func(
         libsamplerate_resample,
         input_frame_rate_hz,
@@ -89,18 +87,46 @@ fn benchmark_all_funcs(
         num_channels,
         &input,
     );
+    let (lanczos_rms, lanczos_microseconds) = benchmark_func(
+        lanczos_resample,
+        input_frame_rate_hz,
+        output_frame_rate_hz,
+        num_channels,
+        &input,
+    );
+    let (sinc_rms, sinc_microseconds) = benchmark_func(
+        sinc_resample,
+        input_frame_rate_hz,
+        output_frame_rate_hz,
+        num_channels,
+        &input,
+    );
     println!(
-        "{}: libsamplerate is {}x more accurate ({}, {})",
+        "{}: LIBSAMPLERATE is {}x more accurate than BABYCAT_LANCZOS ({}, {})",
         test_name,
         lanczos_rms / libsamplerate_rms,
         lanczos_rms,
         libsamplerate_rms
     );
     println!(
-        "{}: libsamplerate is {}x faster ({} us, {} us)\n",
+        "{}: LIBSAMPLERATE is {}x faster than BABYCAT_LANCZOS ({} us, {} us)\n",
         test_name,
         lanczos_microseconds / libsamplerate_microseconds,
         lanczos_microseconds,
+        libsamplerate_microseconds
+    );
+    println!(
+        "{}: LIBSAMPLERATE is {}x more accurate than BABYCAT_SINC ({}, {})",
+        test_name,
+        sinc_rms / libsamplerate_rms,
+        sinc_rms,
+        libsamplerate_rms
+    );
+    println!(
+        "{}: LIBSAMPLERATE is {}x faster than BABYCAT_SINC ({} us, {} us)\n",
+        test_name,
+        sinc_microseconds / libsamplerate_microseconds,
+        sinc_microseconds,
         libsamplerate_microseconds
     );
 }

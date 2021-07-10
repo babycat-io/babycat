@@ -11,8 +11,8 @@ pub const DEFAULT_ZERO_PAD_ENDING: bool = false;
 pub const DEFAULT_RESAMPLE_MODE: u32 = 0;
 
 pub const RESAMPLE_MODE_LIBSAMPLERATE: u32 = 1;
-pub const RESAMPLE_MODE_LANCZOS: u32 = 2;
-pub const RESAMPLE_MODE_BABYCAT: u32 = 3;
+pub const RESAMPLE_MODE_BABYCAT_LANCZOS: u32 = 2;
+pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 
 /// Specifies what transformations to apply to the audio during the decoding
 /// process.
@@ -72,11 +72,12 @@ pub struct DecodeArgs {
     /// into Babycat.
     ///
     /// Current valid values include:
-    /// * [`RESAMPLE_MODE_BABYCAT`](crate::RESAMPLE_MODE_BABYCAT):
-    ///   A custom resampler maintained within Babycat. This is designed
-    ///   for speed and compatibility with compilation targets where
-    ///   libsamplerate cannot be used.
-    ///
+    /// * [`RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::RESAMPLE_MODE_BABYCAT_LANCZOS):
+    ///   A Lanczos resampler to use when compiling to targets like
+    ///   `wasm32-unknown-unknown` where libsamplerate cannot be compiled to.
+    /// * [`RESAMPLE_MODE_BABYCAT_SINC`](crate::RESAMPLE_MODE_BABYCAT_SINC):
+    ///   A sinc-based resampler to use when compiling to targets like
+    ///   `wasm32-unknown-unknown` where libsamplerate cannot be compiled to.
     /// * [`RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE):
     ///   This uses [libsamplerate](http://www.mega-nerd.com/SRC/) at the
     ///   `SRC_SINC_BEST_QUALITY` setting. This option is only available if
