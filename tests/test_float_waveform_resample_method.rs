@@ -67,15 +67,41 @@ mod test_float_waveform_resample_method {
     }
 
     #[test]
+    fn test_circus_of_freaks_no_change_1() {
+        decode_and_assert(
+            "test_circus_of_freaks_no_change_1",
+            COF_FILENAME,
+            Default::default(),
+            COF_FRAME_RATE_HZ,
+            COF_NUM_CHANNELS,
+            COF_NUM_FRAMES,
+            COF_FRAME_RATE_HZ,
+        );
+    }
+
+    #[test]
     fn test_circus_of_freaks_44099() {
         decode_and_assert(
             "test_circus_of_freaks_44099",
             COF_FILENAME,
             Default::default(),
             44099,
-            2,
+            COF_NUM_CHANNELS,
             2492872,
             44099,
+        );
+    }
+
+    #[test]
+    fn test_circus_of_freaks_44101() {
+        decode_and_assert(
+            "test_circus_of_freaks_44101",
+            COF_FILENAME,
+            Default::default(),
+            44101,
+            COF_NUM_CHANNELS,
+            2492985,
+            44101,
         );
     }
 
@@ -86,7 +112,7 @@ mod test_float_waveform_resample_method {
             COF_FILENAME,
             Default::default(),
             22050,
-            2,
+            COF_NUM_CHANNELS,
             COF_NUM_FRAMES / 2,
             22050,
         );
@@ -99,9 +125,22 @@ mod test_float_waveform_resample_method {
             COF_FILENAME,
             Default::default(),
             11025,
-            2,
+            COF_NUM_CHANNELS,
             COF_NUM_FRAMES / 4,
             11025,
+        );
+    }
+
+    #[test]
+    fn test_circus_of_freaks_88200() {
+        decode_and_assert(
+            "test_circus_of_freaks_88200",
+            COF_FILENAME,
+            Default::default(),
+            88200,
+            COF_NUM_CHANNELS,
+            COF_NUM_FRAMES * 2,
+            88200,
         );
     }
 }
