@@ -12,6 +12,8 @@ FloatWaveform
    from_many_files <from_many_files.rst>
    from_frames_of_silence <from_frames_of_silence.rst>
    from_milliseconds_of_silence <from_milliseconds_of_silence.rst>
+   resample <resample.rst>
+   resample_by_mode <resample_by_mode.rst>
    to_wav_buffer <to_wav_buffer.rst>
    to_wav_file <to_wav_file.rst>
 
@@ -42,6 +44,14 @@ These Python ``staticmethods`` create brand-new (silent) waveforms for further m
 
 * :py:meth:`FloatWaveform.from_milliseconds_of_silence`: Create a silent waveform by specifying its length in milliseconds.
 
+Modifying waveforms in memory
+-----------------------------
+
+Once you create a :py:class:`FloatWaveform` object, you can create new, modified versions of the waveform by calling these methods:
+
+* :py:meth:`FloatWaveform.resample`: Resamples the waveform to a different frame rate, using the default resampler.
+
+* :py:meth:`FloatWaveform.resample_by_mode`: Resamples the waveform using the resampler of your choice.
 
 Encoding waveforms and saving to the filesystem
 -----------------------------------------------

@@ -3,6 +3,7 @@
    :hidden:
 
    Home <self>
+   babycat/resample_mode.rst
    babycat/FloatWaveform/index.rst
    babycat/FloatWaveformNamedResult.rst
    babycat/exceptions.rst
