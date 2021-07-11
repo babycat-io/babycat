@@ -231,3 +231,26 @@ pub unsafe extern "C" fn babycat_float_waveform_get_interleaved_samples(
 ) -> *const f32 {
     waveform.as_ref().unwrap().interleaved_samples().as_ptr()
 }
+
+///
+/// # Safety
+#[no_mangle]
+pub unsafe extern "C" fn babycat_float_waveform_resample(
+    waveform: *mut FloatWaveform,
+    frame_rate_hz: u32,
+) -> FloatWaveformResult {
+    (*(waveform)).resample(frame_rate_hz).into()
+}
+
+///
+/// # Safety
+#[no_mangle]
+pub unsafe extern "C" fn babycat_float_waveform_resample_by_mode(
+    waveform: *mut FloatWaveform,
+    frame_rate_hz: u32,
+    resample_mode: u32,
+) -> FloatWaveformResult {
+    (*(waveform))
+        .resample_by_mode(frame_rate_hz, resample_mode)
+        .into()
+}
