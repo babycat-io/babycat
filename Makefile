@@ -51,6 +51,13 @@ else
 	BABYCAT_SHARED_LIB_NAME ?= libbabycat
 endif
 
+# This is the filename for the babycat binary.
+ifeq ($(OS),Windows_NT)
+	BABYCAT_BINARY_NAME ?= babycat.exe
+else
+	BABYCAT_BINARY_NAME ?= babycat
+endif
+
 
 # This sets the file extension for linking to shared libraries.
 # We typically use this when testing Babycat's C FFI bindings.
@@ -181,6 +188,12 @@ target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: vendor
 
 cargo-build-release-frontend-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
+## frontend-binary
+target/frontend-binary/release/$(BABYCAT_BINARY_NAME): vendor
+	CARGO_TARGET_DIR=target/frontend-binary $(CARGO) build --release --features=frontend-binary --bin=babycat
+
+cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
+
 # docs ==============================================================
 
 docs-c: init-python
@@ -289,6 +302,14 @@ build-wasm-web: vendor
 	cp .npmrc-example ./target/wasm/web/.npmrc
 
 build: build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web
+
+# For now, we are going to purposely exclude `build-binary` from running
+# in the general `build`  command. This is because the babycat command line
+# app depends on dynamically linking to ALSA libraries on Ubuntu.
+# We don't want to make `make build` fail if the user does not have
+# those libraries.
+build-binary: cargo-build-release-frontend-binary
+
 
 # test ==============================================================
 
