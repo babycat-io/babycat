@@ -8,7 +8,7 @@ use babycat::{DecodeArgs, Waveform};
 use crate::common::exit_with_msg;
 use crate::common::UnwrapOrExit;
 
-#[allow(clippy::clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments)]
 pub fn convert(
     input_filename: &str,
     output_filename: &str,

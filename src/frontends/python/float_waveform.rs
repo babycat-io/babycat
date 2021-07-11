@@ -22,10 +22,7 @@ impl FloatWaveformNamedResult {
     /// ``None`` if decoding succeeded... or an exception if decoding failed.
     #[getter]
     fn get_exception(&self) -> Option<PyErr> {
-        match self.error {
-            Some(error) => Some(PyErr::from(error)),
-            None => None,
-        }
+        self.error.map(PyErr::from)
     }
 }
 
