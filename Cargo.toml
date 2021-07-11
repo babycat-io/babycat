@@ -41,7 +41,7 @@ samplerate = { version = "0.2", optional = true }
 
 # for webassembly frontend
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
-js-sys = { version = "0.3.50", optional = true }
+js-sys = { version = "0.3", optional = true }
 
 # for python frontend
 numpy = { version = "0.13", optional = true }
