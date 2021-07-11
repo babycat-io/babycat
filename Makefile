@@ -197,7 +197,7 @@ docs-root: init-python
 	rm -rf docs/babycat.io/build
 	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/babycat.io dirhtml
 
-docs-python: init-python install-babycat-python
+docs-python: install-babycat-python
 	rm -rf docs/python.babycat.io/build
 	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/python.babycat.io/source docs/python.babycat.io/build
 	cp -v docs/python.babycat.io/source/_redirects docs/python.babycat.io/build
@@ -314,7 +314,7 @@ test: test-rust test-python test-wasm-nodejs test-c
 
 # doctest ==========================================================
 
-doctest-python: init-python
+doctest-python: install-babycat-python
 	$(ACTIVATE_VENV_CMD) && pytest tests-python/test_doctests.py
 
 doctest-rust: vendor
@@ -324,7 +324,7 @@ doctest: doctest-rust doctest-python
 
 # bench =============================================================
 
-bench-rust:
+bench-rust: vendor
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench
 
 bench: bench-rust
