@@ -11,7 +11,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV RUSTUP_VERSION 1.23.1
-ENV RUST_VERSION 1.50.0
+ENV RUST_VERSION 1.53.0
 ENV RUST_ARCH x86_64-unknown-linux-gnu
 ENV RUSTUP_HOME /usr/local/rustup
 ENV CARGO_HOME /usr/local/cargo
