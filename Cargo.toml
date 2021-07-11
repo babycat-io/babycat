@@ -55,7 +55,7 @@ crossterm = { version = "0.19", optional = true }
 
 
 [dev-dependencies]
-wasm-bindgen-test = "0.2"
+wasm-bindgen-test = "0.3"
 criterion = { version = "0.3", features = ["html_reports"] }
 
 [dependencies.symphonia]
