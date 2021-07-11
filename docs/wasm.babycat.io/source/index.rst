@@ -39,4 +39,4 @@ The Makefile in the Babycat repository has commands for building three types of 
 - ``make build-wasm-nodejs`` -- Outputs a JavaScript package that uses CommonJS modules.
 - ``make build-wasm-web`` -- Outputs JavaScript that can be directly used by a web browser as an ECMASCript (ES) module.
 
-In order to run these commands, you will need GNU Make, a C compiler, Rust 1.50.0 or newer, and wasm-pack. The `Babycat README on GitHub contains more information <https://github.com/babycat-io/babycat#system-requirements-for-compiling-babycat>`_ about requirements to compile Babycat.
+In order to run these commands, you will need GNU Make, a C compiler, Rust 1.53.0 or newer, and wasm-pack. The `Babycat README on GitHub contains more information <https://github.com/babycat-io/babycat#system-requirements-for-compiling-babycat>`_ about requirements to compile Babycat.

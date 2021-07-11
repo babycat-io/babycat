@@ -1,5 +1,6 @@
 use std::fmt;
 use std::io::Read;
+use std::marker::Send;
 
 use serde::{Deserialize, Serialize};
 
@@ -265,7 +266,7 @@ impl FloatWaveform {
     /// [`FloatWaveform`][crate::FloatWaveform] will take ownership of the stream
     /// and read it until the end. Therefore, you cannot provide an infinte-length
     /// stream.
-    pub fn from_encoded_stream<R: 'static + Read>(
+    pub fn from_encoded_stream<R: 'static + Read + Send>(
         encoded_stream: R,
         decode_args: DecodeArgs,
     ) -> Result<Self, Error> {
@@ -278,7 +279,7 @@ impl FloatWaveform {
     }
 
     /// Decodes audio from an input stream, using a user-specified decoding hint.
-    pub fn from_encoded_stream_with_hint<R: 'static + Read>(
+    pub fn from_encoded_stream_with_hint<R: 'static + Read + Send>(
         encoded_stream: R,
         decode_args: DecodeArgs,
         file_extension: &str,
@@ -351,8 +352,8 @@ impl FloatWaveform {
             }
         };
         let mut reader = probed.format;
-        let stream = reader.default_stream().unwrap();
-        let codec_params = &stream.codec_params;
+        let track = reader.default_track().unwrap();
+        let codec_params = &track.codec_params;
         let mut decoder = match symphonia::default::get_codecs().make(codec_params, &decoder_opts) {
             Ok(value) => value,
             // If we could not identify the input as one of our supported
@@ -371,7 +372,7 @@ impl FloatWaveform {
 
         // If the user provided a negative frame rate, throw an error.
         // We waited this long to throw an error because we also want to
-        // tell them what the REAL frame rate is for this audio stream.
+        // tell them what the REAL frame rate is for this audio track.
         if decode_args.frame_rate_hz != DEFAULT_FRAME_RATE_HZ && decode_args.frame_rate_hz < 1 {
             return Err(Error::WrongFrameRate(
                 original_frame_rate_hz,

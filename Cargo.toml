@@ -59,7 +59,7 @@ wasm-bindgen-test = "0.3"
 criterion = { version = "0.3", features = ["html_reports"] }
 
 [dependencies.symphonia]
-version = "0.2"
+version = "0.3"
 features = [
     "aac",
     "flac",

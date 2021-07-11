@@ -35,7 +35,7 @@ We give every sample a two-dimensional index--first by frame and then by channel
 Here is the software you will need if you want to compile your own changes to Babycat:
 
 ### Rust 1.50 or newer
-Babycat is written for stable Rust, targeting version 1.50.0 or newer.
+Babycat is written for stable Rust, targeting version 1.53.0 or newer.
 
 ### GNU Make
 GNU Make is a build system that Babycat uses to coordinate tasks.

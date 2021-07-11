@@ -39,4 +39,4 @@ Then, you can build the actual Babycat C library using the following command:
    
 and the resulting library will be built in the ``target/release`` subdirectory.
 
-In order to run these commands, you will need GNU Make, a C compiler, Rust 1.50.0 or newer, and cbindgen. The `Babycat README on GitHub contains more information <https://github.com/babycat-io/babycat#system-requirements-for-compiling-babycat>`_ about requirements to compile Babycat.
+In order to run these commands, you will need GNU Make, a C compiler, Rust 1.53.0 or newer, and cbindgen. The `Babycat README on GitHub contains more information <https://github.com/babycat-io/babycat#system-requirements-for-compiling-babycat>`_ about requirements to compile Babycat.
