@@ -14,7 +14,7 @@ use crate::backend::{
 const KAISER_BEST_WINDOW: [f32; 32769] = include!("kaiser_best.txt");
 
 fn sinc(x: f32) -> f32 {
-    if x == 0.0 {
+    if float_cmp::approx_eq!(f32, x, 0.0_f32) {
         1.0
     } else {
         let k = x * std::f32::consts::PI;
