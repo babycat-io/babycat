@@ -103,6 +103,24 @@ impl FloatWaveform {
     pub fn numFrames(&self) -> u32 {
         self.inner.num_frames() as u32
     }
+
+    pub fn resample(&self, frameRateHz: u32) -> Result<FloatWaveform, JsValue> {
+        match self.inner.resample(frameRateHz) {
+            Ok(inner) => Ok(FloatWaveform { inner }),
+            Err(err) => Err(throw_js_error(err)),
+        }
+    }
+
+    pub fn resampleByMode(
+        &self,
+        frameRateHz: u32,
+        resampleMode: u32,
+    ) -> Result<FloatWaveform, JsValue> {
+        match self.inner.resample_by_mode(frameRateHz, resampleMode) {
+            Ok(inner) => Ok(FloatWaveform { inner }),
+            Err(err) => Err(throw_js_error(err)),
+        }
+    }
 }
 
 impl From<crate::backend::FloatWaveform> for FloatWaveform {
