@@ -11,8 +11,8 @@ pub const DEFAULT_ZERO_PAD_ENDING: bool = false;
 pub const DEFAULT_RESAMPLE_MODE: u32 = 0;
 
 pub const RESAMPLE_MODE_LIBSAMPLERATE: u32 = 1;
-pub const RESAMPLE_MODE_LANCZOS: u32 = 2;
-pub const RESAMPLE_MODE_BABYCAT: u32 = 3;
+pub const RESAMPLE_MODE_BABYCAT_LANCZOS: u32 = 2;
+pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 
 /// Specifies what transformations to apply to the audio during the decoding
 /// process.
@@ -72,17 +72,28 @@ pub struct DecodeArgs {
     /// into Babycat.
     ///
     /// Current valid values include:
-    /// * [`RESAMPLE_MODE_BABYCAT`](crate::RESAMPLE_MODE_BABYCAT):
-    ///   A custom resampler maintained within Babycat. This is designed
-    ///   for speed and compatibility with compilation targets where
-    ///   libsamplerate cannot be used.
-    ///
-    /// * [`RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE):
+    /// * [`babycat::RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE):
     ///   This uses [libsamplerate](http://www.mega-nerd.com/SRC/) at the
-    ///   `SRC_SINC_BEST_QUALITY` setting. This option is only available if
+    ///   `SRC_SINC_BEST_QUALITY` setting. This is the highest-quality resampler
+    ///   currently offered by Babycat, although it is slightly slower than the other
+    ///   resamplers. This option is only available if
     ///   it is enabled at compile-time, and is disabled for targets
     ///   missing a libc, such as the WebAssembly `wasm32-unknown-unknown` target.
-    ///
+    ///   This backend can be enabled or disabled at compile-time using the
+    ///   Cargo feature `enable-libsamplerate`. It is enabled by default on
+    ///   all platforms except WebAssembly. The libsamplerate library is written
+    ///   in C and its dependence on libc makes it currently not possible
+    ///   to compile libsamplerate to the `wasm32-unknown-unknown` target.
+    /// * [`babycat::RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::RESAMPLE_MODE_BABYCAT_LANCZOS):
+    ///   A Lanczos resampler to use when compiling to targets like
+    ///   `wasm32-unknown-unknown` where libsamplerate cannot be compiled to.
+    ///   This is a simple impmenentation of a
+    ///   [Lanczos resampler](https://en.wikipedia.org/wiki/Lanczos_resampling).
+    ///   This is the fastest (and lowest-quality) resampler available in Babycat.
+    /// * [`babycat::RESAMPLE_MODE_BABYCAT_SINC`](crate::RESAMPLE_MODE_BABYCAT_SINC):
+    ///   This is an implementation of a sinc resampler
+    ///   [as described by Stanford professor Julius O. Smith](https://ccrma.stanford.edu/~jos/resample/).
+    ///   The speed and quality of this resampler is in between the above two.
     #[serde(default)]
     pub resample_mode: u32,
 }

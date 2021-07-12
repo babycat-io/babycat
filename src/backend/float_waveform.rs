@@ -574,7 +574,7 @@ impl FloatWaveform {
         Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
     }
 
-    /// Resamples the waveform.
+    /// Resamples the waveform using the default resampler.
     ///
     /// ```
     /// use babycat::FloatWaveform;
@@ -605,6 +605,39 @@ impl FloatWaveform {
     }
 
     /// Resamples the audio using a specific resampler.
+    ///
+    /// ```
+    /// use babycat::FloatWaveform;
+    ///
+    /// let waveform = FloatWaveform::from_file(
+    ///     "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     Default::default()
+    /// ).unwrap();
+    /// assert_eq!(
+    ///    format!("{:?}", waveform),
+    ///    "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    /// );
+    ///
+    /// // Here we upsample our audio to 96khz with the libsamplerate resampler.
+    /// let upsampled_libsamplerate = waveform.resample_by_mode(
+    ///     96000,
+    ///     babycat::RESAMPLE_MODE_LIBSAMPLERATE
+    /// ).unwrap();
+    /// assert_eq!(
+    ///    format!("{:?}", upsampled_libsamplerate),
+    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5426783}"
+    /// );
+    ///
+    /// // And we upsample our audio again with Babycat's Lanczos resampler.
+    /// let upsampled_lanczos = waveform.resample_by_mode(
+    ///     96000,
+    ///     babycat::RESAMPLE_MODE_BABYCAT_LANCZOS
+    /// ).unwrap();
+    /// assert_eq!(
+    ///    format!("{:?}", upsampled_lanczos),
+    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5426783}"
+    /// );
+    /// ```
     pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> Result<Self, Error> {
         let interleaved_samples = resample(
             self.frame_rate_hz,

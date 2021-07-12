@@ -86,7 +86,7 @@ pub enum SubcommandArgs {
             long,
             display_order = 10,
             default_value = "libsamplerate",
-            help = "Select the backend to use for resampling. Valid values are 'libsamplerate' and 'babycat'"
+            help = "Select the backend to use for resampling. Valid values are: libsamplerate, babycat_lanczos, babycat_sinc"
         )]
         resample_mode: String,
     },

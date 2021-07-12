@@ -5,14 +5,14 @@
 //! the audio into a [`FloatWaveform`][crate::FloatWaveform]
 //! and then use the [`FloatWaveform.resample()`][crate::FloatWaveform#method.resample] method.
 
-pub mod babycat;
+pub mod babycat_lanczos;
+pub mod babycat_sinc;
 pub mod common;
-pub mod lanczos;
 pub mod libsamplerate;
 
 use crate::backend::decode_args::DEFAULT_RESAMPLE_MODE;
-use crate::backend::decode_args::RESAMPLE_MODE_BABYCAT;
-use crate::backend::decode_args::RESAMPLE_MODE_LANCZOS;
+use crate::backend::decode_args::RESAMPLE_MODE_BABYCAT_LANCZOS;
+use crate::backend::decode_args::RESAMPLE_MODE_BABYCAT_SINC;
 use crate::backend::decode_args::RESAMPLE_MODE_LIBSAMPLERATE;
 use crate::backend::errors::Error;
 
@@ -33,7 +33,7 @@ pub fn resample(
                     input_audio,
                 )
             } else {
-                lanczos::resample(
+                babycat_sinc::resample(
                     input_frame_rate_hz,
                     output_frame_rate_hz,
                     num_channels,
@@ -49,14 +49,14 @@ pub fn resample(
             input_audio,
         ),
 
-        RESAMPLE_MODE_LANCZOS => lanczos::resample(
+        RESAMPLE_MODE_BABYCAT_LANCZOS => babycat_lanczos::resample(
             input_frame_rate_hz,
             output_frame_rate_hz,
             num_channels,
             input_audio,
         ),
 
-        RESAMPLE_MODE_BABYCAT => babycat::resample(
+        RESAMPLE_MODE_BABYCAT_SINC => babycat_sinc::resample(
             input_frame_rate_hz,
             output_frame_rate_hz,
             num_channels,

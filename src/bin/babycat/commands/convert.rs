@@ -1,7 +1,8 @@
 use log::info;
 
 use babycat::FloatWaveform;
-use babycat::RESAMPLE_MODE_BABYCAT;
+use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
+use babycat::RESAMPLE_MODE_BABYCAT_SINC;
 use babycat::RESAMPLE_MODE_LIBSAMPLERATE;
 use babycat::{DecodeArgs, Waveform};
 
@@ -32,8 +33,10 @@ pub fn convert(
     let resample_mode_int = {
         if resample_mode == "libsamplerate" {
             RESAMPLE_MODE_LIBSAMPLERATE
-        } else if resample_mode == "babycat" {
-            RESAMPLE_MODE_BABYCAT
+        } else if resample_mode == "babycat_lanczos" {
+            RESAMPLE_MODE_BABYCAT_LANCZOS
+        } else if resample_mode == "babycat_sinc" {
+            RESAMPLE_MODE_BABYCAT_SINC
         } else {
             panic!("NO");
         }

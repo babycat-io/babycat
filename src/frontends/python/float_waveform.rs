@@ -272,10 +272,14 @@ impl FloatWaveform {
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
     ///
-    ///     resample_mode(int, optional): Sets which resampling method
-    ///         is used if you have set ``frame_rate_hz``. This
-    ///         usually defaults to the highest-accuracy resampler
-    ///         compiled into Babycat.
+    ///     resample_mode(int, optional): If you set ``frame_rate_hz``
+    ///         to resample the audio when decoding, you can also set
+    ///         ``resample_mode`` to pick which resampling backend to use.
+    ///         The :py:mod:`babycat.resample_mode` submodule contains
+    ///         the various available resampling algorithms compiled into Babycat.
+    ///         By default, Babycat resamples audio using
+    ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    ///         highest-quality setting.
     ///
     ///     file_extension(str, optional): An *optional hint* of the input audio file's
     ///         encoding. An example of a valid value is ``"mp3"``. Babycat
@@ -481,10 +485,15 @@ impl FloatWaveform {
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
     ///
-    ///     resample_mode(int, optional): Sets which resampling method
-    ///         is used if you have set ``frame_rate_hz``. This
-    ///         usually defaults to the highest-accuracy resampler
-    ///         compiled into Babycat.
+    ///     resample_mode(int, optional): If you set ``frame_rate_hz``
+    ///         to resample the audio when decoding, you can also set
+    ///         ``resample_mode`` to pick which resampling backend to use.
+    ///         The :py:mod:`babycat.resample_mode` submodule contains
+    ///         the various available resampling algorithms compiled into Babycat.
+    ///         By default, Babycat resamples audio using
+    ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    ///         highest-quality setting.
+    ///
     ///
     /// Returns:
     ///     FloatWaveform: A waveform decoded from ``filename``.
@@ -688,10 +697,15 @@ impl FloatWaveform {
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
     ///
-    ///     resample_mode(int, optional): Sets which resampling method
-    ///         is used if you have set ``frame_rate_hz``. This
-    ///         usually defaults to the highest-accuracy resampler
-    ///         compiled into Babycat.
+    ///     resample_mode(int, optional): If you set ``frame_rate_hz``
+    ///         to resample the audio when decoding, you can also set
+    ///         ``resample_mode`` to pick which resampling backend to use.
+    ///         The :py:mod:`babycat.resample_mode` submodule contains
+    ///         the various available resampling algorithms compiled into Babycat.
+    ///         By default, Babycat resamples audio using
+    ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    ///         highest-quality setting.
+    ///
     ///
     ///     num_workers(int, optional): The number of threads--*Rust threads*, not Python
     ///         threads--to use for parallel decoding of the audio files in
@@ -805,6 +819,107 @@ impl FloatWaveform {
     #[getter]
     pub fn get_num_frames(&self) -> u64 {
         self.inner.num_frames()
+    }
+
+    /// Resamples the waveform using the default resampler.
+    ///
+    /// By default, Babycat resamples audio using
+    /// `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    /// highest-quality setting.
+    ///
+    /// Example:
+    ///     **Resample from 44,100 hz to 88,200 hz.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>>
+    ///     >>> waveform = FloatWaveform.from_frames_of_silence(
+    ///     ...     frame_rate_hz=44100,
+    ///     ...     num_channels=2,
+    ///     ...     num_frames=1000,
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 1000 frames, 2 channels, 44100 hz>
+    ///     >>> resampled = waveform.resample(11025)
+    ///     <babycat.FloatWaveform: 250 frames, 2 channels, 11025 hz>
+    ///
+    /// Args:
+    ///     frame_rate_hz(int): The target frame rate to resample the waveform to.
+    ///
+    /// Returns:
+    ///     FloatWaveform: A new waveform resampled at the given
+    ///     frame rate.
+    ///
+    /// Raises:
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
+    ///
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
+    ///
+    #[args(frame_rate_hz)]
+    #[text_signature = "(
+        frame_rate_hz,
+    )"]
+    pub fn resample(&self, frame_rate_hz: u32) -> PyResult<Self> {
+        float_waveform_to_pyresult(self.inner.resample(frame_rate_hz))
+    }
+
+    /// Resamples the waveform with the resampler of your choice.
+    ///
+    /// Babycat comes with different backends for resampling audio
+    /// waveforms from one frame rate to another frame rate.
+    ///
+    /// By default, Babycat resamples audio using
+    /// `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    /// highest-quality setting. Babycat also comes with two other
+    /// resampling backends that are often faster--but produce
+    /// slightly lower quality output.
+    ///
+    /// Example:
+    ///     **Resample from 44,100 hz to 88,200 hz.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> from babycat.resample_mode import *
+    ///     >>>
+    ///     >>> waveform = FloatWaveform.from_frames_of_silence(
+    ///     ...     frame_rate_hz=44100,
+    ///     ...     num_channels=2,
+    ///     ...     num_frames=1000,
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 1000 frames, 2 channels, 44100 hz>
+    ///     >>> resampled = waveform.resample_by_mode(
+    ///     ...     frame_rate_hz=11025,
+    ///     ...     resample_mode=RESAMPLE_MODE_BABYCAT_SINC,
+    ///     ... )
+    ///     <babycat.FloatWaveform: 250 frames, 2 channels, 11025 hz>
+    ///
+    /// Args:
+    ///     frame_rate_hz(int): The target frame rate to resample to.
+    ///
+    ///     resample_mode(int): The resampler to use. This has to be
+    ///         one of the constants in :py:mod:`babycat.resample_mode`.
+    ///
+    /// Returns:
+    ///     FloatWaveform: A new waveform resampled at the given
+    ///     frame rate.
+    ///
+    /// Raises:
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
+    ///
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
+    ///
+    #[args("*", frame_rate_hz, resample_mode)]
+    #[text_signature = "(
+        frame_rate_hz,
+        resample_mode,
+    )"]
+    pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> PyResult<Self> {
+        float_waveform_to_pyresult(self.inner.resample_by_mode(frame_rate_hz, resample_mode))
     }
 
     /// Returns the waveform as a 2D :py:class:`numpy.ndarray` array with shape ``(frames, channels)``

@@ -4,6 +4,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+const uint32_t NUM_RESAMPLING_MODES = 3;
+
+const uint32_t RESAMPLING_MODES[NUM_RESAMPLING_MODES] = {
+    babycat_RESAMPLE_MODE_LIBSAMPLERATE, babycat_RESAMPLE_MODE_BABYCAT_LANCZOS,
+    babycat_RESAMPLE_MODE_BABYCAT_SINC};
+
 // We call this macro at the end of every unit test
 // so we know that the test succeeded.
 #define SUCCESS() fprintf(stderr, "Success: %s\n", __FUNCTION__)
@@ -599,6 +605,223 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resa
   SUCCESS();
 }
 
+static void
+test_float_waveform_resample_method__test_circus_of_freaks_no_change_1() {
+  uint32_t new_frame_rate_hz = 44100;
+  uint32_t expected_num_frames = 2492928;
+  //
+  // Decode the waveform the first time.
+  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_FloatWaveform *waveform = waveform_result.result;
+  //
+  // Run through the resampling modes.
+  for (size_t i = 0; i < NUM_RESAMPLING_MODES; ++i) {
+    uint32_t resample_mode = RESAMPLING_MODES[i];
+    //
+    // Resample the waveform.
+    babycat_FloatWaveformResult resampled_result =
+        babycat_float_waveform_resample_by_mode(waveform, new_frame_rate_hz,
+                                                resample_mode);
+    assert(resampled_result.error_num == babycat_NO_ERROR);
+    babycat_FloatWaveform *resampled = resampled_result.result;
+    //
+    // Make assertions.
+    assert(babycat_float_waveform_get_num_channels(resampled) == 2);
+    assert(babycat_float_waveform_get_num_frames(resampled) ==
+           expected_num_frames);
+    assert(babycat_float_waveform_get_frame_rate_hz(resampled) ==
+           new_frame_rate_hz);
+    //
+    // Cleanup time.
+    babycat_float_waveform_free(resampled);
+  }
+
+  babycat_float_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void test_float_waveform_resample_method__test_circus_of_freaks_44099() {
+  uint32_t new_frame_rate_hz = 44099;
+  uint32_t expected_num_frames = 2492872;
+  //
+  // Decode the waveform the first time.
+  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_FloatWaveform *waveform = waveform_result.result;
+  //
+  // Run through the resampling modes.
+  for (size_t i = 0; i < NUM_RESAMPLING_MODES; ++i) {
+    uint32_t resample_mode = RESAMPLING_MODES[i];
+    //
+    // Resample the waveform.
+    babycat_FloatWaveformResult resampled_result =
+        babycat_float_waveform_resample_by_mode(waveform, new_frame_rate_hz,
+                                                resample_mode);
+    assert(resampled_result.error_num == babycat_NO_ERROR);
+    babycat_FloatWaveform *resampled = resampled_result.result;
+    //
+    // Make assertions.
+    assert(babycat_float_waveform_get_num_channels(resampled) == 2);
+    assert(babycat_float_waveform_get_num_frames(resampled) ==
+           expected_num_frames);
+    assert(babycat_float_waveform_get_frame_rate_hz(resampled) ==
+           new_frame_rate_hz);
+    //
+    // Cleanup time.
+    babycat_float_waveform_free(resampled);
+  }
+
+  babycat_float_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void test_float_waveform_resample_method__test_circus_of_freaks_44101() {
+  uint32_t new_frame_rate_hz = 44101;
+  uint32_t expected_num_frames = 2492985;
+  //
+  // Decode the waveform the first time.
+  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_FloatWaveform *waveform = waveform_result.result;
+  //
+  // Run through the resampling modes.
+  for (size_t i = 0; i < NUM_RESAMPLING_MODES; ++i) {
+    uint32_t resample_mode = RESAMPLING_MODES[i];
+    //
+    // Resample the waveform.
+    babycat_FloatWaveformResult resampled_result =
+        babycat_float_waveform_resample_by_mode(waveform, new_frame_rate_hz,
+                                                resample_mode);
+    assert(resampled_result.error_num == babycat_NO_ERROR);
+    babycat_FloatWaveform *resampled = resampled_result.result;
+    //
+    // Make assertions.
+    assert(babycat_float_waveform_get_num_channels(resampled) == 2);
+    assert(babycat_float_waveform_get_num_frames(resampled) ==
+           expected_num_frames);
+    assert(babycat_float_waveform_get_frame_rate_hz(resampled) ==
+           new_frame_rate_hz);
+    //
+    // Cleanup time.
+    babycat_float_waveform_free(resampled);
+  }
+
+  babycat_float_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void test_float_waveform_resample_method__test_circus_of_freaks_22050() {
+  uint32_t new_frame_rate_hz = 22050;
+  uint32_t expected_num_frames = 1246464;
+  //
+  // Decode the waveform the first time.
+  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_FloatWaveform *waveform = waveform_result.result;
+  //
+  // Run through the resampling modes.
+  for (size_t i = 0; i < NUM_RESAMPLING_MODES; ++i) {
+    uint32_t resample_mode = RESAMPLING_MODES[i];
+    //
+    // Resample the waveform.
+    babycat_FloatWaveformResult resampled_result =
+        babycat_float_waveform_resample_by_mode(waveform, new_frame_rate_hz,
+                                                resample_mode);
+    assert(resampled_result.error_num == babycat_NO_ERROR);
+    babycat_FloatWaveform *resampled = resampled_result.result;
+    //
+    // Make assertions.
+    assert(babycat_float_waveform_get_num_channels(resampled) == 2);
+    assert(babycat_float_waveform_get_num_frames(resampled) ==
+           expected_num_frames);
+    assert(babycat_float_waveform_get_frame_rate_hz(resampled) ==
+           new_frame_rate_hz);
+    //
+    // Cleanup time.
+    babycat_float_waveform_free(resampled);
+  }
+
+  babycat_float_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void test_float_waveform_resample_method__test_circus_of_freaks_11025() {
+  uint32_t new_frame_rate_hz = 11025;
+  uint32_t expected_num_frames = 623232;
+  //
+  // Decode the waveform the first time.
+  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_FloatWaveform *waveform = waveform_result.result;
+  //
+  // Run through the resampling modes.
+  for (size_t i = 0; i < NUM_RESAMPLING_MODES; ++i) {
+    uint32_t resample_mode = RESAMPLING_MODES[i];
+    //
+    // Resample the waveform.
+    babycat_FloatWaveformResult resampled_result =
+        babycat_float_waveform_resample_by_mode(waveform, new_frame_rate_hz,
+                                                resample_mode);
+    assert(resampled_result.error_num == babycat_NO_ERROR);
+    babycat_FloatWaveform *resampled = resampled_result.result;
+    //
+    // Make assertions.
+    assert(babycat_float_waveform_get_num_channels(resampled) == 2);
+    assert(babycat_float_waveform_get_num_frames(resampled) ==
+           expected_num_frames);
+    assert(babycat_float_waveform_get_frame_rate_hz(resampled) ==
+           new_frame_rate_hz);
+    //
+    // Cleanup time.
+    babycat_float_waveform_free(resampled);
+  }
+
+  babycat_float_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void test_float_waveform_resample_method__test_circus_of_freaks_88200() {
+  uint32_t new_frame_rate_hz = 88200;
+  uint32_t expected_num_frames = 4985856;
+  //
+  // Decode the waveform the first time.
+  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_FloatWaveform *waveform = waveform_result.result;
+  //
+  // Run through the resampling modes.
+  for (size_t i = 0; i < NUM_RESAMPLING_MODES; ++i) {
+    uint32_t resample_mode = RESAMPLING_MODES[i];
+    //
+    // Resample the waveform.
+    babycat_FloatWaveformResult resampled_result =
+        babycat_float_waveform_resample_by_mode(waveform, new_frame_rate_hz,
+                                                resample_mode);
+    assert(resampled_result.error_num == babycat_NO_ERROR);
+    babycat_FloatWaveform *resampled = resampled_result.result;
+    //
+    // Make assertions.
+    assert(babycat_float_waveform_get_num_channels(resampled) == 2);
+    assert(babycat_float_waveform_get_num_frames(resampled) ==
+           expected_num_frames);
+    assert(babycat_float_waveform_get_frame_rate_hz(resampled) ==
+           new_frame_rate_hz);
+    //
+    // Cleanup time.
+    babycat_float_waveform_free(resampled);
+  }
+
+  babycat_float_waveform_free(waveform);
+  SUCCESS();
+}
+
 int main() {
   printf("\n\n == Begin testing ==\n\n");
   test_float_waveform_from_file__test_circus_of_freaks_default_1();
@@ -645,7 +868,12 @@ int main() {
   test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_1();
   test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_2();
   test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_3();
-
+  test_float_waveform_resample_method__test_circus_of_freaks_no_change_1();
+  test_float_waveform_resample_method__test_circus_of_freaks_44099();
+  test_float_waveform_resample_method__test_circus_of_freaks_44101();
+  test_float_waveform_resample_method__test_circus_of_freaks_22050();
+  test_float_waveform_resample_method__test_circus_of_freaks_11025();
+  test_float_waveform_resample_method__test_circus_of_freaks_88200();
   printf("\n\n == ALL TESTS HAVE PASSED! == \n\n");
   return 0;
 }

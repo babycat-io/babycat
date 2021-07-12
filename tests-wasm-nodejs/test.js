@@ -441,3 +441,38 @@ describe("FloatWaveform.fromEncodedArray", function () {
     assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, 22050);
   });
 });
+
+describe("FloatWaveform.resampleByMode", function () {
+  this.timeout(0);
+
+  function decodeAndAssertCOF(frameRateHz, expectedNumFrames) {
+    const decodeArgs = {};
+    const waveform = babycat.FloatWaveform.fromEncodedArray(COF, decodeArgs);
+    const resampled = waveform.resampleByMode(frameRateHz, 2);
+    assertWaveform(resampled, COF_NUM_CHANNELS, expectedNumFrames, frameRateHz);
+  }
+
+  it("test_circus_of_freaks_no_change_1", function () {
+    decodeAndAssertCOF(44100, 2492928);
+  });
+
+  it("test_circus_of_freaks_44099", function () {
+    decodeAndAssertCOF(44099, 2492872);
+  });
+
+  it("test_circus_of_freaks_44101", function () {
+    decodeAndAssertCOF(44101, 2492985);
+  });
+
+  it("test_circus_of_freaks_22050", function () {
+    decodeAndAssertCOF(22050, COF_NUM_FRAMES / 2);
+  });
+
+  it("test_circus_of_freaks_11025", function () {
+    decodeAndAssertCOF(11025, COF_NUM_FRAMES / 4);
+  });
+
+  it("test_circus_of_freaks_88200", function () {
+    decodeAndAssertCOF(88200, COF_NUM_FRAMES * 2);
+  });
+});
