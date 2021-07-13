@@ -3,6 +3,7 @@
    :hidden:
 
    Home <self>
+   babycat.h <babycat_h/index.rst>
 
 .. toctree::
    :maxdepth: 3

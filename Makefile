@@ -196,7 +196,7 @@ cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BI
 
 # docs ==============================================================
 
-docs-c: init-python
+docs-c: init-python babycat.h
 	rm -rf docs/c.babycat.io/build
 	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
 	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
@@ -248,8 +248,13 @@ docs-deploy-python:
 # Used to build c.babycat.io.
 # The Netlify build image does not require us to create a virtualenv
 # when installing Python packages.
+# 
+# The Netlify build image also comes with Rust, but we have to install
+# cbindgen manually.
 docs-deploy-c:
 	rm -rf docs/c.babycat.io/build
+	cargo install cbindgen
+	cbindgen --quiet --output babycat.h
 	python3 -m pip install --requirement requirements-docs.txt
 	sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
 	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
@@ -272,7 +277,7 @@ docs-deploy-rust:
 
 # build =============================================================
 
-babycat.h:
+babycat.h: cbindgen.toml $(RUST_SRC_FILES)
 	$(CBINDGEN) --quiet --output babycat.h
 	@$(CLANG_FORMAT) -i babycat.h || true
 

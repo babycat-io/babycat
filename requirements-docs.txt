@@ -13,5 +13,8 @@ sphinx-inline-tabs==2021.3.28b7
 # used to display multiple versions of the documentation
 sphinx-multiversion==0.2.4
 
-# our favorite Sphinx theme
+# generates Sphinx documentation from Doxygen XML files
+breathe==4.30.0
+
+# our favorite Sphinx theme. we leave it unpinned to always get the latest.
 neocrym-sphinx-theme
