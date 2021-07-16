@@ -152,7 +152,7 @@ fmt-python: init-python
 	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 
-fmt-rust:
+fmt-rust: init-rust
 	$(CARGO) fmt
 
 fmt: fmt-c fmt-javascript fmt-python fmt-rust
@@ -163,7 +163,7 @@ fmt: fmt-c fmt-javascript fmt-python fmt-rust
 fmt-check-c:
 	$(CLANG_FORMAT) --dry-run -Werror tests-c/*
 
-fmt-check-javascript:
+fmt-check-javascript: init-javascript-minimal
 	$(ESLINT) $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 
@@ -171,7 +171,7 @@ fmt-check-python: init-python
 	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 
-fmt-check-rust:
+fmt-check-rust: init-rust
 	$(CARGO) fmt -- --check
 
 fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
