@@ -5,8 +5,9 @@ use crate::backend::Waveform;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
+/// Returned when a given operation has succeeded without any error.
 pub const NO_ERROR: u32 = 0;
-/// Raised when you are trying to use a feature at runtime that was not included at compile-time.
+/// Returned when you are trying to use a feature at runtime that was not included at compile-time.
 ///
 /// For example, you may receive this error if you are trying to resample
 /// audio using a method that was not compiled for your target or binding.
@@ -18,7 +19,7 @@ pub const ERROR_WRONG_TIME_OFFSET: u32 = 200;
 pub const ERROR_WRONG_NUM_CHANNELS: u32 = 201;
 /// Returned if you specified `convert_to_mono` as `true` and `num_channels` as 1.
 pub const ERROR_WRONG_NUM_CHANNELS_AND_MONO: u32 = 202;
-// Returned if you set `zero_pad_ending` as `true` without also specifying `end_time_milliseconds`.
+/// Returned if you set `zero_pad_ending` as `true` without also specifying `end_time_milliseconds`.
 pub const ERROR_CANNOT_ZERO_PAD: u32 = 203;
 //
 /// Returned when we were not able to detect the encoded input as decodable audio.
@@ -32,7 +33,7 @@ pub const ERROR_UNKNOWN_ENCODE_ERROR: u32 = 400;
 pub const ERROR_RESAMPLING_ERROR: u32 = 500;
 /// Returned when we cannot resample from the input frame rate to the output frame rate.
 pub const ERROR_WRONG_FRAME_RATE: u32 = 501;
-/// Returned if you are trying to upsample or downsample auduo by a factor greater than 256.
+/// Returned if you are trying to upsample or downsample audio by a factor greater than 256.
 pub const ERROR_WRONG_FRAME_RATE_RATIO: u32 = 502;
 //
 /// Returned if you asked Babycat to read a file, but you gave it a path to a directory.
@@ -78,11 +79,16 @@ fn error_to_num(err: Error) -> u32 {
     }
 }
 
-/// A struct that contains an error value and a pointer to a FloatWaveform.
+/// A struct that contains an error value and a pointer to a `babycat_FloatWaveform`.
 #[repr(C)]
 #[derive(Clone, PartialEq, PartialOrd)]
 pub struct FloatWaveformResult {
+    /// The error number.
+    ///
+    /// This value is either going to be `babycat_NO_ERROR`
+    /// or one of the constants with a `babycat_ERROR` prefix.
     error_num: u32,
+    /// A pointer to a FloatWaveform.
     result: *mut FloatWaveform,
 }
 
@@ -110,7 +116,7 @@ impl From<Result<FloatWaveform, Error>> for FloatWaveformResult {
     }
 }
 
-/// Returns a :c:struct:`babycat_DecodeArgs` struct with all default values.
+/// Returns a `babycat_DecodeArgs` struct with all default values.
 #[no_mangle]
 pub extern "C" fn babycat_init_default_decode_args() -> DecodeArgs {
     DecodeArgs {
@@ -118,15 +124,19 @@ pub extern "C" fn babycat_init_default_decode_args() -> DecodeArgs {
     }
 }
 
-/// Frees a :c:struct:`babycat_FloatWaveform` struct, given a pointer to it.
-///
-/// # Safety
+/// Frees a `babycat_FloatWaveform` struct.
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_free(waveform: *mut FloatWaveform) {
     Box::from_raw(waveform);
 }
 
 /// Creates a silent waveform measured in frames.
+///
+/// @param frame_rate_hz The frame rate of the waveform to create.
+/// @param num_channels The number of channels in the waveform to create.
+/// @param num_frames The number of frames of audio to generate.
+///
 #[no_mangle]
 pub extern "C" fn babycat_float_waveform_from_frames_of_silence(
     frame_rate_hz: u32,
@@ -138,7 +148,11 @@ pub extern "C" fn babycat_float_waveform_from_frames_of_silence(
 
 /// Create a silent waveform measured in milliseconds.
 ///
-/// # Safety
+/// @param frame_rate_hz The frame rate of the waveform to create.
+/// @param num_channels The number of channels in the waveform to create.
+/// @param duration_milliseconds The length of the audio waveform in milliseconds.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub extern "C" fn babycat_float_waveform_from_milliseconds_of_silence(
     frame_rate_hz: u32,
@@ -151,7 +165,15 @@ pub extern "C" fn babycat_float_waveform_from_milliseconds_of_silence(
 
 /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
 ///
-/// # Safety
+/// @param encoded_bytes A byte array containing encoded (e.g. MP3) audio.
+/// @param encoded_bytes_len The length of the `encoded_bytes` byte array.
+/// @param decode_args Instructions on how to decode the audio.
+/// @param file_extension A hint, in the form of a file extension, to indicate
+///        the encoding of the audio in `encoded_bytes`.
+/// @param mime_type A hint, in the form of a MIME type, to indicate
+///        the encoding of the audio in `encoded_bytes`.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes_with_hint(
     encoded_bytes: *mut u8,
@@ -175,7 +197,11 @@ pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes_with_hint(
 
 /// Decodes audio stored in an in-memory byte array.
 ///
-/// # Safety
+/// @param encoded_bytes A byte array containing encoded (e.g. MP3) audio.
+/// @param encoded_bytes_len The length of the `encoded_bytes` byte array.
+/// @param decode_args Instructions on how to decode the audio.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes(
     encoded_bytes: *mut u8,
@@ -189,7 +215,10 @@ pub unsafe extern "C" fn babycat_float_waveform_from_encoded_bytes(
 
 /// Decodes audio stored in a local file.
 ///
-/// # Safety
+/// @param filename A filename of an encoded audio file on the local filesystem.
+/// @param decode_args Instructions on how to decode the audio.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_from_file(
     filename: *const c_char,
@@ -199,9 +228,10 @@ pub unsafe extern "C" fn babycat_float_waveform_from_file(
     FloatWaveform::from_file(filename_rust, decode_args).into()
 }
 
-/// Returns the frame rate of an existing FloatWaveform.
+/// Returns the frame rate of an existing `babycat_FloatWaveform`.
 ///
-/// # Safety
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_frame_rate_hz(
     waveform: *mut FloatWaveform,
@@ -209,9 +239,10 @@ pub unsafe extern "C" fn babycat_float_waveform_get_frame_rate_hz(
     (*(waveform)).frame_rate_hz()
 }
 
-/// Returns the number of channels of an existing FloatWaveform.
+/// Returns the number of channels of an existing `babycat_FloatWaveform`.
 ///
-/// # Safety
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_num_channels(
     waveform: *mut FloatWaveform,
@@ -219,9 +250,10 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_channels(
     (*(waveform)).num_channels()
 }
 
-/// Returns the number of frames in an existing :c:sphinx:`babycat_FloatWaveform`.
+/// Returns the number of frames in an existing `babycat_FloatWaveform`.
 ///
-/// # Safety
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_num_frames(
     waveform: *mut FloatWaveform,
@@ -229,9 +261,11 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_frames(
     (*(waveform)).num_frames()
 }
 
-/// Returns the number of samples in an existing FloatWaveform.
+/// Returns the number of samples in an existing `babycat_FloatWaveform`.
 ///
-/// # Safety
+/// @param waveform A pointer to the `babycat_FloatWaveform`.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_num_samples(
     waveform: *mut FloatWaveform,
@@ -241,7 +275,10 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_samples(
 }
 
 /// Returns a pointer to an in-memory array of interleaved audio samples.
-/// # Safety
+///
+/// @param waveform A pointer to the `babycat_FloatWaveform`.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_get_interleaved_samples(
     waveform: *mut FloatWaveform,
@@ -249,9 +286,12 @@ pub unsafe extern "C" fn babycat_float_waveform_get_interleaved_samples(
     waveform.as_ref().unwrap().interleaved_samples().as_ptr()
 }
 
-/// Resample a FloatWaveform with the default resampler.
+/// Resample a `babycat_FloatWaveform` with the default resampler.
 ///
-/// # Safety
+/// @param waveform A pointer to the `babycat_FloatWaveform` to resample.
+/// @param frame_rate_hz The destination frame rate to resample to.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_resample(
     waveform: *mut FloatWaveform,
@@ -260,9 +300,13 @@ pub unsafe extern "C" fn babycat_float_waveform_resample(
     (*(waveform)).resample(frame_rate_hz).into()
 }
 
-/// Resamples a FloatWaveform using a specific resampler.
+/// Resamples a `babycat_FloatWaveform` using a specific resampler.
 ///
-/// # Safety
+/// @param waveform A pointer to the `babycat_FloatWaveform` to resample.
+/// @param frame_rate_hz The destination frame rate to resample to.
+/// @param resample_mode The Babycat resampling backend to pick.
+///
+#[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_float_waveform_resample_by_mode(
     waveform: *mut FloatWaveform,

@@ -164,7 +164,7 @@ impl FloatWaveform {
         .into()
     }
 
-    /// Creates a silent waveform of ``duration_milliseconds`` milliseconds.
+    /// Creates a silent waveform measured in milliseconds.
     ///
     /// Example:
     ///     **Create 30 seconds of silence (in stereo).**

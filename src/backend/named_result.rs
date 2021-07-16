@@ -18,6 +18,8 @@
 #[repr(C)]
 #[derive(Clone, PartialEq, PartialOrd, Eq, Ord, Debug, Hash)]
 pub struct NamedResult<T, E> {
+    /// The name for the result. When processing a list of files, `name` is each filename.
     pub name: String,
+    /// A `Result` object returned from the operation.
     pub result: Result<T, E>,
 }

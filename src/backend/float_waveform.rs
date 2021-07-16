@@ -78,6 +78,10 @@ impl fmt::Debug for FloatWaveform {
 impl FloatWaveform {
     /// Decodes audio stored in an in-memory byte array.
     ///
+    /// # Arguments
+    /// - `encoded_bytes`: A byte array containing encoded (e.g. MP3) audio.
+    /// - `decode_args`: Instructions on how to decode the audio.
+    ///
     /// # Examples
     /// ```
     /// use babycat::FloatWaveform;
@@ -95,6 +99,7 @@ impl FloatWaveform {
     ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}"
     /// );
     /// ```
+    ///
     pub fn from_encoded_bytes(
         encoded_bytes: &[u8],
         decode_args: DecodeArgs,
@@ -108,6 +113,15 @@ impl FloatWaveform {
     }
 
     /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
+    ///
+    /// # Arguments
+    /// - `encoded_bytes`: A byte array containing encoded (e.g. MP3) audio.
+    /// - `decode_args`: Instructions on how to decode the audio.
+    /// - `file_extension`: A hint--in the form of a file extension--to indicate
+    ///    the encoding of the audio in `encoded_bytes`.
+    /// - `mime_type`: A hint--in the form of a MIME type--to indicate
+    ///    the encoding of the audio in `encoded_bytes`.
+    ///
     pub fn from_encoded_bytes_with_hint(
         encoded_bytes: &[u8],
         decode_args: DecodeArgs,
@@ -120,6 +134,10 @@ impl FloatWaveform {
     }
 
     /// Decodes audio stored in a local file.
+    ///
+    /// # Arguments
+    /// - `filename`: A filename of an encoded audio file on the local filesystem.
+    /// - `decode_args`: Instructions on how to decode the audio.
     ///
     /// # Examples
     /// **Decode one audio file with the default decoding arguments:**
@@ -191,6 +209,11 @@ impl FloatWaveform {
     }
 
     /// Decodes a list of audio files in parallel.
+    ///
+    /// # Arguments
+    /// - `filenames`: A filename of an encoded audio file on the local filesystem.
+    /// - `decode_args`: Instructions on how to decode the audio.
+    /// - `batch_args`: Instructions on how to divide the work across multiple threads.
     ///
     /// # Examples
     /// **(Attempt to) decode three files:**
@@ -266,6 +289,11 @@ impl FloatWaveform {
     /// [`FloatWaveform`][crate::FloatWaveform] will take ownership of the stream
     /// and read it until the end. Therefore, you cannot provide an infinte-length
     /// stream.
+    ///
+    /// # Arguments
+    /// - `encoded_stream`: An I/O stream of encoded audio to decode.
+    /// - `decode_args`: Instructions on how to decode the audio.
+    ///
     pub fn from_encoded_stream<R: 'static + Read + Send>(
         encoded_stream: R,
         decode_args: DecodeArgs,
@@ -279,6 +307,15 @@ impl FloatWaveform {
     }
 
     /// Decodes audio from an input stream, using a user-specified decoding hint.
+    ///
+    /// # Arguments
+    /// - `encoded_stream`: An I/O stream of encoded audio to decode.
+    /// - `decode_args`: Instructions on how to decode the audio.
+    /// - `file_extension`: A hint--in the form of a file extension--to indicate
+    ///    the encoding of the audio in `encoded_bytes`.
+    /// - `mime_type`: A hint--in the form of a MIME type--to indicate
+    ///   the encoding of the audio in `encoded_bytes`.
+    ///
     pub fn from_encoded_stream_with_hint<R: 'static + Read + Send>(
         encoded_stream: R,
         decode_args: DecodeArgs,
@@ -530,6 +567,11 @@ impl FloatWaveform {
 
     /// Creates a silent waveform measured in frames.
     ///
+    /// # Arguments
+    /// - `frame_rate_hz`: The frame rate of the waveform to create.
+    /// - `num_channels`: The number of channels in the waveform to create.
+    /// - `num_frames`: The number of frames of audio to generate.
+    ///
     /// # Examples
     /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
     /// ```
@@ -552,6 +594,11 @@ impl FloatWaveform {
     }
 
     /// Create a silent waveform measured in milliseconds.
+    ///
+    /// # Arguments
+    /// - `frame_rate_hz`: The frame rate of the waveform to create.
+    /// - `num_channels`: The number of channels in the waveform to create.
+    /// - `duration_milliseconds`: The length of the audio waveform in milliseconds.
     ///
     /// # Examples
     /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
@@ -576,6 +623,10 @@ impl FloatWaveform {
 
     /// Resamples the waveform using the default resampler.
     ///
+    /// # Arguments
+    /// - `frame_rate_hz`: The destination frame rate to resample to.
+    ///
+    /// # Examples
     /// ```
     /// use babycat::FloatWaveform;
     ///
@@ -606,6 +657,11 @@ impl FloatWaveform {
 
     /// Resamples the audio using a specific resampler.
     ///
+    /// # Arguments
+    /// - `frame_rate_hz`: The destination frame rate to resample to.
+    /// - `resample_mode`: The Babycat resampling backend to pick.
+    ///
+    /// # Examples
     /// ```
     /// use babycat::FloatWaveform;
     ///
@@ -655,7 +711,7 @@ impl FloatWaveform {
         })
     }
 
-    /// Encdoes the waveform into a WAV-encoded byte array.
+    /// Encodes the waveform into a WAV-encoded byte array.
     pub fn to_wav_buffer(&self) -> Result<Vec<u8>, Error> {
         let writer_spec = hound::WavSpec {
             channels: self.num_channels as u16,
@@ -711,6 +767,11 @@ impl FloatWaveform {
 impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     /// Constructs a `FloatWaveform` from an already-decoded vector of 32-bit float samples.
     ///
+    /// # Arguments
+    /// - `frame_rate_hz`:
+    /// - `num_channels`:
+    /// - `interleaved_samples`:
+    ///
     /// # Examples
     ///
     /// This creates a `FloatWaveform` containing one second of silent *stereo* audio.
@@ -739,19 +800,22 @@ impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
         }
     }
 
+    /// Returns the frame rate of the `FloatWaveform`.
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
+    /// Returns the number of channels in the `FloatWaveform`.
     fn num_channels(&self) -> u32 {
         self.num_channels
     }
 
+    /// Returns the total number of decoded frames in the `FloatWaveform`.
     fn num_frames(&self) -> u64 {
         self.num_frames
     }
 
-    /// Returns of channel-interleaved samples.
+    /// Returns the waveform as a slice of channel-interleaved `f32` samples.
     fn interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
     }

@@ -10,6 +10,7 @@ fn throw_js_error<E: std::fmt::Display>(err: E) -> JsValue {
     js_sys::Error::new(&err_string).into()
 }
 
+/// Docs for FloatWaveform struct.
 #[wasm_bindgen]
 pub struct FloatWaveform {
     inner: crate::backend::FloatWaveform,
@@ -17,6 +18,7 @@ pub struct FloatWaveform {
 
 #[wasm_bindgen]
 impl FloatWaveform {
+    /// Creates a silent waveform measured in frames.
     pub fn fromFramesOfSilence(frameRateHz: u32, numChannels: u32, numFrames: u32) -> Self {
         FloatWaveform {
             inner: crate::backend::FloatWaveform::from_frames_of_silence(
@@ -27,6 +29,7 @@ impl FloatWaveform {
         }
     }
 
+    /// Crates a silent waveform measured in milliseconds.
     pub fn fromMillisecondsOfSilence(
         frameRateHz: u32,
         numChannels: u32,
@@ -41,6 +44,7 @@ impl FloatWaveform {
         }
     }
 
+    /// Decodes audio stored in an in-memory byte array.
     pub fn fromEncodedArray(
         encodedArray: Uint8Array,
         decodeArgs: JsValue,
@@ -56,6 +60,7 @@ impl FloatWaveform {
         }
     }
 
+    /// Decodes audio using an in-memory byte array, using user-specified encoding hints.
     pub fn fromEncodedArrayWithHint(
         encodedArray: Uint8Array,
         decodeArgs: JsValue,
@@ -78,6 +83,8 @@ impl FloatWaveform {
         }
     }
 
+    /// Encodes the waveform into a WAV-encoded byte array.
+    ///
     pub fn toWavBuffer(&self) -> Result<Uint8Array, JsValue> {
         match self.inner.to_wav_buffer() {
             Ok(wav_vec) => {
@@ -88,22 +95,28 @@ impl FloatWaveform {
         }
     }
 
+    /// Returns channel-interleaved samples.
     pub fn interleavedSamples(&self) -> Float32Array {
         Float32Array::from(self.inner.interleaved_samples())
     }
 
+    /// Return the frame rate.
+    ///
     pub fn frameRateHz(&self) -> u32 {
         self.inner.frame_rate_hz()
     }
 
+    /// Returns the number of channels.
     pub fn numChannels(&self) -> u32 {
         self.inner.num_channels()
     }
 
+    /// Returns the number of frames.
     pub fn numFrames(&self) -> u32 {
         self.inner.num_frames() as u32
     }
 
+    /// Resamples the waveform using the default resampler.
     pub fn resample(&self, frameRateHz: u32) -> Result<FloatWaveform, JsValue> {
         match self.inner.resample(frameRateHz) {
             Ok(inner) => Ok(FloatWaveform { inner }),
@@ -111,6 +124,7 @@ impl FloatWaveform {
         }
     }
 
+    /// Resamples the audio using a specific resampler.
     pub fn resampleByMode(
         &self,
         frameRateHz: u32,
