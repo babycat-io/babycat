@@ -10,14 +10,5 @@
     .highlight, .highlight .cpf {
         background-color: transparent !important;
     }
-
-    /* Make the sidebar wider so we can see long function names. */
-    .sidebar-drawer {
-        min-width: 20em;
-    }
-
-    .sidebar-container, .toc-drawer {
-        width: 20em;
-    }
 }
 
