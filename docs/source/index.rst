@@ -183,7 +183,7 @@ printing:
 
 
       int main() {
-         babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+         babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
          babycat_FloatWaveformResult waveform_result =
                babycat_float_waveform_from_file("audio.mp3", decode_args);
          if (waveform_result.error_num != 0) {

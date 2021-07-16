@@ -5,7 +5,7 @@ babycat_DecodeArgs
    :maxdepth: 2
    :hidden:
 
-   babycat_init_default_decode_args
+   babycat_decode_args_init_default
 
 Struct members
 --------------
@@ -20,4 +20,4 @@ Struct members
 Relevant functions
 ------------------
 
-- :doc:`babycat_init_default_decode_args`
+- :doc:`babycat_decode_args_init_default`

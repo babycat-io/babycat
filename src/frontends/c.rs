@@ -118,7 +118,7 @@ impl From<Result<FloatWaveform, Error>> for FloatWaveformResult {
 
 /// Returns a `babycat_DecodeArgs` struct with all default values.
 #[no_mangle]
-pub extern "C" fn babycat_init_default_decode_args() -> DecodeArgs {
+pub extern "C" fn babycat_decode_args_init_default() -> DecodeArgs {
     DecodeArgs {
         ..Default::default()
     }

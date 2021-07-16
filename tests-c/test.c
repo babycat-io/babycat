@@ -19,7 +19,7 @@ const uint32_t RESAMPLING_MODES[NUM_RESAMPLING_MODES] = {
       "./audio-for-tests/circus-of-freaks/track.mp3", decode_args)
 
 static void test_float_waveform_from_file__test_circus_of_freaks_default_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
@@ -32,7 +32,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_default_1() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 1000;
   decode_args.end_time_milliseconds = 999;
 
@@ -43,7 +43,7 @@ test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_1() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 1000;
   decode_args.end_time_milliseconds = 1000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -53,7 +53,7 @@ test_float_waveform_from_file__test_circus_of_freaks_wrong_time_offset_2() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 5;
   decode_args.end_time_milliseconds = 0;
   decode_args.zero_pad_ending = true;
@@ -64,7 +64,7 @@ test_float_waveform_from_file__test_circus_of_freaks_invalid_end_time_millisecon
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_get_channels_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.num_channels = 1;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -78,7 +78,7 @@ test_float_waveform_from_file__test_circus_of_freaks_get_channels_1() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_get_channels_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.num_channels = 2;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -92,7 +92,7 @@ test_float_waveform_from_file__test_circus_of_freaks_get_channels_2() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_get_channels_too_many_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.num_channels = 3;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_ERROR_WRONG_NUM_CHANNELS);
@@ -101,7 +101,7 @@ test_float_waveform_from_file__test_circus_of_freaks_get_channels_too_many_1() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.num_channels = 2;
   decode_args.convert_to_mono = true;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -116,7 +116,7 @@ test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_1() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.convert_to_mono = true;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -130,7 +130,7 @@ test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_2() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_invalid_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.num_channels = 1;
   decode_args.convert_to_mono = true;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -141,7 +141,7 @@ test_float_waveform_from_file__test_circus_of_freaks_convert_to_mono_invalid_1()
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 1;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -156,7 +156,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_1() 
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 10;
   decode_args.end_time_milliseconds = 11;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -171,7 +171,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_2() 
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_3() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 30000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -186,7 +186,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_3() 
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_4() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 15000;
   decode_args.end_time_milliseconds = 45000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -201,7 +201,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_4() 
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_5() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 30000;
   decode_args.end_time_milliseconds = 60000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -216,7 +216,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_5() 
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 1;
   decode_args.zero_pad_ending = true;
@@ -232,7 +232,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 10;
   decode_args.end_time_milliseconds = 11;
   decode_args.zero_pad_ending = true;
@@ -248,7 +248,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_3() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 30000;
   decode_args.zero_pad_ending = true;
@@ -264,7 +264,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_4() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 15000;
   decode_args.end_time_milliseconds = 45000;
   decode_args.zero_pad_ending = true;
@@ -280,7 +280,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_5() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 30000;
   decode_args.end_time_milliseconds = 60000;
   decode_args.zero_pad_ending = true;
@@ -296,7 +296,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_6() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
   decode_args.zero_pad_ending = true;
@@ -312,7 +312,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_7() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 90000;
   decode_args.zero_pad_ending = true;
@@ -328,7 +328,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_8() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 30000;
   decode_args.end_time_milliseconds = 90000;
   decode_args.zero_pad_ending = true;
@@ -344,7 +344,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_end_milliseconds_zero_pad_ending_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.end_time_milliseconds = 90000;
   decode_args.zero_pad_ending = true;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
@@ -359,7 +359,7 @@ test_float_waveform_from_file__test_circus_of_freaks_end_milliseconds_zero_pad_e
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 1;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_ERROR_WRONG_FRAME_RATE_RATIO);
@@ -368,7 +368,7 @@ test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_1() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 20;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_ERROR_WRONG_FRAME_RATE_RATIO);
@@ -377,7 +377,7 @@ test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_2() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_3() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 172;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_ERROR_WRONG_FRAME_RATE_RATIO);
@@ -386,7 +386,7 @@ test_float_waveform_from_file__test_circus_of_freaks_invalid_resample_3() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_resample_no_change() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 44100;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -399,7 +399,7 @@ test_float_waveform_from_file__test_circus_of_freaks_resample_no_change() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 22050;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -412,7 +412,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_1() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 11025;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -425,7 +425,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_2() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_3() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 88200;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -438,7 +438,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_3() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_4() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 4410;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -451,7 +451,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_4() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_5() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 44099;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -464,7 +464,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_5() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_6() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 48000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -477,7 +477,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_6() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_7() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 60000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -490,7 +490,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_7() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_8() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 88200;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -503,7 +503,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_8() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_9() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 96000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -516,7 +516,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_9() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_10() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 200;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -529,7 +529,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_10() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_11() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 2000;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -542,7 +542,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_11() {
 }
 
 static void test_float_waveform_from_file__test_circus_of_freaks_resample_12() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.frame_rate_hz = 173;
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
@@ -556,7 +556,7 @@ static void test_float_waveform_from_file__test_circus_of_freaks_resample_12() {
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_1() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
   decode_args.frame_rate_hz = 48000;
@@ -573,7 +573,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resa
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_2() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
   decode_args.frame_rate_hz = 44099;
@@ -590,7 +590,7 @@ test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resa
 
 static void
 test_float_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_3() {
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   decode_args.start_time_milliseconds = 0;
   decode_args.end_time_milliseconds = 60000;
   decode_args.frame_rate_hz = 22050;
@@ -611,7 +611,7 @@ test_float_waveform_resample_method__test_circus_of_freaks_no_change_1() {
   uint32_t expected_num_frames = 2492928;
   //
   // Decode the waveform the first time.
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
@@ -647,7 +647,7 @@ static void test_float_waveform_resample_method__test_circus_of_freaks_44099() {
   uint32_t expected_num_frames = 2492872;
   //
   // Decode the waveform the first time.
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
@@ -683,7 +683,7 @@ static void test_float_waveform_resample_method__test_circus_of_freaks_44101() {
   uint32_t expected_num_frames = 2492985;
   //
   // Decode the waveform the first time.
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
@@ -719,7 +719,7 @@ static void test_float_waveform_resample_method__test_circus_of_freaks_22050() {
   uint32_t expected_num_frames = 1246464;
   //
   // Decode the waveform the first time.
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
@@ -755,7 +755,7 @@ static void test_float_waveform_resample_method__test_circus_of_freaks_11025() {
   uint32_t expected_num_frames = 623232;
   //
   // Decode the waveform the first time.
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
@@ -791,7 +791,7 @@ static void test_float_waveform_resample_method__test_circus_of_freaks_88200() {
   uint32_t expected_num_frames = 4985856;
   //
   // Decode the waveform the first time.
-  babycat_DecodeArgs decode_args = babycat_init_default_decode_args();
+  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
   babycat_FloatWaveformResult waveform_result = DECODE_COF(decode_args);
   assert(waveform_result.error_num == babycat_NO_ERROR);
   babycat_FloatWaveform *waveform = waveform_result.result;
