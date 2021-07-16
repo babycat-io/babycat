@@ -4,11 +4,7 @@ defaults:
   run:
     shell: bash
 
-on:
-  pull_request:
-  push:
-    tags-ignore:
-      - 'v*' # Don't run these tests twice when cutting a new version.
+on: workflow_dispatch
 
 env:
   CARGO_TERM_COLOR: always
