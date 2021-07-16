@@ -11,6 +11,7 @@ test_c/test_babycat
 
 # Ignore generated documentation
 docs/python/_build
+docs2/source/api/python/generated
 
 # Random things to exclude
 .DS_Store

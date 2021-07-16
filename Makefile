@@ -82,12 +82,12 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/c.babycat.io/build docs/python.babycat.io/build docs/rust.babycat.io/build docs/wasm.babycat.io/build docs/babycat.io/build examples-wasm/decode/dist
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/c.babycat.io/build docs/python.babycat.io/build docs/rust.babycat.io/build docs/wasm.babycat.io/build docs/babycat.io/build examples-wasm/decode/dist docs2/build docs2/source/api/python/generated
 	find . -name '.DS_Store' -delete
 
 # init ==============================================================
 
-$(VENV_PATH)/.t:
+$(VENV_PATH)/.t: requirements-dev.txt requirements-docs.txt
 	$(CREATE_VENV_CMD)
 	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
@@ -196,6 +196,10 @@ cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BI
 
 # docs ==============================================================
 
+docs2: build-wasm-bundler install-babycat-python babycat.h $(shell git ls-files src)
+	rm -rf docs2/build docs2/source/api/python/generated
+	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs2 dirhtml
+
 docs-c: init-python babycat.h
 	rm -rf docs/c.babycat.io/build
 	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
@@ -287,7 +291,7 @@ $(WHEEL_DIR)/*.whl: vendor/.t $(RUST_SRC_FILES)
 build-python: $(WHEEL_DIR)/*.whl
 
 install-babycat-python: build-python init-python
-	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
 
 build-python-manylinux: docker-build-pip
 	$(DOCKER_COMPOSE) run --rm --user=$$(id -u):$$(id -g) pip $(WHEEL_CMD)
