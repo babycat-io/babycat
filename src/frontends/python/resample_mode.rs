@@ -20,7 +20,7 @@ following resamplers:
 
 - :py:attr:`RESAMPLE_MODE_LIBSAMPLERATE`: This uses
   `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at the
-  ``SRC_SINC_BEST_QUALITY``. This backend produces the highest-quality
+  `SRC_SINC_BEST_QUALITY`. This backend produces the highest-quality
   output audio, but is often slightly slower than the other backends.
   The libsamplerate backend is always available in Babycat's Python
   bindings, but is currently not available in Babycat's WebAssembly bindings.
@@ -35,7 +35,7 @@ following resamplers:
   of this resampler is in between the above two.
 
 Example:
-    **Resample using the ``BABYCAT_SINC`` resampler.**
+    **Resample using the `BABYCAT_SINC` resampler.**
 
     >>> from babycat import FloatWaveform
     >>> from babycat.resample_mode import *

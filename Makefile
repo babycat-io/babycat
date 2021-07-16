@@ -5,6 +5,7 @@ RUST_SRC_FILES ?= $(shell git ls-files src)
 # These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
+DOXYGEN ?= doxygen
 RUSTUP ?= rustup
 CLANG_FORMAT ?= clang-format
 DOCKER_COMPOSE ?= docker-compose
@@ -235,7 +236,9 @@ cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BI
 # docs ==============================================================
 
 docs: init-javascript-minimal install-babycat-python build-wasm-bundler babycat.h $(shell git ls-files src)
-	rm -rf docs/build docs/source/api/python/generated
+	rm -rf docs/build
+	mkdir docs/build
+	doxygen
 	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 
 # This is the command we use to build docs on Netlify.
@@ -243,7 +246,10 @@ docs: init-javascript-minimal install-babycat-python build-wasm-bundler babycat.
 # but does not come with the virtualenv extension.
 docs-netlify: init-javascript-minimal build-wasm-bundler babycat.h
 # Clean any previous builds.
-	rm -rf docs/build docs/source/api/python/generated
+	rm -rf docs/build
+	mkdir docs/build
+# Generate Doxygen XML to document Babycat's C bindings.
+	doxygen
 # Install Python dependencies for building the docs.
 	python3 -m pip install -r requirements-docs.txt
 # Install Babycat's Python bindings.

@@ -87,22 +87,11 @@ ogp_custom_meta_tags = [
 
 # -- Options for Breathe/Doxygen configuration -------------------------------
 
-breathe_doxygen_config_options = dict(
-    SEPARATE_MEMBER_PAGES="NO",
-    # Tell Doxygen to skip trying to render images using the
-    # `dot` software package.
-    CLASS_DIAGRAMS="NO",
-    HAVE_DOT="NO",
-)
-
 # Doxygen does not need to generate separate member pages
 # when we are using breathe and Sphinx.
 breathe_separate_member_pages = False
 
-# We tell Doxygen to load our babycat.h.
-breathe_projects_source = dict(
-    babycat=("../..", ["babycat.h"]),
-)
+breathe_projects = { "babycat": "../build/doxygen/xml/" }
 
 breathe_default_project = "babycat"
 
@@ -127,7 +116,7 @@ autodoc_default_options = {
     "recursive": True,
     "undoc-members": True,
     "private-members": True,
-    "special-members": None,
+    "special-members": "__init__,__new__,__repr__",
     "member-order": "bysource",
     "show-inheritance": True,
 }

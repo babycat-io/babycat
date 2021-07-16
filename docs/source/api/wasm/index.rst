@@ -2,6 +2,9 @@ Babycat WebAssembly API Documentation
 =====================================
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 1
+   :hidden:
 
-   babycat.FloatWaveform
+   FloatWaveform <FloatWaveform/index>
+
+- :doc:`FloatWaveform/index`
