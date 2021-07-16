@@ -1,4 +1,4 @@
-babycat_init_default_decode_args()
+babycat_decode_args_init_default()
 ==================================
 
-.. doxygenfunction:: babycat_init_default_decode_args
+.. doxygenfunction:: babycat_decode_args_init_default
