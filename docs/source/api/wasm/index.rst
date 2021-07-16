@@ -5,7 +5,3 @@ Babycat WebAssembly API Documentation
    :maxdepth: 5
 
    babycat.FloatWaveform
-
-
-
-.. autosummary:: babycat.floatWaveform

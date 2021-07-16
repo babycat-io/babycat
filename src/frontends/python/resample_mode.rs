@@ -23,8 +23,7 @@ following resamplers:
   ``SRC_SINC_BEST_QUALITY``. This backend produces the highest-quality
   output audio, but is often slightly slower than the other backends.
   The libsamplerate backend is always available in Babycat's Python
-  bindings, but is currently not available in
-  `Babycat's WebAssembly bindings <https://wasm.babycat.io/>`_.
+  bindings, but is currently not available in Babycat's WebAssembly bindings.
 
 - :py:attr:`RESAMPLE_MODE_BABYCAT_LANCZOS`: This is a simple implementation
   of a `Lanczos resampler <https://en.wikipedia.org/wiki/Lanczos_resampling>`_.

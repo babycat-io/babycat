@@ -24,7 +24,7 @@ WHEEL_DIR ?= target/python
 WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-PYTHON_CODE_PATHS ?= ./tests-python 
+PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
 
 
 # Windows and Unix have different paths for activating
@@ -82,7 +82,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/c.babycat.io/build docs/python.babycat.io/build docs/rust.babycat.io/build docs/wasm.babycat.io/build docs/babycat.io/build examples-wasm/decode/dist docs2/build docs2/source/api/python/generated
+	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ examples-wasm/decode/dist docs/build docs/source/api/python/generated
 	find . -name '.DS_Store' -delete
 
 # init ==============================================================
@@ -125,8 +125,8 @@ fmt-javascript:
 	$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 
 fmt-python: init-python
-	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
-	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
+	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 
 fmt-rust:
 	$(CARGO) fmt
@@ -143,9 +143,8 @@ fmt-check-javascript:
 	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 
 fmt-check-python: init-python
-	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
-	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
-
+	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 fmt-check-rust:
 	$(CARGO) fmt -- --check
 
@@ -196,9 +195,9 @@ cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BI
 
 # docs ==============================================================
 
-docs2: build-wasm-bundler install-babycat-python babycat.h $(shell git ls-files src)
-	rm -rf docs2/build docs2/source/api/python/generated
-	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs2 dirhtml
+docs: build-wasm-bundler install-babycat-python babycat.h $(shell git ls-files src)
+	rm -rf docs/build docs/source/api/python/generated
+	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 
 # build =============================================================
 
