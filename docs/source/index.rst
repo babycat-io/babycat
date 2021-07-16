@@ -12,10 +12,10 @@
    :hidden:
    :caption: API Documentation
 
-   Rust API Docs (docs.rs) <https://docs.rs/babycat>
-   Python API Docs <api/python/index>
-   C API Docs <api/c/index>
-   WebAssembly API Docs <api/wasm/index>
+   Rust Docs (docs.rs) <https://docs.rs/babycat>
+   Python Docs <api/python/index>
+   WebAssembly Docs <api/wasm/index>
+   C Docs <api/c/index>
 
 
 .. toctree::
