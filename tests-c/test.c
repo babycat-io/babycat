@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-const uint32_t NUM_RESAMPLING_MODES = 3;
+#define NUM_RESAMPLING_MODES 3
 
 const uint32_t RESAMPLING_MODES[NUM_RESAMPLING_MODES] = {
     babycat_RESAMPLE_MODE_LIBSAMPLERATE, babycat_RESAMPLE_MODE_BABYCAT_LANCZOS,
