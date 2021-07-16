@@ -1,6 +1,7 @@
 # These are the Rust files being tracked by Git.
 RUST_SRC_FILES ?= $(shell git ls-files src)
 
+
 # These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
@@ -24,7 +25,7 @@ WHEEL_DIR ?= target/python
 WHEEL_CMD ?= wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-PYTHON_CODE_PATHS ?= ./tests-python 
+PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
 
 
 # Windows and Unix have different paths for activating
@@ -51,6 +52,7 @@ else
 	BABYCAT_SHARED_LIB_NAME ?= libbabycat
 endif
 
+
 # This is the filename for the babycat binary.
 ifeq ($(OS),Windows_NT)
 	BABYCAT_BINARY_NAME ?= babycat.exe
@@ -72,84 +74,108 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c docs-c docs-wasm docs-root docs-python docs-rust docs docs-deploy-root docs-deploy-python docs-deploy-c docs-deploy-wasm docs-deploy-rust babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+
 
 # help ==============================================================
 
 help:
 	@cat makefile-help.txt
 
+
 # clean =============================================================
 
 clean:
-	rm -rf target venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ docs/c.babycat.io/build docs/python.babycat.io/build docs/rust.babycat.io/build docs/wasm.babycat.io/build docs/babycat.io/build examples-wasm/decode/dist
+	rm -rf target node_modules tests-wasm-nodejs/node_modules venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ examples-wasm/decode/dist docs/build docs/source/api/python/generated
 	find . -name '.DS_Store' -delete
+
 
 # init ==============================================================
 
-$(VENV_PATH)/.t:
+# Set up the Python virtualenv
+$(VENV_PATH)/.ti: requirements-dev.txt requirements-docs.txt
 	$(CREATE_VENV_CMD)
 	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
-	@touch $(VENV_PATH)/.t
+	@touch $(VENV_PATH)/.ti
 
-init-javascript:
+# Wrapper command for setting up the Python virtualenv
+init-python: $(VENV_PATH)/.ti
+
+# Set up our main npm node_modules, containing developer tools
+node_modules/.ti: package.json package-lock.json
 	$(NPM) rebuild && $(NPM) install
+	@touch node_modules/.ti
+
+init-javascript-minimal: node_modules/.ti
+
+# Set up our npm node_modules for testing
+tests-wasm-nodejs/node_modules/.ti: tests-wasm-nodejs/package.json tests-wasm-nodejs/package-lock.json
 	cd tests-wasm-nodejs && $(NPM) rebuild && $(NPM) install
 
-init-python: $(VENV_PATH)/.t
+# Wrapper command for setting up npm
+init-javascript: node_modules/.ti tests-wasm-nodejs/node_modules/.ti
 
-init-rust:
-	$(RUSTUP) component add clippy rustfmt
+# Install a minimal set of Rust tools to build documentation.
+init-rust-minimal:
 	$(RUSTUP) target add wasm32-unknown-unknown
-	$(CARGO) install cargo-valgrind cbindgen flamegraph wasm-pack
+	$(CARGO) install cbindgen wasm-pack
+
+# All of the Rust tools needed for development.
+init-rust: init-rust-minimal
+	$(RUSTUP) component add clippy rustfmt
+	$(CARGO) install cargo-valgrind flamegraph 
 
 init: init-javascript init-python init-rust
 
+
 # vendor ============================================================
 
-vendor/.t: Cargo.toml
+vendor/.ti: Cargo.toml
 	$(CARGO) vendor --versioned-dirs --quiet
-	@touch vendor/.t
+	@touch vendor/.ti
 
-vendor: vendor/.t
+vendor: vendor/.ti
+
 
 # fmt ===============================================================
 
 fmt-c:
 	$(CLANG_FORMAT) -i tests-c/*.c examples-c/*.c
 
-fmt-javascript:
+fmt-javascript: init-javascript-minimal
 	$(ESLINT) --fix $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 
 fmt-python: init-python
-	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
-	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
+	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 
-fmt-rust:
+fmt-rust: init-rust
 	$(CARGO) fmt
 
 fmt: fmt-c fmt-javascript fmt-python fmt-rust
+
 
 # fmt-check =========================================================
 
 fmt-check-c:
 	$(CLANG_FORMAT) --dry-run -Werror tests-c/*
 
-fmt-check-javascript:
+fmt-check-javascript: init-javascript-minimal
 	$(ESLINT) $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 
 fmt-check-python: init-python
-	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
-	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS) ./docs/python.babycat.io/source/conf.py ./docs/babycat.io/source/conf.py
+	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 
-fmt-check-rust:
+fmt-check-rust: init-rust
 	$(CARGO) fmt -- --check
 
 fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
+
 
 # lint ==============================================================
 
@@ -161,6 +187,7 @@ lint-rust: vendor
 	CARGO_TARGET_DIR=target/all-features $(CARGO) clippy --release --all-features
 
 lint: lint-rust lint-python
+
 
 # cargo build commands ==============================================
 
@@ -194,119 +221,59 @@ target/frontend-binary/release/$(BABYCAT_BINARY_NAME): vendor
 
 cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 
+
 # docs ==============================================================
 
-docs-c: init-python babycat.h
-	rm -rf docs/c.babycat.io/build
-	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
-	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
+docs: install-babycat-python build-wasm-bundler babycat.h $(shell git ls-files src)
+	rm -rf docs/build docs/source/api/python/generated
+	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 
-docs-wasm: init-python
-	rm -rf docs/wasm.babycat.io/build
-	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/wasm.babycat.io/source docs/wasm.babycat.io/build
-	cp -v docs/wasm.babycat.io/source/_redirects docs/wasm.babycat.io/build
+# This is the command we use to build docs on Netlify.
+# The Netlify build image has Python 3.8 installed,
+# but does not come with the virtualenv extension.
+docs-netlify: init-javascript-minimal build-wasm-bundler babycat.h
+# Clean any previous builds.
+	rm -rf docs/build docs/source/api/python/generated
+# Install Python dependencies for building the docs.
+	python3 -m pip install -r requirements-docs.txt
+# Install Babycat's Python bindings.
+	python3 -m pip install --force-reinstall .
+# Generate the docs.
+	export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 
-docs-root: init-python
-	rm -rf docs/babycat.io/build
-	$(ACTIVATE_VENV_CMD) && $(MAKE) -C docs/babycat.io dirhtml
-
-docs-python: install-babycat-python
-	rm -rf docs/python.babycat.io/build
-	$(ACTIVATE_VENV_CMD) && sphinx-multiversion docs/python.babycat.io/source docs/python.babycat.io/build
-	cp -v docs/python.babycat.io/source/_redirects docs/python.babycat.io/build
-
-# This is used to render documentation locally, but in production, we
-# redirect to docs.rs.
-docs-rust: vendor
-	rm -rf docs/rust.babycat.io/build
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --lib --frozen --no-deps
-	mv target/frontend-rust/doc docs/rust.babycat.io/build
-	cp -v docs/rust.babycat.io/source/* docs/rust.babycat.io/build
-
-docs: docs-c docs-wasm docs-root docs-python docs-rust
-
-# docs-deploy =======================================================
-
-# Used to build babycat.io.
-# The Netlify (or CloudFlare Pages?) build image does not require us
-# to create a virtualenv when installing Python packages.
-docs-deploy-root:
-	rm -rf docs/babycat.io/build
-	python3 -m pip install --requirement requirements-docs.txt
-	make -C docs/babycat.io dirhtml
-
-# Used to build python.babycat.io.
-# The Netlify build image does not require us to create a virtualenv
-# when installing Python packages.
-docs-deploy-python:
-	rm -rf docs/python.babycat.io/build
-	python3 -m pip install --requirement requirements-docs.txt
-	python3 -m pip install .
-	sphinx-multiversion docs/python.babycat.io/source docs/python.babycat.io/build
-	cp -v docs/python.babycat.io/source/_redirects docs/python.babycat.io/build
-
-# Used to build c.babycat.io.
-# The Netlify build image does not require us to create a virtualenv
-# when installing Python packages.
-# 
-# The Netlify build image also comes with Rust, but we have to install
-# cbindgen manually.
-docs-deploy-c:
-	rm -rf docs/c.babycat.io/build
-	cargo install cbindgen
-	cbindgen --quiet --output babycat.h
-	python3 -m pip install --requirement requirements-docs.txt
-	sphinx-multiversion docs/c.babycat.io/source docs/c.babycat.io/build
-	cp -v docs/c.babycat.io/source/_redirects docs/c.babycat.io/build
-
-# Used to build wasm.babycat.io.
-# The Netlify build image does not require us to create a virtualenv
-# when installing Python packages.
-docs-deploy-wasm:
-	rm -rf docs/wasm.babycat.io/build
-	python3 -m pip install --requirement requirements-docs.txt
-	sphinx-multiversion docs/wasm.babycat.io/source docs/wasm.babycat.io/build
-	cp -v docs/wasm.babycat.io/source/_redirects docs/wasm.babycat.io/build
-
-# ONLY deploy the redirects for the Rust documentation.
-# In production, we expect our Rust docs to be built by docs.rs
-docs-deploy-rust:
-	rm -rf docs/rust.babycat.io/build
-	mkdir docs/rust.babycat.io/build
-	cp -v docs/rust.babycat.io/source/_redirects docs/rust.babycat.io/build/_redirects
 
 # build =============================================================
 
-babycat.h: cbindgen.toml $(RUST_SRC_FILES)
+babycat.h: init-rust-minimal cbindgen.toml $(RUST_SRC_FILES)
 	$(CBINDGEN) --quiet --output babycat.h
 	@$(CLANG_FORMAT) -i babycat.h || true
 
-$(WHEEL_DIR)/*.whl: vendor/.t $(RUST_SRC_FILES)
+$(WHEEL_DIR)/*.whl: vendor/.ti $(RUST_SRC_FILES)
 	$(PYTHON) -m pip $(WHEEL_CMD)
 
 build-python: $(WHEEL_DIR)/*.whl
 
 install-babycat-python: build-python init-python
-	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
 
 build-python-manylinux: docker-build-pip
 	$(DOCKER_COMPOSE) run --rm --user=$$(id -u):$$(id -g) pip $(WHEEL_CMD)
 
 build-rust: cargo-build-release-frontend-rust
 
-build-wasm-bundler: vendor
+build-wasm-bundler: vendor init-rust-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=bundler --out-dir=./target/wasm/bundler -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/bundler/.npmrc
 
-build-wasm-nodejs: vendor
+build-wasm-nodejs: vendor init-javascript-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/nodejs/.npmrc
 
-build-wasm-web: vendor
+build-wasm-web: vendor init-javascript-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/web/.npmrc
 
-build: build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web
+build: build-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web
 
 # For now, we are going to purposely exclude `build-binary` from running
 # in the general `build`  command. This is because the babycat command line
@@ -332,7 +299,7 @@ test-python: install-babycat-python
 test-rust: vendor
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --features=frontend-rust
 
-test-wasm-nodejs: build-wasm-nodejs
+test-wasm-nodejs: init-javascript build-wasm-nodejs
 	cd tests-wasm-nodejs && $(NPM) run test
 
 test: test-rust test-python test-wasm-nodejs test-c
@@ -348,12 +315,14 @@ doctest-rust: vendor
 
 doctest: doctest-rust doctest-python
 
+
 # bench =============================================================
 
 bench-rust: vendor
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench
 
 bench: bench-rust
+
 
 # example ===========================================================
 
@@ -369,6 +338,7 @@ example-decode-python: install-babycat-python
 example-decode-c: babycat.h cargo-build-release-frontend-c
 	$(CC) -Wall -o target/decode_c examples-c/decode.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
 	./target/decode_c
+
 
 # docker ============================================================
 

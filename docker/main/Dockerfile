@@ -82,3 +82,6 @@ RUN tar xf valgrind.tar.bz2 \
 
 # Install optional Rust tools.
 RUN cargo install cargo-valgrind flamegraph
+
+# Remove the "I have no name!" bash shell prompt.
+RUN echo 'export PS1="__@docker:\w \$ "' >> /etc/bash.bashrc

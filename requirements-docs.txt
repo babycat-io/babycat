@@ -1,6 +1,9 @@
 # Sphinx makes our documentation
 Sphinx==3.5.4
 
+# Generates JavaScript and TypeScript documentation for Sphinx
+sphinx-js==3.0.1
+
 # adds metadata to Sphinx pages
 sphinxext-opengraph==0.4.1
 
@@ -9,9 +12,6 @@ sphinx-autodoc-typehints==1.11.1
 
 # used to display tabs in documentation
 sphinx-inline-tabs==2021.3.28b7
-
-# used to display multiple versions of the documentation
-sphinx-multiversion==0.2.4
 
 # generates Sphinx documentation from Doxygen XML files
 breathe==4.30.0

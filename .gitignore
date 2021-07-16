@@ -1,3 +1,6 @@
+# exclude node packages
+node_modules
+
 # Rust files to exclude
 /target
 Cargo.lock
@@ -10,7 +13,8 @@ babycat.h
 test_c/test_babycat
 
 # Ignore generated documentation
-docs/python/_build
+docs2/build/
+docs/source/api/python/generated
 
 # Random things to exclude
 .DS_Store
@@ -163,5 +167,6 @@ cython_debug/
 # Make sure to include everything in vendor/
 !vendor/**
 
-# Make sure to include everything in node_modules.
-!**/node_modules/**
+# but re-ignore the .ti file, which is used by our
+# Makefile to track dependencies
+vendor/.ti

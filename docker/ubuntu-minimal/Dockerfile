@@ -9,6 +9,9 @@ RUN apt-get update \
     pkg-config \
     # Helps us build libsamplerate and potentially other C/C++ dependencies.
     cmake \
+    # Used to generate the automated C header documentation
+    # at https://c.babycat.io.
+    doxygen \
     # Required by wasm-pack.
     libssl-dev \
     # Required for building the Babycat command line app
