@@ -1,43 +1,42 @@
 """Configuration file for the Sphinx documentation builder."""
-from typing import List
-
 
 # -- Core metadata --------------------------------------------------
 
-project = 'Babycat'
-copyright = '2021, Neocrym Records Inc.'
-author = 'Neocrym Records Inc.'
+project = "Babycat"
+copyright = "2021, Neocrym Records Inc."  # pylint: disable=redefined-builtin
+author = "Neocrym Records Inc."
 
 
 # -- Sphinx extensions ----------------------------------------------
 
 extensions = [
+    #
     # Renders Sphinx docs from JavaScript/TypeScript source code.
     "sphinx_js",
-
+    #
     # Renders Sphinx docs from Python docstrings.
     "sphinx.ext.autodoc",
-
+    #
     # Generates autodoc summaries.
     "sphinx.ext.autosummary",
-
+    #
     # Adds support for NumPy and Google-style docstrings.
     "sphinx.ext.napoleon",
-
+    #
     # Allows for linking to other Sphinx docs websites.
     "sphinx.ext.intersphinx",
-
+    #
     # Renders Sphinx docs from C docstrings.
     # Breathe runs Doxygen on C headers to generate Doxygen XML.
     # Breathe then renders the Doxygen XML as Sphinx.
     "breathe",
-
+    #
     # Add type hints.
     "sphinx_autodoc_typehints",
-
+    #
     # Generates Open Graph meta tags. Useful for Twitter/FB embed.
     "sphinxext.opengraph",
-
+    #
     # Generates content with clickable tabs.
     # Useful for showing code samples in multiple languages.
     "sphinx_inline_tabs",
@@ -56,7 +55,7 @@ intersphinx_mapping = {
 
 # -- Options for HTML output ----------------------------------------
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 html_theme = "neocrym_sphinx_theme"
 html_static_path = ["_static"]
 html_css_files = ["css/custom.css"]
@@ -102,7 +101,7 @@ breathe_separate_member_pages = False
 
 # We tell Doxygen to load our babycat.h.
 breathe_projects_source = dict(
-    babycat=("../..",["babycat.h"]),
+    babycat=("../..", ["babycat.h"]),
 )
 
 breathe_default_project = "babycat"
@@ -136,7 +135,6 @@ autodoc_default_options = {
 
 # -- Options for JavaScript/TypeScript output -----------------------
 
-js_language = "javascript" # not TypeScript
+js_language = "javascript"  # not TypeScript
 
 js_source_path = "../../target/wasm/bundler/"
-
