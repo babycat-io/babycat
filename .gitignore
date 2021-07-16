@@ -166,3 +166,7 @@ cython_debug/
 
 # Make sure to include everything in vendor/
 !vendor/**
+
+# but re-ignore the .ti file, which is used by our
+# Makefile to track dependencies
+vendor/.ti
