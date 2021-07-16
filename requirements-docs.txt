@@ -2,7 +2,7 @@
 Sphinx==3.5.4
 
 # Generates JavaScript and TypeScript documentation for Sphinx
-sphinx-js==3.1.2
+sphinx-js==3.0.1
 
 # adds metadata to Sphinx pages
 sphinxext-opengraph==0.4.1
