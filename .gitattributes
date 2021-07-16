@@ -5,7 +5,6 @@
 # endings alters the checksums, which causes the build to fail.
 vendor/** binary
 audio-for-tests/** binary
-**/node_modules/** binary
 
 [core]
 autocrlf=false

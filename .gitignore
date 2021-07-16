@@ -1,3 +1,6 @@
+# exclude node packages
+node_modules
+
 # Rust files to exclude
 /target
 Cargo.lock
@@ -163,6 +166,3 @@ cython_debug/
 
 # Make sure to include everything in vendor/
 !vendor/**
-
-# Make sure to include everything in node_modules.
-!**/node_modules/**
