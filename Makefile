@@ -74,7 +74,7 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build docker-run-docs-netlify
+.PHONY: help clean init-javascript init-rust-wasm-pack init-rust-cargo-valgrind init-rust-flamegraph init-rust-minimal init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build docker-run-docs-netlify
 
 
 # help ==============================================================
@@ -117,15 +117,25 @@ tests-wasm-nodejs/node_modules/.ti: tests-wasm-nodejs/package.json tests-wasm-no
 # Wrapper command for setting up npm
 init-javascript: node_modules/.ti tests-wasm-nodejs/node_modules/.ti
 
+init-rust-cbindgen:
+	$(CBINDGEN) --version || $(CARGO) install cbindgen
+
+init-rust-wasm-pack:
+	$(WASM_PACK) --version || $(CARGO) install wasm-pack
+
+init-rust-cargo-valgrind:
+	$(CARGO) valgrind --version || $(CARGO) install cargo-valgrind
+
+init-rust-flamegraph:
+	$(CARGO) flamegraph --version || $(CARGO) install flamegraph
+
 # Install a minimal set of Rust tools to build documentation.
-init-rust-minimal:
+init-rust-minimal: init-rust-cbindgen init-rust-wasm-pack
 	$(RUSTUP) target add wasm32-unknown-unknown
-	$(CARGO) install cbindgen wasm-pack
 
 # All of the Rust tools needed for development.
-init-rust: init-rust-minimal
+init-rust: init-rust-minimal init-rust-cargo-valgrind init-rust-flamegraph
 	$(RUSTUP) component add clippy rustfmt
-	$(CARGO) install cargo-valgrind flamegraph 
 
 init: init-javascript init-python init-rust
 
