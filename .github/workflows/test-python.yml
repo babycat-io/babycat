@@ -42,9 +42,11 @@ jobs:
       run: make init-python
 
     - name: Check Python formatting
+      if: matrix.os == 'ubuntu-20.04'
       run: make fmt-check-python
 
     - name: Lint Python code
+      if: matrix.os == 'ubuntu-20.04'
       run: make lint-python
 
     - name: Run Python tests
