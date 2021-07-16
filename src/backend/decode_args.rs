@@ -10,8 +10,14 @@ pub const DEFAULT_CONVERT_TO_MONO: bool = false;
 pub const DEFAULT_ZERO_PAD_ENDING: bool = false;
 pub const DEFAULT_RESAMPLE_MODE: u32 = 0;
 
+/// Use this value to resample audio with libsamplerate.
+///
+/// The libsamplerate resampler is not available when Babycat
+/// is compiled to the `wasm32-unknown-unknown` WebAssembly target.
 pub const RESAMPLE_MODE_LIBSAMPLERATE: u32 = 1;
+/// Use this value to resample audio with Babycat's Lanczos resampler.
 pub const RESAMPLE_MODE_BABYCAT_LANCZOS: u32 = 2;
+/// Use this value to resample audio with Babycat's sinc resampler.
 pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 
 /// Specifies what transformations to apply to the audio during the decoding
