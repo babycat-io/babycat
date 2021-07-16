@@ -86,7 +86,7 @@ help:
 # clean =============================================================
 
 clean:
-	rm -rf target node_modules venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ examples-wasm/decode/dist docs/build docs/source/api/python/generated
+	rm -rf target node_modules tests-wasm-nodejs/node_modules venv docker/main/.ti docker/pip/.ti docker/rust/.ti .ipynb_checkpoints .mypy_cache .pytest_cache Cargo.lock babycat.h tests-python/__pycache__ examples-wasm/decode/dist docs/build docs/source/api/python/generated
 	find . -name '.DS_Store' -delete
 
 
@@ -299,7 +299,7 @@ test-python: install-babycat-python
 test-rust: vendor
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --features=frontend-rust
 
-test-wasm-nodejs: build-wasm-nodejs
+test-wasm-nodejs: init-javascript build-wasm-nodejs
 	cd tests-wasm-nodejs && $(NPM) run test
 
 test: test-rust test-python test-wasm-nodejs test-c
