@@ -91,7 +91,7 @@ ogp_custom_meta_tags = [
 # when we are using breathe and Sphinx.
 breathe_separate_member_pages = False
 
-breathe_projects = { "babycat": "../build/doxygen/xml/" }
+breathe_projects = {"babycat": "../build/doxygen/xml/"}
 
 breathe_default_project = "babycat"
 

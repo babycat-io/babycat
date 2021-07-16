@@ -23,6 +23,8 @@
    :hidden:
    :caption: Tutorials
 
+   tutorials/terminology
+   tutorials/development-requirements
    Using Babycat <tutorials/using-babycat/index>
    Contributing to Babycat <tutorials/contributing/index>
 
