@@ -12,8 +12,12 @@ fn resample_benchmark(c: &mut Criterion) {
     )
     .unwrap();
 
-    group.bench_function("lanczos_resample", |b| {
-        b.iter(|| audio.resample_by_mode(48000, babycat::RESAMPLE_MODE_LANCZOS))
+    group.bench_function("babycat_lanczos_resample", |b| {
+        b.iter(|| audio.resample_by_mode(48000, babycat::RESAMPLE_MODE_BABYCAT_LANCZOS))
+    });
+
+    group.bench_function("babycat_sinc_resample", |b| {
+        b.iter(|| audio.resample_by_mode(48000, babycat::RESAMPLE_MODE_BABYCAT_SINC))
     });
 
     group.bench_function("libsamplerate_resample", |b| {
