@@ -103,3 +103,8 @@ docker-build-main               - main: Many versions of Python and
 
 docker-build-pip                - pip: A container for building
                                   manylinux images.
+
+--
+docker-run-docs-netlify         Runs our documentation build rule
+                                inside of a copy of Netlify's
+                                build image.

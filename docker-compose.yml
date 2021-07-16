@@ -61,3 +61,19 @@ services:
       - type: bind
         source: "."
         target: /io
+
+  # A local copy of the Netlify build image.
+  # Used to test the `make docs-netlify` build command.
+  netlify:
+    image: netlify/build:focal
+    init: true
+    network_mode: host
+    entrypoint: /opt/build-bin/build
+    command: "make docs-netlify"
+    working_dir: /opt/buildhome/repo
+    environment:
+      PYTHON_VERSION: "3.8"
+    volumes:
+      - type: bind
+        source: "."
+        target: /opt/buildhome/repo

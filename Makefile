@@ -74,7 +74,7 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build
+.PHONY: help clean init-javascript init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build docker-run-docs-netlify
 
 
 # help ==============================================================
@@ -340,7 +340,7 @@ example-decode-c: babycat.h cargo-build-release-frontend-c
 	./target/decode_c
 
 
-# docker ============================================================
+# docker build ======================================================
 
 docker/rust/.ti: docker-compose.yml docker/rust/Dockerfile
 	$(DOCKER_COMPOSE) build cargo
@@ -367,3 +367,9 @@ docker-build-main: docker/main/.ti
 docker-build-pip: docker/pip/.ti
 
 docker-build: docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip
+
+
+# docker run ========================================================
+
+docker-run-docs-netlify:
+	$(DOCKER_COMPOSE) run --rm netlify
