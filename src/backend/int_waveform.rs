@@ -77,6 +77,15 @@ impl fmt::Debug for IntWaveform {
 }
 
 impl crate::backend::waveform::Waveform<i16> for IntWaveform {
+    /// Constructs an `IntWaveform` from an already-decoded vector of 16-bit integer samples.
+    ///
+    /// # Arguments
+    /// - `frame_rate_hz`: The frame rate of the audio in the `interleaved_samples`
+    ///    buffer.
+    /// - `num_channels`: The number of audio channels in the `interleaved_samples`
+    ///    buffer.
+    /// - `interleaved_samples`: An in-memory buffer of *already-decoded* audio.
+    ///
     fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<i16>) -> Self {
         let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
         IntWaveform {
@@ -87,18 +96,22 @@ impl crate::backend::waveform::Waveform<i16> for IntWaveform {
         }
     }
 
+    /// Returns the frame rate of the `IntWaveform`.
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
+    /// Returns the total number of channels in the `IntWaveform`.
     fn num_channels(&self) -> u32 {
         self.num_channels
     }
 
+    /// Returns the total number of decoded frames in the `IntWaveform`.
     fn num_frames(&self) -> u64 {
         self.num_frames
     }
 
+    /// Returns the waveform as a slice of channel-interleaved `i16` samples.
     fn interleaved_samples(&self) -> &[i16] {
         &self.interleaved_samples
     }

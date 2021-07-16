@@ -234,7 +234,7 @@ cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BI
 
 # docs ==============================================================
 
-docs: install-babycat-python build-wasm-bundler babycat.h $(shell git ls-files src)
+docs: init-javascript-minimal install-babycat-python build-wasm-bundler babycat.h $(shell git ls-files src)
 	rm -rf docs/build docs/source/api/python/generated
 	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 

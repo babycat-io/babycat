@@ -1,17 +1,32 @@
 use serde::{Deserialize, Serialize};
 
+/// The default file extension hint when decoding. Hints are not necessary.
 pub const DEFAULT_FILE_EXTENSION: &str = "";
+/// The default MIME type hint when decoding. Hints are not necessary.
 pub const DEFAULT_MIME_TYPE: &str = "";
+/// The default start time cutoff when decoding audio. We start at the beginning.
 pub const DEFAULT_START_TIME_MILLISECONDS: u64 = 0;
+/// The default end time cutoff when decoding audio. We continue decoding until the end of the file.
 pub const DEFAULT_END_TIME_MILLISECONDS: u64 = 0;
+/// The default frame rate to resample to. By default, we do not change the frame rate's audio.
 pub const DEFAULT_FRAME_RATE_HZ: u32 = 0;
+/// The default number of channels to decode. By default, we decode all of the available channels.
 pub const DEFAULT_NUM_CHANNELS: u32 = 0;
+/// By default, we do not flatten all audio channels into a mono channel.
 pub const DEFAULT_CONVERT_TO_MONO: bool = false;
+/// By default, we do not zero-pad the ending of an audio file.
 pub const DEFAULT_ZERO_PAD_ENDING: bool = false;
+/// Sets the default resampler.
 pub const DEFAULT_RESAMPLE_MODE: u32 = 0;
 
+/// Use this value to resample audio with libsamplerate.
+///
+/// The libsamplerate resampler is not available when Babycat
+/// is compiled to the `wasm32-unknown-unknown` WebAssembly target.
 pub const RESAMPLE_MODE_LIBSAMPLERATE: u32 = 1;
+/// Use this value to resample audio with Babycat's Lanczos resampler.
 pub const RESAMPLE_MODE_BABYCAT_LANCZOS: u32 = 2;
+/// Use this value to resample audio with Babycat's sinc resampler.
 pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 
 /// Specifies what transformations to apply to the audio during the decoding
@@ -69,31 +84,11 @@ pub struct DecodeArgs {
     pub zero_pad_ending: bool,
     /// Sets which resampling method is used if you have set `frame_rate_hz`.
     /// This usually defaults to the highest-accuracy resampler compiled
-    /// into Babycat.
+    /// into Babycat. The available choices are:
+    /// * [`babycat::RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE)
+    /// * [`babycat::RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::RESAMPLE_MODE_BABYCAT_LANCZOS)
+    /// * [`babycat::RESAMPLE_MODE_BABYCAT_SINC`](crate::RESAMPLE_MODE_BABYCAT_SINC)
     ///
-    /// Current valid values include:
-    /// * [`babycat::RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE):
-    ///   This uses [libsamplerate](http://www.mega-nerd.com/SRC/) at the
-    ///   `SRC_SINC_BEST_QUALITY` setting. This is the highest-quality resampler
-    ///   currently offered by Babycat, although it is slightly slower than the other
-    ///   resamplers. This option is only available if
-    ///   it is enabled at compile-time, and is disabled for targets
-    ///   missing a libc, such as the WebAssembly `wasm32-unknown-unknown` target.
-    ///   This backend can be enabled or disabled at compile-time using the
-    ///   Cargo feature `enable-libsamplerate`. It is enabled by default on
-    ///   all platforms except WebAssembly. The libsamplerate library is written
-    ///   in C and its dependence on libc makes it currently not possible
-    ///   to compile libsamplerate to the `wasm32-unknown-unknown` target.
-    /// * [`babycat::RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::RESAMPLE_MODE_BABYCAT_LANCZOS):
-    ///   A Lanczos resampler to use when compiling to targets like
-    ///   `wasm32-unknown-unknown` where libsamplerate cannot be compiled to.
-    ///   This is a simple impmenentation of a
-    ///   [Lanczos resampler](https://en.wikipedia.org/wiki/Lanczos_resampling).
-    ///   This is the fastest (and lowest-quality) resampler available in Babycat.
-    /// * [`babycat::RESAMPLE_MODE_BABYCAT_SINC`](crate::RESAMPLE_MODE_BABYCAT_SINC):
-    ///   This is an implementation of a sinc resampler
-    ///   [as described by Stanford professor Julius O. Smith](https://ccrma.stanford.edu/~jos/resample/).
-    ///   The speed and quality of this resampler is in between the above two.
     #[serde(default)]
     pub resample_mode: u32,
 }
