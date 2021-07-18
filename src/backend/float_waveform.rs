@@ -139,6 +139,12 @@ impl FloatWaveform {
     /// - `filename`: A filename of an encoded audio file on the local filesystem.
     /// - `decode_args`: Instructions on how to decode the audio.
     ///
+    /// # Feature flags
+    /// This function is only available if the Cargo feature `enable-fileystem`
+    /// flag is enabled. The `enable-filesystem` flag is enabled by default
+    /// for the Babycat's Rust, Python, and C frontends, but is disabled
+    /// for the WebAssembly frontend.
+    ///
     /// # Examples
     /// **Decode one audio file with the default decoding arguments:**
     /// ```
@@ -214,6 +220,12 @@ impl FloatWaveform {
     /// - `filenames`: A filename of an encoded audio file on the local filesystem.
     /// - `decode_args`: Instructions on how to decode the audio.
     /// - `batch_args`: Instructions on how to divide the work across multiple threads.
+    ///
+    /// # Feature flags
+    /// This function is only available if both of the `enable-filesystem`
+    /// and `enable-multithreading` features are enabled. These features
+    /// are enabled by default in Babycat's Rust, Python, and C frontends.
+    /// These features are disabled in Babycat's WebAssembly frontend.
     ///
     /// # Examples
     /// **(Attempt to) decode three files:**
@@ -738,6 +750,13 @@ impl FloatWaveform {
     }
 
     /// Writes the waveform to the filesystem as a WAV file.
+    ///
+    /// # Feature flags
+    /// This function is only available if the Cargo feature `enable-fileystem`
+    /// flag is enabled. The `enable-filesystem` flag is enabled by default
+    /// for the Babycat's Rust, Python, and C frontends, but is disabled
+    /// for the WebAssembly frontend.
+    ///
     #[cfg(feature = "enable-filesystem")]
     pub fn to_wav_file(&self, filename: &str) -> Result<(), Error> {
         let writer_spec = hound::WavSpec {
