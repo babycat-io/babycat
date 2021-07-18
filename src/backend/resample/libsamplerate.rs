@@ -9,6 +9,14 @@ use crate::backend::errors::Error;
 #[cfg(feature = "enable-libsamplerate")]
 use crate::backend::resample::common::validate_args;
 
+/// Resample input audio from one sample rate to another.
+///
+/// # Feature flags
+/// This function is only available if the Cargo feature `enable-libsamplerate`
+/// flag is enabled. The `enable-libsamplerate` flag is enabled by default
+/// for the Babycat's Rust, Python, and C frontends, but is disabled
+/// for the WebAssembly frontend.
+///
 #[allow(unused_variables)]
 pub fn resample(
     input_frame_rate_hz: u32,

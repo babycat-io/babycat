@@ -30,14 +30,12 @@
 //!   This uses [libsamplerate](http://www.mega-nerd.com/SRC/) at the
 //!   `SRC_SINC_BEST_QUALITY` setting. This is the highest-quality resampler
 //!   currently offered by Babycat, although it is slightly slower than the other
-//!   resamplers. This option is only available if
-//!   it is enabled at compile-time, and is disabled for targets
-//!   missing a libc, such as the WebAssembly `wasm32-unknown-unknown` target.
-//!   This backend can be enabled or disabled at compile-time using the
-//!   Cargo feature `enable-libsamplerate`. It is enabled by default on
-//!   all platforms except WebAssembly. The libsamplerate library is written
-//!   in C and its dependence on libc makes it currently not possible
-//!   to compile libsamplerate to the `wasm32-unknown-unknown` target.
+//!   resamplers. This resampler is only available when Babycat is compiled with
+//!  the Cargo feature `enable-libsamplerate` enabled. This feature is enabled
+//!   by default in Babycat's C, Python, and Rust frontends. The libsamplerate
+//!   resampler is currently unavailable in Babycat's WebAssembly frontend
+//!   because libsamplerate's dependency on libc makes it hard to compile
+//!   it to the `wasm32-unknown-unknown` target.
 //!
 //! * [`babycat::RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::RESAMPLE_MODE_BABYCAT_LANCZOS):
 //!   A Lanczos resampler to use when compiling to targets like
