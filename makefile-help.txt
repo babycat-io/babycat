@@ -1,60 +1,75 @@
-Makefile commands:
+Babycat Makefile commands:
 -----------------------------------------------------------------------
 
 Many commands operate on codebases of one language. If you want to
 only affect one language, then use the `-lang` suffix.
 
---
+-----------------------------------------------------------------------
 clean                           Cleans the workspace of build and
                                 temporary files.
 
----
+
+-----------------------------------------------------------------------
 init                            Initializes your working environment
 init-javascript                 by installing various build tools.
-init-python
-init-rust
+init-python                     Python tools are set up inside a
+init-rust                       virtualenv.
 
---
+
+-----------------------------------------------------------------------
 vendor                          Vendor Rust dependencies into the
                                 `vendor/` subdirectory on the
                                 filesystem.
 
---
+
+-----------------------------------------------------------------------
 fmt                             Automatically format code.
 fmt-c
 fmt-javascript
 fmt-python
 fmt-rust
 
---
+
+-----------------------------------------------------------------------
 fmt-check                       Check formatting, but do not fix
 fmt-check-c                     anything. Useful for CI.
 fmt-check-javascript
 fmt-check-python
 fmt-check-rust
 
---
+-----------------------------------------------------------------------
 lint                            Lint code for errors.
 lint-python
 lint-rust
 
---
+
+-----------------------------------------------------------------------
 docs                            Build the documentation website.
 
---
+
+-----------------------------------------------------------------------
 babycat.h                       Build a C header file that describe
                                 Babycat's C API.
 
---
+
+-----------------------------------------------------------------------
 build                           Build the babycat libraries+bindings.
+
+babycat.h                       Build the C header file that describes
+                                babycat's C bindings.
 
 build-python                    Build a Python abi3 wheel for the
                                 current operating system.
 
-build-python-manylinux          Build a Python manylinux wheel using
-                                a Docker container.
+build-python-manylinux          Build a Python abi3 manylinux wheel
+                                using a Docker container.
 
 build-rust                      Build a Rust library.
+
+build-wasm-bundler              Build the WebAssembly bindings in a
+                                format suitable for
+                                JavaScript/TypeScript projects
+                                using a bundler like Webpack.
 
 build-wasm-nodejs               Builds the WebAssembly bindings to
                                 be used in the NodeJS runtime.
@@ -64,7 +79,14 @@ build-wasm-web                  Builds the WebAssembly bindings to
                                 not require a JavaScript bundler
                                 like Webpack.
 
---
+build-binary                    Builds the Babycat command line app.
+                                This command is not invoked by the
+                                above `make build` command because
+                                the command line app has additional
+                                dependencies on Linux.
+
+
+-----------------------------------------------------------------------
 test                            Run all unit and integration tests.
 test-c
 test-c-valgrind                 Runs C tests while checking for memory
@@ -72,20 +94,30 @@ test-c-valgrind                 Runs C tests while checking for memory
 test-rust
 test-wasm-nodejs
 
---
+
+-----------------------------------------------------------------------
 doctest                         Run *ONLY* tests that are written in
 doctest-python                  documentation strings.
 doctest-rust
 
---
+
+-----------------------------------------------------------------------
 bench                           Run benchmarks.
 bench-rust
 
---
+
+-----------------------------------------------------------------------
 example-resampler-comparison    Run the sample rate conversion
                                 example.
 
---
+example-decode-rust             Run the Rust decoding example.
+
+example-decode-python           Run the Python decoding example.
+
+example-decode-c                Run the C decoding example.
+
+
+-----------------------------------------------------------------------
 docker-build                    Manage Docker containers for this
                                 project. We have four container
                                 images. These commands build the
@@ -104,7 +136,9 @@ docker-build-main               - main: Many versions of Python and
 docker-build-pip                - pip: A container for building
                                   manylinux images.
 
---
+
+-----------------------------------------------------------------------
 docker-run-docs-netlify         Runs our documentation build rule
                                 inside of a copy of Netlify's
                                 build image.
+

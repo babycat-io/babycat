@@ -163,7 +163,7 @@ fmt-python: init-python
 	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 
-fmt-rust: init-rust
+fmt-rust: init-rust vendor
 	$(CARGO) fmt
 
 fmt: fmt-c fmt-javascript fmt-python fmt-rust
@@ -182,7 +182,7 @@ fmt-check-python: init-python
 	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 
-fmt-check-rust: init-rust
+fmt-check-rust: init-rust vendor
 	$(CARGO) fmt -- --check
 
 fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
@@ -194,7 +194,7 @@ lint-python: init-python
 	$(ACTIVATE_VENV_CMD) && pylint $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && mypy $(PYTHON_CODE_PATHS)
 
-lint-rust: vendor
+lint-rust: init-rust vendor
 	CARGO_TARGET_DIR=target/all-features $(CARGO) clippy --release --all-features
 
 lint: lint-rust lint-python
