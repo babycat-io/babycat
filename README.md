@@ -11,7 +11,7 @@ Babycat is written in Rust, has generated bindings for C, Python, and WebAssembl
 Babycat's bindings to Python allow for the concurrent decoding of many audio files without being slowed down by the Python Global Interpreter Lock (GIL), allowing you to get work done faster than you could in pure Python.
 
 ### Babycat is permissively-licensed.
-Babycat is licensed under the MIT license. Unlike many other libraries in the audio ecosystem,you can use Babycat in any project you want without any restrictions.
+Babycat is licensed under the MIT license. Unlike many other libraries in the audio ecosystem, you can use Babycat in any project you want without any restrictions.
 
 ### Babycat is battle-tested in industry.
 Babycat was built at and is actively maintained by [Neocrym](https://www.neocrym.com/), a record label that use artificial intelligence to find and promote the world's greatest musicians. Neocrym uses Babycat to decode millions of songs as part of audio feature engineering pipelines for training machine learning models.
