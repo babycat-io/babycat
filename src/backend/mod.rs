@@ -1,5 +1,6 @@
 mod batch_args;
 mod common;
+pub mod decode;
 mod decode_args;
 mod errors;
 mod float_waveform;

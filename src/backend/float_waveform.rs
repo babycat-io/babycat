@@ -11,30 +11,14 @@ use crate::backend::named_result::NamedResult;
 #[cfg(feature = "enable-multithreading")]
 use rayon::prelude::*;
 
-use symphonia::core::audio::AudioBufferRef;
-use symphonia::core::audio::Signal;
-use symphonia::core::codecs::DecoderOptions;
-use symphonia::core::formats::FormatOptions;
-use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
-use symphonia::core::meta::MetadataOptions;
-use symphonia::core::probe::Hint;
-
 use crate::backend::common::milliseconds_to_frames;
+use crate::backend::decode::symphonia::SymphoniaDecoderF32;
+use crate::backend::decode::Decoder;
 use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::sample_rescaling::i16_to_f32;
-use crate::backend::sample_rescaling::i32_to_f32;
 use crate::backend::waveform::Waveform;
-
-/// Retrieves a sample from a Symphonia AudioBuffer with frame and channel indexes.
-fn get_sample(audio_buffer_ref: &AudioBufferRef, frame_idx: usize, channel_idx: usize) -> f32 {
-    match audio_buffer_ref {
-        AudioBufferRef::F32(ref buf_f32) => buf_f32.chan(channel_idx)[frame_idx],
-        AudioBufferRef::S32(ref buf_i32) => i32_to_f32(buf_i32.chan(channel_idx)[frame_idx]),
-    }
-}
-
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct FloatWaveform {
@@ -362,62 +346,11 @@ impl FloatWaveform {
             return Err(Error::WrongNumChannelsAndMono);
         }
 
-        // Set up defaults for the decoder.
-        let format_opts: FormatOptions = Default::default();
-        let metadata_opts: MetadataOptions = Default::default();
-        let decoder_opts: DecoderOptions = DecoderOptions { verify: false };
+        let mut decoder = *SymphoniaDecoderF32::new(encoded_stream, file_extension, mime_type)?;
 
-        // Provide file extension and mime type hints to speed up
-        // guessing which audio format the input is.
-        // An incorrect hint will not prevent a successful decoding.
-        let mut hint = Hint::new();
-        if file_extension != DEFAULT_FILE_EXTENSION {
-            hint.with_extension(&file_extension);
-        }
-        if mime_type != DEFAULT_MIME_TYPE {
-            hint.mime_type(&mime_type);
-        }
-
-        // Initialize the decoder.
-        let media_source: Box<dyn MediaSource> = Box::new(ReadOnlySource::new(encoded_stream));
-        let media_source_stream = MediaSourceStream::new(media_source, Default::default());
-        let probed = match symphonia::default::get_probe().format(
-            &hint,
-            media_source_stream,
-            &format_opts,
-            &metadata_opts,
-        ) {
-            Ok(value) => value,
-            // If we could not identify the input as one of our supported
-            // encodings, then throw an error.
-            Err(symphonia::core::errors::Error::Unsupported { .. }) => {
-                return Err(Error::UnknownInputEncoding);
-            }
-            // Raise unknown errors.
-            Err(err) => {
-                return Err(Error::UnknownDecodeErrorWithMessage(leak_str!(
-                    err.to_string()
-                )))
-            }
-        };
-        let mut reader = probed.format;
-        let track = reader.default_track().unwrap();
-        let codec_params = &track.codec_params;
-        let mut decoder = match symphonia::default::get_codecs().make(codec_params, &decoder_opts) {
-            Ok(value) => value,
-            // If we could not identify the input as one of our supported
-            // encodings, then throw an error.
-            Err(symphonia::core::errors::Error::Unsupported { .. }) => {
-                return Err(Error::UnknownInputEncoding);
-            }
-            // Raise unknown errors.
-            Err(_) => {
-                return Err(Error::UnknownDecodeError);
-            }
-        };
         // Examine the actual shape of this audio file.
-        let original_frame_rate_hz = codec_params.sample_rate.unwrap();
-        let original_num_channels = codec_params.channels.unwrap().count() as u32;
+        let original_frame_rate_hz = decoder.frame_rate_hz();
+        let original_num_channels = decoder.num_channels();
 
         // If the user provided a negative frame rate, throw an error.
         // We waited this long to throw an error because we also want to
@@ -438,7 +371,7 @@ impl FloatWaveform {
             if decode_args.num_channels == DEFAULT_NUM_CHANNELS {
                 original_num_channels
             } else if decode_args.num_channels < 1 {
-                decoder.close();
+                let _ = decoder.close();
                 return Err(Error::WrongNumChannels(
                     decode_args.num_channels,
                     original_num_channels,
@@ -446,7 +379,7 @@ impl FloatWaveform {
             } else if original_num_channels >= decode_args.num_channels {
                 decode_args.num_channels
             } else {
-                decoder.close();
+                let _ = decoder.close();
                 return Err(Error::WrongNumChannels(
                     decode_args.num_channels,
                     original_num_channels,
@@ -456,79 +389,67 @@ impl FloatWaveform {
 
         // Compute the exact start and end sample indexes for us to begin
         // and end decoding.
-        let start_time_samples: u64 =
+        let start_time_frames: u64 =
             decode_args.start_time_milliseconds * original_frame_rate_hz as u64 / 1000;
-        let end_time_samples: u64 =
+        let end_time_frames: u64 =
             decode_args.end_time_milliseconds * original_frame_rate_hz as u64 / 1000;
+
+        let start_time_samples = start_time_frames * original_num_channels as u64;
+        let end_time_samples = end_time_frames * original_num_channels as u64;
 
         // Decode all packets, ignoring decode errors.
         let mut buffer: Vec<f32> = Vec::new();
-        let mut current_sample: u64 = 0;
-        'packet_loop: while let Ok(packet) = reader.next_packet() {
-            match decoder.decode(&packet) {
-                // Decode errors are not fatal.
-                // We will just try to decode the next packet.
-                Err(symphonia::core::errors::Error::DecodeError(..)) => {
-                    continue;
-                }
+        let mut current_sample_idx: u64 = 0;
 
-                Err(_) => {
-                    decoder.close();
-                    return Err(Error::UnknownDecodeError);
-                }
+        'frame_loop: loop {
+            // If the current sample is before our start offset,
+            // then ignore it.
+            if current_sample_idx < start_time_samples {
+                let _ = decoder.next();
+                current_sample_idx += 1;
+                continue;
+            }
+            // If we have a defined end offset and we are past it,
+            // then stop the decoding loop entirely.
+            if decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
+                && current_sample_idx >= end_time_samples
+            {
+                break;
+            }
 
-                Ok(decoded_buffer_ref) => {
-                    let num_frames_in_packet = match decoded_buffer_ref {
-                        AudioBufferRef::F32(ref buf_f32) => buf_f32.frames(),
-                        AudioBufferRef::S32(ref buf_i32) => buf_i32.frames(),
-                    };
-
-                    // Iterate over all of the samples in the current packet.
-                    for current_sample_in_packet in 0..num_frames_in_packet {
-                        current_sample += 1;
-
-                        // If the current sample is before our start offset,
-                        // then ignore it.
-                        if current_sample <= start_time_samples {
-                            continue;
-                        }
-
-                        // If we have a defined end offset and we are past it,
-                        // then stop the decoding loop entirely.
-                        if decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
-                            && current_sample > end_time_samples
-                        {
-                            break 'packet_loop;
-                        }
-                        // If we are going to convert this audio waveform to mono,
-                        // then we append the average value of the selected input channels.
-                        if decode_args.convert_to_mono {
-                            let mut current_sample_sum: f32 = 0.0_f32;
-                            for channel_idx in 0..selected_num_channels {
-                                current_sample_sum += get_sample(
-                                    &decoded_buffer_ref,
-                                    current_sample_in_packet,
-                                    channel_idx as usize,
-                                );
+            if decode_args.convert_to_mono {
+                let mut current_sample_sum = 0.0_f32;
+                for channel_idx in 0..original_num_channels {
+                    match decoder.next() {
+                        None => break 'frame_loop,
+                        Some(next_sample_result) => {
+                            current_sample_idx += 1;
+                            let next_sample = next_sample_result?;
+                            if channel_idx < selected_num_channels {
+                                current_sample_sum += next_sample;
                             }
-                            current_sample_sum /= selected_num_channels as f32;
-                            buffer.push(current_sample_sum);
-                        } else {
-                            // Iterate over every channel buffer in the sample and
-                            // append its value to our return type.
-                            for channel_idx in 0..selected_num_channels {
-                                buffer.push(get_sample(
-                                    &decoded_buffer_ref,
-                                    current_sample_in_packet,
-                                    channel_idx as usize,
-                                ));
+                        }
+                    }
+                }
+                current_sample_sum /= selected_num_channels as f32;
+                buffer.push(current_sample_sum);
+            } else {
+                for channel_idx in 0..original_num_channels {
+                    match decoder.next() {
+                        None => break 'frame_loop,
+                        Some(next_sample_result) => {
+                            current_sample_idx += 1;
+                            if channel_idx < selected_num_channels {
+                                let next_sample = next_sample_result?;
+                                buffer.push(next_sample);
                             }
                         }
                     }
                 }
             }
         }
-        decoder.close();
+
+        let _ = decoder.close();
 
         let num_channels = if decode_args.convert_to_mono {
             1
@@ -541,7 +462,7 @@ impl FloatWaveform {
         if decode_args.zero_pad_ending
             && decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
         {
-            let expected_buffer_len = (end_time_samples - start_time_samples) * num_channels as u64;
+            let expected_buffer_len = (end_time_frames - start_time_frames) * num_channels as u64;
             let buffer_padding = expected_buffer_len - buffer.len() as u64;
             if buffer_padding > 0 {
                 buffer.extend(vec![0.0_f32; buffer_padding as usize]);
