@@ -230,6 +230,17 @@ mod test_float_waveform_from_file {
     }
 
     #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_6() {
+        let decode_args = DecodeArgs {
+            start_time_milliseconds: 45000,
+            end_time_milliseconds: 60000,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(decode_args);
+        assert_waveform(result, COF_NUM_CHANNELS, 507276, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
     fn test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_1() {
         let decode_args = DecodeArgs {
             start_time_milliseconds: 0,
