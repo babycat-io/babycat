@@ -61,16 +61,17 @@ Babycat's core feature set includes:
 
 Bindings for Rust, C, Python, and JavaScript/WebAssembly
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The majority of Babycat is written in Rust, with a few dependencies on C libraries like `libsamplerate <http://www.mega-nerd.com/SRC/index.html>`_. Babycat can be used from the following target languages:
+Babycat can be used from the following target languages:
 
-- **Rust**. The majority of Babycat is written in Rust, with the exception of a few C dependencies like libsamplerate. 
-- **WebAssembly**. Babycat generates WebAssembly bindings that can be called from JavaScript and can run either in a web browser or in Node.js. Babycat can be compiled to the ``wasm32-unknown-unknown`` WebAssembly target, allowing you to build WebAssembly applications while keeping your compiled binary size small.
-- **Python**. Babycat's Python bindings allow you to decode, resample, and encode audio without being slowed down by Python's Global Interpreter Lock (GIL). Babycat also integrates with IPython/Jupyter notebooks, allowing yout to play and listen to audio decoded by Babycat.
-- **C**. A subset of Babycat's features are available via a simple C interface, which are useful for both creating audio analysis projects in C or creating Babycat bindings for languages not mentioned above.
+- **Rust**. The majority of Babycat is written in Rust, with the exception of a few C dependencies like  `libsamplerate <http://www.mega-nerd.com/SRC/index.html>`_. 
+- **Python**. Babycat's Python bindings allow you to decode, resample, and encode audio without being slowed down by Python's Global Interpreter Lock (GIL). Babycat also integrates with Jupyter, allowing you to play and listen to audio streams decoded by Babycat inside of a Jupyter notebook.
+- **WebAssembly**. Babycat generates JavaScript/WebAssembly bindings that can run either in a web browser or in Node.js.
+- **C**. Babycat exposes a C API, which is useful for both creating audio analysis projects in C or creating Babycat bindings for languages not mentioned above.
+
 
 Effective multithreading and parallelism
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Babycat is designed to parallelize the decoding of many audio files across multiple CPU cores. Babycat's Python bindings allow for the parallel decoding of audio files without being slowed down by Python's Global Interpreter Lock.
+Babycat is designed to parallelize the decoding of many audio files across multiple CPU cores. Babycat's Python bindings allow for parallel audio decoding without being slowed down by Python's Global Interpreter Lock.
 
 Open source under the MIT license
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,20 +96,24 @@ You can find Babycat's source cdoe at `github.com/babycat-io/babycat <https://gi
       </thead>
       <tbody>
          <tr>
+            <td><strong>Rust</strong></td>
             <td><a href="https://docs.rs/babycat">docs.rs/babycat</a></td>
             <td><a href="https://crates.io/crates/babycat">crates.io/crates/babycat</a></td>
          </tr>
          <tr>
+            <td><strong>Python</strong></td>
             <td><a href="https://babycat.io/api/python/">babycat.io/api/python</a></td>
             <td><a href="https://pypi.org/project/babycat/">pypi.org/project/babycat</a></td>
          </tr>
          <tr>
+            <td><strong>WebAssembly</strong></td>
             <td><a href="https://babycat.io/api/wasm/">babycat.io/api/wasm</a></td>
             <td><a href="https://www.npmjs.com/package/babycat">npmjs.com/package/babycat</a></td>
          </tr>
          <tr>
+            <td><strong>C</strong></td>
             <td><a href="https://babycat.io/api/c/">babycat.io/api/c</a></td>
-            <td>No pre-compiled C packages yet</td>
+            <td>No releases yet. You can compile from source.</td>
          </tr>
       </tbody>
    </table>
