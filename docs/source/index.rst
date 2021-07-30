@@ -45,40 +45,82 @@
    <img src="https://static.neocrym.com/images/babycat/v1/SVG/babycat-body-icon-transparent-white-text-social-media-cover.svg" class="mega-hero-img only-dark" />
 
 
-Babycat is a library for decoding and manipulating audio files
-==============================================================
+Babycat is an open-source library for decoding and manipulating audio files
+===========================================================================
 
-Babycat is written in Rust, with bindings to Python, C, and WebAssembly
------------------------------------------------------------------------
-Babycat is designed to help you manipulate audio, no matter what programming language you are using
+Features
+--------
 
-Babycat is written and open-sourced at `Neocrym <https://www.neocrym.com>`_
----------------------------------------------------------------------------
-Neocrym is a record label that uses artificial intelligence to find and promote the world's greatest musicians.  At Neocrym, we use Babycat to decode and analyze tens of millions of songs.
+Decoding, resampling, and encoding
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Babycat's core feature set includes:
 
-Decode MP3, FLAC, and WAV
+- decoding MP3, FLAC, and WAV.
+- resampling audio to different frame rates.
+- encoding waveforms to WAV.
+
+Bindings for Rust, C, Python, and JavaScript/WebAssembly
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The majority of Babycat is written in Rust, with a few dependencies on C libraries like `libsamplerate <http://www.mega-nerd.com/SRC/index.html>`_. Babycat can be used from the following target languages:
+
+- **Rust**. The majority of Babycat is written in Rust, with the exception of a few C dependencies like libsamplerate. 
+- **WebAssembly**. Babycat generates WebAssembly bindings that can be called from JavaScript and can run either in a web browser or in Node.js. Babycat can be compiled to the ``wasm32-unknown-unknown`` WebAssembly target, allowing you to build WebAssembly applications while keeping your compiled binary size small.
+- **Python**. Babycat's Python bindings allow you to decode, resample, and encode audio without being slowed down by Python's Global Interpreter Lock (GIL). Babycat also integrates with IPython/Jupyter notebooks, allowing yout to play and listen to audio decoded by Babycat.
+- **C**. A subset of Babycat's features are available via a simple C interface, which are useful for both creating audio analysis projects in C or creating Babycat bindings for languages not mentioned above.
+
+Effective multithreading and parallelism
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Babycat is designed to parallelize the decoding of many audio files across multiple CPU cores. Babycat's Python bindings allow for the parallel decoding of audio files without being slowed down by Python's Global Interpreter Lock.
+
+Open source under the MIT license
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The audio ecosystem is full of expensive proprietary software packages, or (L)GPL-licensed code that restricts how you can use it. In contrast, Babycat is licensed under the MIT license, allowing you to use Babycat any way you want for free.
+
+Babycat is battle-tested in industry
+------------------------------------
+Babycat was built at and is actively maintained by  `Neocrym <https://www.neocrym.com>`_, a record label that uses artificial intelligence to find and promote the world's greatest musicians. Neocrym uses Babycat to decode millions of songs as part of audio feature engineering pipelines for machine learning models.
+
+Documentation and releases
 --------------------------
-Babycat currently supports demuxing/decoding MP3, FLAC,and WAV/PCM files into waveforms in memory, and then writing those waveforms back as WAV.
+You can find Babycat's source cdoe at `github.com/babycat-io/babycat <https://github.com/babycat-io/babycat>`_.
 
-Documentation and packages
---------------------------
+.. raw:: html
 
-All Babycat source code, tests, and documentation are hosted in a single repository at `github.com/babycat-io/babycat <https://github.com/babycat-io/babycat>`_.
+   <table>
+      <thead>
+         <tr>
+            <td><strong>Documentation</strong></td>
+            <td><strong>Releases</strong></td>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td><a href="https://docs.rs/babycat">docs.rs/babycat</a></td>
+            <td><a href="https://crates.io/crates/babycat">crates.io/crates/babycat</a></td>
+         </tr>
+         <tr>
+            <td><a href="https://babycat.io/api/python/">babycat.io/api/python</a></td>
+            <td><a href="https://pypi.org/project/babycat/">pypi.org/project/babycat</a></td>
+         </tr>
+         <tr>
+            <td><a href="https://babycat.io/api/wasm/">babycat.io/api/wasm</a></td>
+            <td><a href="https://www.npmjs.com/package/babycat">npmjs.com/package/babycat</a></td>
+         </tr>
+         <tr>
+            <td><a href="https://babycat.io/api/c/">babycat.io/api/c</a></td>
+            <td>No pre-compiled C packages yet</td>
+         </tr>
+      </tbody>
+   </table>
 
-You can find online documentation and pre-compiled packages for each Babycat binding at the below locations:
 
 Examples
 --------
-
 The above documentation links have more information about how to use Babycat, but here are a few examples of how to use Babycat in each of the supported languages
 
 Decoding an audio file into a waveform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This is an example of taking an audio file on disk and returning the waveform in memory.
-
-This is an example of decoding a file named  ``'audio.mp3'``  into memory and then
-printing:
+This is an example of decoding a file named ``'audio.mp3'`` into memory and then printing:
 
 - the number of frames in the audio
 - the number of channels
@@ -200,19 +242,19 @@ printing:
          return 0;
       }
 
-.. raw:: html
 
-   <h2 class="mega-header">
-      Acknowledgements
-   </h2>
 
-   <p>The first version of Babycat was an internal project at Neocrym written by <a href="https://www.linkedin.com/in/ritikmishra">Ritik Mishra</a>.
-   Since then, the code has been extended and open-sourced by <a href="https://www.linkedin.com/in/jamesmishra">James Mishra</a>.</p>
+Acknowledgements
+----------------
+The first version of Babycat was an internal project at Neocrym written by `Ritik Mishra <https://www.linkedin.com/in/ritikmishra>`_. Since then, the code has been extended and open-sourced by `James Mishra <https://www.linkedin.com/in/jamesmishra>`_.
 
-   <p>Babycat is built on top of <em>many</em> high-quality open source packages, including:
-      <ul>
-         <li><a href="https://github.com/pdeljanov/Symphonia">Symphonia</a> by Philip Deljanov</li>
-         <li><a href="http://www.mega-nerd.com/SRC/index.html">libsamplerate</a> by Erik de Castro Lopo</li>
-         <li><a href="https://github.com/ruuda/hound">Hound</a> by Ruud van Asseldonk</li>
-      </ul>
-   </p>
+Babycat is built on top of *many* high-quality open source packages, including:
+
+- `Symphonia <https://github.com/pdeljanov/Symphonia>`_ for audio decoding.
+- `libsamplerate <http://www.mega-nerd.com/SRC/index.html>`_ for high-quality audio resampling.
+- `Hound <https://github.com/ruuda/hound>`_ for WAV encoding.
+- `PyO3 <https://github.com/PyO3/pyo3>`_ for generating Python bindings.
+- `cbindgen <https://github.com/eqrion/cbindgen>`_ for generating C bindings.
+- `wasm-bindgen <https://github.com/rustwasm/wasm-bindgen>`_ for generating WebAssembly bindings.
+
+Babycat's goal is to provide a simple and consistent API on top of the existing audio ecosystem, without sacrificing performance, portability, or permissive licensing.
