@@ -83,7 +83,9 @@ Babycat was built at and is actively maintained by  `Neocrym <https://www.neocry
 
 Documentation and releases
 --------------------------
-You can find Babycat's source cdoe at `github.com/babycat-io/babycat <https://github.com/babycat-io/babycat>`_.
+You can find Babycat's source code at `github.com/babycat-io/babycat <https://github.com/babycat-io/babycat>`_.
+
+This website is where we keep Babycat's documentation. You can find documentation and releases for each Babycat binding at the following locations:
 
 .. raw:: html
 
