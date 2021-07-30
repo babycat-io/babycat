@@ -1,6 +1,9 @@
 # exclude node packages
 node_modules
 
+# Ignore our vendored Rust dependencies
+vendor
+
 # Rust files to exclude
 /target
 Cargo.lock
@@ -163,10 +166,3 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
-# Make sure to include everything in vendor/
-!vendor/**
-
-# but re-ignore the .ti file, which is used by our
-# Makefile to track dependencies
-vendor/.ti
