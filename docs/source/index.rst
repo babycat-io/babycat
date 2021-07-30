@@ -87,9 +87,10 @@ You can find Babycat's source cdoe at `github.com/babycat-io/babycat <https://gi
 
 .. raw:: html
 
-   <table>
+   <table class="bigtable">
       <thead>
          <tr>
+            <td><strong>Binding</strong></td>
             <td><strong>Documentation</strong></td>
             <td><strong>Releases</strong></td>
          </tr>
