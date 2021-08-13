@@ -14,6 +14,8 @@ on:
 env:
   CARGO_TERM_COLOR: always
   MACOSX_DEPLOYMENT_TARGET: 10.7
+  RUSTUP_HOME: /home/runner/.rustup
+  CARGO_HOME: /home/runner/.cargo
 
 jobs:
   test:
