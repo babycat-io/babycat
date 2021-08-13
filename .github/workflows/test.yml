@@ -53,6 +53,7 @@ jobs:
     - name: Revendor Rust code
       run: |
         rm -rfv Cargo.lock vendor
+        mkdir -p vendor/symphonia-0.3.0
         cargo vendor --versioned-dirs
 
     - name: Check code formatting (only on Ubuntu)
