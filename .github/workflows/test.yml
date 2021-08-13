@@ -50,6 +50,14 @@ jobs:
       with:
         node-version: "14"
 
+    - name: Rustup show
+      run: rustup show
+
+    - uses: actions-rs/cargo@v1
+      with:
+        command: vendor
+        args: --versioned-dirs --verbose
+
     - name: Revendor Rust code
       run: |
         rm -rfv Cargo.lock vendor
