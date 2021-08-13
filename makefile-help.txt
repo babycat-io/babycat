@@ -116,6 +116,11 @@ example-decode-python           Run the Python decoding example.
 
 example-decode-c                Run the C decoding example.
 
+example-decode-wasm             Build (but do NOT run) the
+                                WebAssembly/JavaScript decoding
+                                example. If you want to run it,
+                                you need to view it in a web browser.
+
 
 -----------------------------------------------------------------------
 docker-build                    Manage Docker containers for this

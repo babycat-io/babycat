@@ -75,7 +75,7 @@ else
 endif
 
 
-.PHONY: help clean init-javascript init-rust-wasm-pack init-rust-cargo-valgrind init-rust-flamegraph init-rust-minimal init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build docker-run-docs-netlify
+.PHONY: help clean init-javascript init-rust-wasm-pack init-rust-cargo-valgrind init-rust-flamegraph init-rust-minimal init-rust init vendor fmt-c fmt-javascript fmt-python fmt-rust fmt fmt-check-javascript fmt-check-python fmt-check-rust fmt-check lint-rust lint cargo-build-release-all-features cargo-build-release-frontend-rust cargo-build-release-frontend-wasm cargo-build-release-frontend-c babycat.h build-python install-babycat-python build-rust build-wasm-bundler build-wasm-nodejs build-wasm-web build test-c test-c-valgrind test-rust test-wasm-nodejs test doctest-python doctest-rust doctest bench-rust bench example-resampler-comparison example-decode-rust example-decode-python example-decode-c example-decode-wasm docker-build-cargo docker-build-ubuntu-minimal docker-build-main docker-build-pip docker-build docker-run-docs-netlify
 
 
 # help ==============================================================
@@ -355,6 +355,9 @@ example-decode-c: babycat.h cargo-build-release-frontend-c
 	$(CC) -Wall -o target/decode_c examples-c/decode.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
 	./target/decode_c
 
+example-decode-wasm: build-wasm-bundler
+	cd examples-wasm/decode/ && $(NPM) install
+	cd examples-wasm/decode/ && ./node_modules/.bin/webpack
 
 # docker build ======================================================
 
