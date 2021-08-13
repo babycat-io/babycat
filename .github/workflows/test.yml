@@ -13,13 +13,14 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CARGO_HOME: ${{ matrix.cargo_home }}
-  RUSTUP_HOME: ${{ matrix.rustup_home }}
   MACOSX_DEPLOYMENT_TARGET: 10.7
 
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_HOME: ${{ matrix.cargo_home }}
+      RUSTUP_HOME: ${{ matrix.rustup_home }}
     strategy:
       fail-fast: false
       matrix:
