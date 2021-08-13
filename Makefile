@@ -91,6 +91,15 @@ clean:
 	find . -name '.DS_Store' -delete
 
 
+# vendor ============================================================
+
+vendor/.ti: Cargo.toml
+	$(CARGO) vendor --versioned-dirs --quiet
+	@touch vendor/.ti
+
+vendor: vendor/.ti
+
+
 # init ==============================================================
 
 # Set up the Python virtualenv
@@ -131,7 +140,7 @@ init-rust-flamegraph:
 	$(CARGO) flamegraph --version || $(CARGO) install flamegraph
 
 # Install a minimal set of Rust tools to build documentation.
-init-rust-minimal: init-rust-cbindgen init-rust-wasm-pack
+init-rust-minimal: vendor init-rust-cbindgen init-rust-wasm-pack
 	$(RUSTUP) target add wasm32-unknown-unknown
 
 # All of the Rust tools needed for development.
@@ -139,15 +148,6 @@ init-rust: init-rust-minimal init-rust-cargo-valgrind init-rust-flamegraph
 	$(RUSTUP) component add clippy rustfmt
 
 init: init-javascript init-python init-rust
-
-
-# vendor ============================================================
-
-vendor/.ti: Cargo.toml
-	$(CARGO) vendor --versioned-dirs --quiet
-	@touch vendor/.ti
-
-vendor: vendor/.ti
 
 
 # fmt ===============================================================
@@ -163,7 +163,7 @@ fmt-python: init-python
 	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 
-fmt-rust: init-rust vendor
+fmt-rust: init-rust
 	$(CARGO) fmt
 
 fmt: fmt-c fmt-javascript fmt-python fmt-rust
@@ -182,7 +182,7 @@ fmt-check-python: init-python
 	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 
-fmt-check-rust: init-rust vendor
+fmt-check-rust: init-rust
 	$(CARGO) fmt -- --check
 
 fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
@@ -194,7 +194,7 @@ lint-python: init-python
 	$(ACTIVATE_VENV_CMD) && pylint $(PYTHON_CODE_PATHS)
 	$(ACTIVATE_VENV_CMD) && mypy $(PYTHON_CODE_PATHS)
 
-lint-rust: init-rust vendor
+lint-rust: init-rust
 	CARGO_TARGET_DIR=target/all-features $(CARGO) clippy --release --all-features
 
 lint: lint-rust lint-python
@@ -203,31 +203,31 @@ lint: lint-rust lint-python
 # cargo build commands ==============================================
 
 ## all features
-target/all-features/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): vendor
+target/all-features/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): init-rust-minimal
 	CARGO_TARGET_DIR=target/all-features $(CARGO) build --release --all-features
 
 cargo-build-release-all-features: target/all-features/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 ## frontend-rust
-target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): vendor
+target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): init-rust-minimal
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --features=frontend-rust
 
 cargo-build-release-frontend-rust: target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 ## frontend-wasm
-target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: vendor
+target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: init-rust-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(CARGO) build --release --features=frontend-wasm
 
 cargo-build-release-frontend-wasm: target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 ## frontend-c
-target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: vendor
+target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}: init-rust-minimal
 	CARGO_TARGET_DIR=target/frontend-c $(CARGO) build --release --features=frontend-c
 
 cargo-build-release-frontend-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 ## frontend-binary
-target/frontend-binary/release/$(BABYCAT_BINARY_NAME): vendor
+target/frontend-binary/release/$(BABYCAT_BINARY_NAME): init-rust-minimal
 	CARGO_TARGET_DIR=target/frontend-binary $(CARGO) build --release --features=frontend-binary --bin=babycat
 
 cargo-build-release-frontend-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
@@ -244,7 +244,7 @@ docs: init-javascript-minimal install-babycat-python build-wasm-bundler babycat.
 # This is the command we use to build docs on Netlify.
 # The Netlify build image has Python 3.8 installed,
 # but does not come with the virtualenv extension.
-docs-netlify: init-javascript-minimal build-wasm-bundler babycat.h
+docs-netlify: init-rust-minimal init-javascript-minimal build-wasm-bundler babycat.h
 # Clean any previous builds.
 	rm -rf docs/build
 	mkdir docs/build
@@ -264,7 +264,7 @@ babycat.h: init-rust-minimal cbindgen.toml $(RUST_SRC_FILES)
 	$(CBINDGEN) --quiet --output babycat.h
 	@$(CLANG_FORMAT) -i babycat.h || true
 
-$(WHEEL_DIR)/*.whl: vendor/.ti $(RUST_SRC_FILES)
+$(WHEEL_DIR)/*.whl: init-rust-minimal $(RUST_SRC_FILES)
 	$(PYTHON) -m pip $(WHEEL_CMD)
 
 build-python: $(WHEEL_DIR)/*.whl
@@ -277,15 +277,15 @@ build-python-manylinux: docker-build-pip
 
 build-rust: cargo-build-release-frontend-rust
 
-build-wasm-bundler: vendor init-rust-minimal
+build-wasm-bundler: init-rust-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=bundler --out-dir=./target/wasm/bundler -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/bundler/.npmrc
 
-build-wasm-nodejs: vendor init-javascript-minimal
+build-wasm-nodejs: init-rust-minimal init-javascript-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=nodejs --out-dir=./target/wasm/nodejs -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/nodejs/.npmrc
 
-build-wasm-web: vendor init-javascript-minimal
+build-wasm-web: init-rust-minimal init-javascript-minimal
 	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=web --out-dir=./target/wasm/web -- --no-default-features --features=frontend-wasm
 	cp .npmrc-example ./target/wasm/web/.npmrc
 
