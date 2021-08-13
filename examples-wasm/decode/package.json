@@ -10,8 +10,9 @@
   "author": "Neocrym Records Inc.",
   "license": "MIT",
   "devDependencies": {
-    "html-webpack-plugin": "^5.3.1",
-    "webpack": "^5.37.0"
+    "html-webpack-plugin": "^5.3.2",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.7.2"
   },
   "dependencies": {
     "babycat": "file:../../target/wasm/bundler"
