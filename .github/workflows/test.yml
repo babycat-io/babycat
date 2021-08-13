@@ -72,8 +72,5 @@ jobs:
       if: matrix.os == 'ubuntu-20.04'
 
     - name: Run C tests (only on Ubuntu and macOS for now)
-      run: make test-wasm-nodejs
+      run: make test-c
       if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-10.15'
-
-    - name: Run example-resampler-comparison
-      run: make example-resampler-comparison
