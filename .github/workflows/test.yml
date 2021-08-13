@@ -13,9 +13,9 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_HOME: ${{ matrix.cargo_home }}
+  RUSTUP_HOME: ${{ matrix.rustup_home }}
   MACOSX_DEPLOYMENT_TARGET: 10.7
-  RUSTUP_HOME: /usr/share/rust/.rustup
-  CARGO_HOME: /usr/share/rust/.cargo
 
 jobs:
   test:
@@ -23,7 +23,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        - os: ubuntu-20.04
+          cargo_home: /usr/share/rust/.cargo
+          rustup_home: /usr/share/rust/.rustup
+        - os: macos-10.15
+          cargo_home: /Users/runner/.cargo
+          rustup_home: /Users/runner/.rustup
+        - os: windows-2019
+          cargo_home: C:\Rust\.cargo
+          rustup_home: C:\Rust\.rustup
 
     steps:
     - uses: actions/checkout@v2
@@ -52,19 +60,10 @@ jobs:
       with:
         node-version: "14"
 
-    - name: Rustup show
-      run: rustup show
-
-    - uses: actions-rs/cargo@v1
-      with:
-        command: vendor
-        args: --versioned-dirs --verbose
-
     - name: Revendor Rust code
       run: |
         rm -rfv Cargo.lock vendor
-        mkdir -p vendor/symphonia-0.3.0
-        cargo vendor --versioned-dirs
+        cargo vendor --versioned-dirs --verbose
 
     - name: Check code formatting (only on Ubuntu)
       if: matrix.os == 'ubuntu-20.04'
