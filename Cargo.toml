@@ -59,7 +59,14 @@ wasm-bindgen-test = "0.3"
 criterion = { version = "0.3", features = ["html_reports"] }
 
 [dependencies.symphonia]
-version = "0.3"
+git = "https://github.com/neocrym-forks/Symphonia"
+
+# latest tagged release. MP3 files begin with 0s.
+#tag = "v0.3.0"
+
+# latest commit where MP3 files begin with zeros.
+rev = "2cafae82b664ceb14dd5d058f534574399764165"
+
 features = [
     "aac",
     "flac",

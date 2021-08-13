@@ -7,22 +7,22 @@ pub const AT_FRAME_RATE_HZ: u32 = 44100;
 
 pub const BT_FILENAME: &str = "./audio-for-tests/blippy-trance/track.mp3";
 pub const BT_NUM_CHANNELS: u32 = 2;
-pub const BT_NUM_FRAMES: u64 = 5294592;
+pub const BT_NUM_FRAMES: u64 = 5293440;
 pub const BT_FRAME_RATE_HZ: u32 = 44100;
 
 pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.mp3";
 pub const COF_NUM_CHANNELS: u32 = 2;
-pub const COF_NUM_FRAMES: u64 = 2492928;
+pub const COF_NUM_FRAMES: u64 = 2491776;
 pub const COF_FRAME_RATE_HZ: u32 = 44100;
 
 pub const LCT_FILENAME: &str = "./audio-for-tests/left-channel-tone/track.mp3";
 pub const LCT_NUM_CHANNELS: u32 = 2;
-pub const LCT_NUM_FRAMES: u64 = 1325952;
+pub const LCT_NUM_FRAMES: u64 = 1324800;
 pub const LCT_FRAME_RATE_HZ: u32 = 44100;
 
 pub const MONO_DTMF_FILENAME: &str = "./audio-for-tests/mono-dtmf-tones/track.mp3";
 pub const MONO_DTMF_NUM_CHANNELS: u32 = 1;
-pub const MONO_DTMF_NUM_FRAMES: u64 = 443520;
+pub const MONO_DTMF_NUM_FRAMES: u64 = 442368;
 pub const MONO_DTMF_FRAME_RATE_HZ: u32 = 44100;
 
 pub const OHFY_FILENAME: &str = "./audio-for-tests/on-hold-for-you/track.mp3";
@@ -32,7 +32,7 @@ pub const OHFY_FRAME_RATE_HZ: u32 = 44100;
 
 pub const TMS_FILENAME: &str = "./audio-for-tests/tone-missing-sounds/track.mp3";
 pub const TMS_NUM_CHANNELS: u32 = 1;
-pub const TMS_NUM_FRAMES: u64 = 1325952;
+pub const TMS_NUM_FRAMES: u64 = 1324800;
 pub const TMS_FRAME_RATE_HZ: u32 = 44100;
 
 pub const VR_FILENAME: &str = "./audio-for-tests/voxel-revolution/track.mp3";

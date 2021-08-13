@@ -629,7 +629,7 @@ impl FloatWaveform {
     ///     >>> print(batch[1].exception)
     ///     None
     ///     >>> batch[1].waveform
-    ///     <babycat.FloatWaveform: 5294592 frames, 2 channels, 44100 hz>
+    ///     <babycat.FloatWaveform: 5293440 frames, 2 channels, 44100 hz>
     ///
     ///     For the third file, the ``waveform`` field is ``None`` and the
     ///     ``exception`` field contains a reference to a

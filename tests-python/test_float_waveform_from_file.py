@@ -156,7 +156,7 @@ def test_circus_of_freaks_start_end_milliseconds_5():
         end_time_milliseconds=60000,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 1169928
+    assert waveform.num_frames == 1168776
     assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
 
 
@@ -297,7 +297,7 @@ def test_circus_of_freaks_resample_1():
         frame_rate_hz=22050,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 1246464
+    assert waveform.num_frames == 1245888
     assert waveform.frame_rate_hz == 22050
 
 
@@ -307,7 +307,7 @@ def test_circus_of_freaks_resample_2():
         frame_rate_hz=11025,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 623232
+    assert waveform.num_frames == 622944
     assert waveform.frame_rate_hz == 11025
 
 
@@ -317,7 +317,7 @@ def test_circus_of_freaks_resample_3():
         frame_rate_hz=88200,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 4985856
+    assert waveform.num_frames == 4983552
     assert waveform.frame_rate_hz == 88200
 
 
@@ -327,7 +327,7 @@ def test_circus_of_freaks_resample_4():
         frame_rate_hz=4410,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 249293
+    assert waveform.num_frames == 249178
     assert waveform.frame_rate_hz == 4410
 
 
@@ -337,7 +337,7 @@ def test_circus_of_freaks_resample_5():
         frame_rate_hz=44099,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 2492872
+    assert waveform.num_frames == 2491720
     assert waveform.frame_rate_hz == 44099
 
 
@@ -347,7 +347,7 @@ def test_circus_of_freaks_resample_6():
         frame_rate_hz=48000,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 2713392
+    assert waveform.num_frames == 2712138
     assert waveform.frame_rate_hz == 48000
 
 
@@ -357,7 +357,7 @@ def test_circus_of_freaks_resample_7():
         frame_rate_hz=60000,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 3391739
+    assert waveform.num_frames == 3390172
     assert waveform.frame_rate_hz == 60000
 
 
@@ -367,7 +367,7 @@ def test_circus_of_freaks_resample_8():
         frame_rate_hz=88200,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 4985856
+    assert waveform.num_frames == 4983552
     assert waveform.frame_rate_hz == 88200
 
 
@@ -377,7 +377,7 @@ def test_circus_of_freaks_resample_9():
         frame_rate_hz=96000,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 5426783
+    assert waveform.num_frames == 5424275
     assert waveform.frame_rate_hz == 96000
 
 
@@ -387,7 +387,7 @@ def test_circus_of_freaks_resample_10():
         frame_rate_hz=200,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 11306
+    assert waveform.num_frames == 11301
     assert waveform.frame_rate_hz == 200
 
 
@@ -397,7 +397,7 @@ def test_circus_of_freaks_resample_11():
         frame_rate_hz=2000,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 113058
+    assert waveform.num_frames == 113006
     assert waveform.frame_rate_hz == 2000
 
 
@@ -407,7 +407,7 @@ def test_circus_of_freaks_resample_12():
         frame_rate_hz=173,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
-    assert waveform.num_frames == 9780
+    assert waveform.num_frames == 9775
     assert waveform.frame_rate_hz == 173
 
 

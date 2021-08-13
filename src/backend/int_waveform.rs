@@ -22,7 +22,7 @@ use serde::{Deserialize, Serialize};
 /// ).unwrap();
 /// assert_eq!(
 ///     format!("{:?}", float_waveform),
-///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
 /// );
 /// println!("{:?}", &float_waveform.interleaved_samples()[30000..30005]);
 /// // [0.0238994, 0.08098572, 0.0208567, 0.09139156, 0.015145444]
@@ -32,7 +32,7 @@ use serde::{Deserialize, Serialize};
 /// let int_waveform = IntWaveform::from(float_waveform);
 /// assert_eq!(
 ///     format!("{:?}", int_waveform),
-///     "IntWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+///     "IntWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
 /// );
 /// println!("{:?}", &int_waveform.interleaved_samples()[30000..30005]);
 /// // [783, 2653, 683, 2994, 496]
