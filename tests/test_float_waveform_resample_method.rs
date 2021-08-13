@@ -87,7 +87,7 @@ mod test_float_waveform_resample_method {
             Default::default(),
             44099,
             COF_NUM_CHANNELS,
-            2492872,
+            2491720,
             44099,
         );
     }
@@ -100,7 +100,7 @@ mod test_float_waveform_resample_method {
             Default::default(),
             44101,
             COF_NUM_CHANNELS,
-            2492985,
+            2491833,
             44101,
         );
     }

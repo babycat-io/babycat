@@ -14,6 +14,7 @@ use rayon::prelude::*;
 use symphonia::core::audio::AudioBufferRef;
 use symphonia::core::audio::Signal;
 use symphonia::core::codecs::DecoderOptions;
+use symphonia::core::conv::IntoSample;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
 use symphonia::core::meta::MetadataOptions;
@@ -24,14 +25,21 @@ use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::sample_rescaling::i16_to_f32;
-use crate::backend::sample_rescaling::i32_to_f32;
 use crate::backend::waveform::Waveform;
 
 /// Retrieves a sample from a Symphonia AudioBuffer with frame and channel indexes.
 fn get_sample(audio_buffer_ref: &AudioBufferRef, frame_idx: usize, channel_idx: usize) -> f32 {
     match audio_buffer_ref {
-        AudioBufferRef::F32(ref buf_f32) => buf_f32.chan(channel_idx)[frame_idx],
-        AudioBufferRef::S32(ref buf_i32) => i32_to_f32(buf_i32.chan(channel_idx)[frame_idx]),
+        AudioBufferRef::U8(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::U16(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::U24(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::U32(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::S8(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::S16(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::S24(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::S32(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::F32(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
+        AudioBufferRef::F64(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
     }
 }
 
@@ -157,7 +165,7 @@ impl FloatWaveform {
     ///
     /// assert_eq!(
     ///     format!("{:?}", waveform),
-    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
     /// );
     /// ```
     ///
@@ -265,7 +273,7 @@ impl FloatWaveform {
     ///     display_result(&batch[1]),
     ///      "
     /// Success: audio-for-tests/blippy-trance/track.mp3:
-    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5294592}",
+    /// FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5293440}",
     /// );
     /// assert_eq!(
     ///     display_result(&batch[2]),
@@ -438,7 +446,6 @@ impl FloatWaveform {
             if decode_args.num_channels == DEFAULT_NUM_CHANNELS {
                 original_num_channels
             } else if decode_args.num_channels < 1 {
-                decoder.close();
                 return Err(Error::WrongNumChannels(
                     decode_args.num_channels,
                     original_num_channels,
@@ -446,7 +453,6 @@ impl FloatWaveform {
             } else if original_num_channels >= decode_args.num_channels {
                 decode_args.num_channels
             } else {
-                decoder.close();
                 return Err(Error::WrongNumChannels(
                     decode_args.num_channels,
                     original_num_channels,
@@ -456,14 +462,14 @@ impl FloatWaveform {
 
         // Compute the exact start and end sample indexes for us to begin
         // and end decoding.
-        let start_time_samples: u64 =
+        let start_time_frames: u64 =
             decode_args.start_time_milliseconds * original_frame_rate_hz as u64 / 1000;
-        let end_time_samples: u64 =
+        let end_time_frames: u64 =
             decode_args.end_time_milliseconds * original_frame_rate_hz as u64 / 1000;
 
         // Decode all packets, ignoring decode errors.
         let mut buffer: Vec<f32> = Vec::new();
-        let mut current_sample: u64 = 0;
+        let mut current_frame_idx: u64 = 0;
         'packet_loop: while let Ok(packet) = reader.next_packet() {
             match decoder.decode(&packet) {
                 // Decode errors are not fatal.
@@ -473,53 +479,49 @@ impl FloatWaveform {
                 }
 
                 Err(_) => {
-                    decoder.close();
                     return Err(Error::UnknownDecodeError);
                 }
 
                 Ok(decoded_buffer_ref) => {
-                    let num_frames_in_packet = match decoded_buffer_ref {
-                        AudioBufferRef::F32(ref buf_f32) => buf_f32.frames(),
-                        AudioBufferRef::S32(ref buf_i32) => buf_i32.frames(),
-                    };
+                    let num_frames_in_packet = decoded_buffer_ref.frames();
 
-                    // Iterate over all of the samples in the current packet.
-                    for current_sample_in_packet in 0..num_frames_in_packet {
-                        current_sample += 1;
+                    // Iterate over all of the frames in the current packet.
+                    for current_frame_in_packet_idx in 0..num_frames_in_packet {
+                        current_frame_idx += 1;
 
                         // If the current sample is before our start offset,
                         // then ignore it.
-                        if current_sample <= start_time_samples {
+                        if current_frame_idx <= start_time_frames {
                             continue;
                         }
 
                         // If we have a defined end offset and we are past it,
                         // then stop the decoding loop entirely.
                         if decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
-                            && current_sample > end_time_samples
+                            && current_frame_idx > end_time_frames
                         {
                             break 'packet_loop;
                         }
                         // If we are going to convert this audio waveform to mono,
                         // then we append the average value of the selected input channels.
                         if decode_args.convert_to_mono {
-                            let mut current_sample_sum: f32 = 0.0_f32;
+                            let mut current_frame_sum: f32 = 0.0_f32;
                             for channel_idx in 0..selected_num_channels {
-                                current_sample_sum += get_sample(
+                                current_frame_sum += get_sample(
                                     &decoded_buffer_ref,
-                                    current_sample_in_packet,
+                                    current_frame_in_packet_idx,
                                     channel_idx as usize,
                                 );
                             }
-                            current_sample_sum /= selected_num_channels as f32;
-                            buffer.push(current_sample_sum);
+                            current_frame_sum /= selected_num_channels as f32;
+                            buffer.push(current_frame_sum);
                         } else {
                             // Iterate over every channel buffer in the sample and
                             // append its value to our return type.
                             for channel_idx in 0..selected_num_channels {
                                 buffer.push(get_sample(
                                     &decoded_buffer_ref,
-                                    current_sample_in_packet,
+                                    current_frame_in_packet_idx,
                                     channel_idx as usize,
                                 ));
                             }
@@ -528,7 +530,6 @@ impl FloatWaveform {
                 }
             }
         }
-        decoder.close();
 
         let num_channels = if decode_args.convert_to_mono {
             1
@@ -541,7 +542,7 @@ impl FloatWaveform {
         if decode_args.zero_pad_ending
             && decode_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
         {
-            let expected_buffer_len = (end_time_samples - start_time_samples) * num_channels as u64;
+            let expected_buffer_len = (end_time_frames - start_time_frames) * num_channels as u64;
             let buffer_padding = expected_buffer_len - buffer.len() as u64;
             if buffer_padding > 0 {
                 buffer.extend(vec![0.0_f32; buffer_padding as usize]);
@@ -648,19 +649,19 @@ impl FloatWaveform {
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", waveform),
-    ///    "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    ///    "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
     /// );
     ///
     /// let upsampled = waveform.resample(96000).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled),
-    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5426783}"
+    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5424275}"
     /// );
     ///
     /// let downsampled = waveform.resample(8252).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", downsampled),
-    ///    "FloatWaveform { frame_rate_hz: 8252, num_channels: 2, num_frames: 466478}"
+    ///    "FloatWaveform { frame_rate_hz: 8252, num_channels: 2, num_frames: 466262}"
     /// );
     /// ```
     pub fn resample(&self, frame_rate_hz: u32) -> Result<Self, Error> {
@@ -683,7 +684,7 @@ impl FloatWaveform {
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", waveform),
-    ///    "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2492928}"
+    ///    "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
     /// );
     ///
     /// // Here we upsample our audio to 96khz with the libsamplerate resampler.
@@ -693,7 +694,7 @@ impl FloatWaveform {
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled_libsamplerate),
-    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5426783}"
+    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5424275}"
     /// );
     ///
     /// // And we upsample our audio again with Babycat's Lanczos resampler.
@@ -703,7 +704,7 @@ impl FloatWaveform {
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled_lanczos),
-    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5426783}"
+    ///    "FloatWaveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5424275}"
     /// );
     /// ```
     pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> Result<Self, Error> {

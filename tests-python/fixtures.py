@@ -10,22 +10,22 @@ AT_FRAME_RATE_HZ = 44100
 
 BT_FILENAME = "./audio-for-tests/blippy-trance/track.mp3"
 BT_NUM_CHANNELS = 2
-BT_NUM_FRAMES = 5294592
+BT_NUM_FRAMES = 5293440
 BT_FRAME_RATE_HZ = 44100
 
 COF_FILENAME = "./audio-for-tests/circus-of-freaks/track.mp3"
 COF_NUM_CHANNELS = 2
-COF_NUM_FRAMES = 2492928
+COF_NUM_FRAMES = 2491776
 COF_FRAME_RATE_HZ = 44100
 
 LCT_FILENAME = "./audio-for-tests/left-channel-tone/track.mp3"
 LCT_NUM_CHANNELS = 2
-LCT_NUM_FRAMES = 1325952
+LCT_NUM_FRAMES = 1324800
 LCT_FRAME_RATE_HZ = 44100
 
 MONO_DTMF_FILENAME = "./audio-for-tests/mono-dtmf-tones/track.mp3"
 MONO_DTMF_NUM_CHANNELS = 1
-MONO_DTMF_NUM_FRAMES = 443520
+MONO_DTMF_NUM_FRAMES = 442368
 MONO_DTMF_FRAME_RATE_HZ = 44100
 
 OHFY_FILENAME = "./audio-for-tests/on-hold-for-you/track.mp3"
@@ -35,7 +35,7 @@ OHFY_FRAME_RATE_HZ = 44100
 
 TMS_FILENAME = "./audio-for-tests/tone-missing-sounds/track.mp3"
 TMS_NUM_CHANNELS = 1
-TMS_NUM_FRAMES = 1325952
+TMS_NUM_FRAMES = 1324800
 TMS_FRAME_RATE_HZ = 44100
 
 VR_FILENAME = "./audio-for-tests/voxel-revolution/track.mp3"

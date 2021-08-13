@@ -6,6 +6,7 @@ pub fn i16_to_f32(s: i16) -> f32 {
 }
 
 /// Scales all 32-bit integer values to 32-bit floating point values between -1.0 and 1.0.
+#[allow(dead_code)] // Remove this once we have a function using it.
 pub fn i32_to_f32(s: i32) -> f32 {
     (s as f32) / (0x7FFFFFFF as f32)
 }

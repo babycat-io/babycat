@@ -57,7 +57,7 @@ def test_circus_of_freaks_44099():
         decode_args={},
         frame_rate_hz=44099,
         expected_num_channels=COF_NUM_CHANNELS,
-        expected_num_frames=2492872,
+        expected_num_frames=2491720,
         expected_frame_rate_hz=44099,
     )
 
@@ -68,7 +68,7 @@ def test_circus_of_freaks_44101():
         decode_args={},
         frame_rate_hz=44101,
         expected_num_channels=COF_NUM_CHANNELS,
-        expected_num_frames=2492985,
+        expected_num_frames=2491833,
         expected_frame_rate_hz=44101,
     )
 
