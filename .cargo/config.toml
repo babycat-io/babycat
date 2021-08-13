@@ -1,4 +1,12 @@
+# Vendor dependencies from crates.io (but do not check them into Git.)
 [source.crates-io]
+replace-with = "vendored-sources"
+
+# Vendor dependencies from Neocrym's GitHub fork of the Symphonia crate.
+# (But again, we aren't checking it into *this* Git repository.)
+[source."https://github.com/neocrym-forks/Symphonia"]
+git = "https://github.com/neocrym-forks/Symphonia"
+rev = "2cafae82b664ceb14dd5d058f534574399764165"
 replace-with = "vendored-sources"
 
 [source.vendored-sources]
