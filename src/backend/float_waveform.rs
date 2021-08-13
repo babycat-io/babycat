@@ -298,7 +298,7 @@ impl FloatWaveform {
                 .par_iter()
                 .map(|filename| NamedResult {
                     name: (*filename).to_string(),
-                    result: Self::from_file(&filename, decode_args),
+                    result: Self::from_file(filename, decode_args),
                 })
                 .collect::<Vec<NamedResult<Self, Error>>>()
         })
@@ -380,10 +380,10 @@ impl FloatWaveform {
         // An incorrect hint will not prevent a successful decoding.
         let mut hint = Hint::new();
         if file_extension != DEFAULT_FILE_EXTENSION {
-            hint.with_extension(&file_extension);
+            hint.with_extension(file_extension);
         }
         if mime_type != DEFAULT_MIME_TYPE {
-            hint.mime_type(&mime_type);
+            hint.mime_type(mime_type);
         }
 
         // Initialize the decoder.
