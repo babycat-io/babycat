@@ -131,7 +131,10 @@ init-rust-cbindgen:
 	$(CBINDGEN) --version || $(CARGO) install cbindgen
 
 init-rust-wasm-pack:
-	$(WASM_PACK) --version || $(CARGO) install wasm-pack
+# wasm-pack depends on Rust's OpenSSL bindings.
+# Compiling OpenSSL can be difficult, especially on Windows
+# so we are going to ask for a precompiled OpenSSL.
+	$(WASM_PACK) --version || OPENSSL_NO_VENDOR=1 $(CARGO) install wasm-pack
 
 init-rust-cargo-valgrind:
 	$(CARGO) valgrind --version || $(CARGO) install cargo-valgrind
