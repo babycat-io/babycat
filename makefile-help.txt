@@ -3,22 +3,22 @@ Babycat Makefile commands:
 
 Many commands operate on codebases of one language. If you want to
 only affect one language, then use the `-lang` suffix.
-
 -----------------------------------------------------------------------
-clean                           Cleans the workspace of build and
-                                temporary files.
+help                            Print this help message.
 
 
 -----------------------------------------------------------------------
-init                            Initializes your working environment
-init-javascript                 by installing various build tools.
-init-python                     Python tools are set up inside a
-init-rust                       virtualenv.
+clean                           Clean all of the below:
+clean-caches                     - Local cache and checkpoint files.
+clean-node-modules               - Installed node_modules directories.
+clean-vendor                     - The vendor/ dir of Rust deps.
+clean-target                     - The target/ dir of build arifacts.
+clean-venv                       - The Python virtualenv.
 
 
 -----------------------------------------------------------------------
 vendor                          Vendor Rust dependencies into the
-                                `vendor/` subdirectory on the
+                                vendor/ subdirectory on the
                                 filesystem.
 
 
@@ -60,6 +60,10 @@ babycat.h                       Build the C header file that describes
 
 build-python                    Build a Python abi3 wheel for the
                                 current operating system.
+
+build-python-and-install        Builds a Python abi3wheel for the
+                                current operating system, and then
+                                installs it in the virtualenv.
 
 build-python-manylinux          Build a Python abi3 manylinux wheel
                                 using a Docker container.
