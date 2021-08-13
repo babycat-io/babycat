@@ -10,8 +10,8 @@
   "author": "Neocrym Records Inc.",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^8.3.2",
-    "webpack": "^5.36.1",
-    "webpack-cli": "^4.6.0"
+    "mocha": "^9.0.3",
+    "webpack": "^5.50.0",
+    "webpack-cli": "^4.7.2"
   }
 }
