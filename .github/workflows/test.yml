@@ -50,6 +50,11 @@ jobs:
       with:
         node-version: "14"
 
+    - name: Revendor Rust code
+      run: |
+        make clean-vendor
+        make init-rust
+
     - name: Check code formatting (only on Ubuntu)
       if: matrix.os == 'ubuntu-20.04'
       run: make fmt-check
