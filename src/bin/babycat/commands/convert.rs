@@ -55,7 +55,7 @@ pub fn convert(
     //
     // Decode from filesystem.
     let decoding_start_time = std::time::Instant::now();
-    let waveform = FloatWaveform::from_file(&input_filename, decode_args).unwrap_or_exit();
+    let waveform = FloatWaveform::from_file(input_filename, decode_args).unwrap_or_exit();
     let decoding_elapsed = std::time::Instant::now() - decoding_start_time;
     info!(
         "Decoded {} frames of {} channels at {} hz in {} seconds from {}",
@@ -68,7 +68,7 @@ pub fn convert(
     //
     // Waveform is now in memory. Time to encode.
     let encoding_start_time = std::time::Instant::now();
-    waveform.to_wav_file(&output_filename).unwrap_or_exit();
+    waveform.to_wav_file(output_filename).unwrap_or_exit();
     let encoding_elapsed = std::time::Instant::now() - encoding_start_time;
     info!(
         "Encoded as {} and saved in {} seconds to {}",
