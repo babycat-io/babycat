@@ -17,3 +17,12 @@ rustflags = [
   "-C", "link-arg=-undefined",
   "-C", "link-arg=dynamic_lookup",
 ]
+
+# Statically link to the MSVC C Runtime (CRT) on the Windows MSVC
+# target. This reduces the need for Babycat users to install
+# the MSVC vc_redist.exe binary.
+# Further reading:
+# - https://github.com/rust-lang/rfcs/blob/master/text/1721-crt-static.md
+# - https://georgik.rocks/how-to-statically-link-rust-application-for-windows/
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
