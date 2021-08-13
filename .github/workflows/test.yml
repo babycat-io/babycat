@@ -52,8 +52,8 @@ jobs:
 
     - name: Revendor Rust code
       run: |
-        make clean-vendor
-        make init-rust
+        rm -rfv Cargo.lock vendor
+        cargo vendor --versioned-dirs
 
     - name: Check code formatting (only on Ubuntu)
       if: matrix.os == 'ubuntu-20.04'
