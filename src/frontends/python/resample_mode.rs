@@ -18,6 +18,9 @@ to resample audio from one frame rate to another.
 Babycat's Python bindings are typically compiled with support for the
 following resamplers:
 
+- :py:attr:`DEFAULT_RESAMPLE_MODE`: Currently defaults to the
+  ``RESAMPLE_MODE_LIBSAMPLERATE`` resampler.
+
 - :py:attr:`RESAMPLE_MODE_LIBSAMPLERATE`: This uses
   `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at the
   `SRC_SINC_BEST_QUALITY`. This backend produces the highest-quality
@@ -55,7 +58,10 @@ Example:
 
 ",
     )?;
-
+    resample_mode_submodule.setattr(
+        "DEFAULT_RESAMPLE_MODE",
+        crate::backend::DEFAULT_RESAMPLE_MODE,
+    )?;
     resample_mode_submodule.setattr(
         "RESAMPLE_MODE_LIBSAMPLERATE",
         crate::backend::RESAMPLE_MODE_LIBSAMPLERATE,
