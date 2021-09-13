@@ -128,7 +128,7 @@ vendor: vendor/.ti
 # Set up the Python virtualenv
 $(VENV_PATH)/.ti: requirements-dev.txt requirements-docs.txt
 	$(CREATE_VENV_CMD)
-	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip
+	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip setuptools wheel
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
 	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
 	@touch $(VENV_PATH)/.ti
@@ -302,7 +302,7 @@ docs: init-javascript-tools build-python-and-install build-wasm-bundler babycat.
 	rm -rf docs/build
 	mkdir docs/build
 	doxygen
-	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
+	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$HOME/.bin:$$PATH && $(MAKE) -C docs dirhtml
 .PHONY: docs
 
 # This is the command we use to build docs on Netlify.
