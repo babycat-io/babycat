@@ -75,6 +75,11 @@ else
 endif
 
 
+ifdef PYTHON_TEST_FILTER
+	PYTEST_CMD ?= pytest -k $(PYTHON_TEST_FILTER)
+else
+	PYTEST_CMD ?= pytest
+endif
 
 # help ==============================================================
 
@@ -385,7 +390,7 @@ test-c-valgrind: init-cargo-valgrind babycat.h cargo-build-release-frontend-c
 .PHONY: test-c-valgrind
 
 test-python: build-python-and-install
-	$(ACTIVATE_VENV_CMD) && pytest
+	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
 .PHONY: test-python
 
 test-rust: init-rust
