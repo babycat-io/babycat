@@ -486,7 +486,7 @@ test-c-valgrind: target/test_c
 .PHONY: test-c-valgrind
 
 ## test-python
-test-python: .b/install-python-wheel
+test-python: .b/init-python .b/install-python-wheel
 	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
 .PHONY: test-python
 
@@ -512,7 +512,7 @@ test: test-rust test-python test-wasm-nodejs test-c
 # ===================================================================
 
 ## doctest-python
-doctest-python: .b/install-python-wheel
+doctest-python: .b/init-python .b/install-python-wheel
 	$(ACTIVATE_VENV_CMD) && pytest tests-python/test_doctests.py
 .PHONY: doctest-python
 
