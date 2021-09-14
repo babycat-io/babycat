@@ -351,6 +351,7 @@ build-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 ## build-python
 $(WHEEL_DIR)/*.whl: .b/init-rust $(RUST_SRC_FILES)
 	$(PYTHON) -m pip wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
+	@touch $(WHEEL_DIR)/*.whl
 .b/build-python: $(WHEEL_DIR)/*.whl
 	@touch .b/build-python
 build-python: .b/build-python
@@ -418,7 +419,7 @@ build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 # ===================================================================
 
 ## docs
-.b/docs: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h $(RUST_SRC_FILES)
+.b/docs: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h
 	rm -rf docs/build
 	mkdir docs/build
 	$(DOXYGEN)
@@ -431,7 +432,7 @@ docs: .b/docs
 # This is the command we use to build docs on Netlify.
 # The Netlify build image has Python 3.8 installed,
 # but does not come with the virtualenv extension.
-.b/docs-netlify: .b/init-rust .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h
+.b/docs-netlify: .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h .b/build-python
 # Clean any previous builds.
 	rm -rf docs/build
 	mkdir docs/build
@@ -440,7 +441,7 @@ docs: .b/docs
 # Install Python dependencies for building the docs.
 	python3 -m pip install -r requirements-docs.txt
 # Install Babycat's Python bindings.
-	python3 -m pip install --force-reinstall .
+	python3 -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
 # Generate the docs.
 	export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 	@touch .b/docs-netlify
@@ -454,7 +455,7 @@ docs-netlify: .b/docs-netlify
 # ===================================================================
 
 ## install-python-wheel
-.b/install-python-wheel: .b/init-python .b/build-python
+.b/install-python-wheel: .b/build-python
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
 	@touch .b/install-python-wheel
 install-python-wheel: .b/install-python-wheel
