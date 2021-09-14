@@ -160,7 +160,7 @@ init-python: .b/init-python
 
 ## init-javascript-tools
 # Set up our main npm node_modules, containing developer tools
-.b/init-javascript-tools: package.json package-lock.json
+.b/init-javascript-tools: package.json	
 	$(NPM) rebuild && $(NPM) install
 	@touch .b/init-javascript-tools
 init-javascript-tools: .b/init-javascript-tools
@@ -168,7 +168,7 @@ init-javascript-tools: .b/init-javascript-tools
 
 ## init-javascript-tests
 # Set up our npm node_modules for testing
-.b/init-javascript-tests: tests-wasm-nodejs/package.json tests-wasm-nodejs/package-lock.json
+.b/init-javascript-tests: tests-wasm-nodejs/package.json
 	cd tests-wasm-nodejs && $(NPM) rebuild && $(NPM) install
 	@touch .b/init-javascript-tests
 init-javascript-tests: .b/init-javascript-tests
