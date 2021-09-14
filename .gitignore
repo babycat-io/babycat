@@ -1,8 +1,12 @@
 # exclude node packages
 node_modules
+package-lock.json
 
 # Ignore our vendored Rust dependencies
 vendor
+
+# Ignore our Makefile build caching directory
+.b/
 
 # Rust files to exclude
 /target

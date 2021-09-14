@@ -2,7 +2,7 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const { describe, it } = require("mocha");
-const babycat = require("../target/wasm/nodejs/babycat.js");
+const babycat = require("../target/frontend-wasm/release/nodejs/babycat.js");
 
 const AUDIO_FOR_TESTS_DIR = path.join(__dirname, "/../audio-for-tests/");
 const COF_FILENAME = path.join(

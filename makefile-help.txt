@@ -16,10 +16,16 @@ clean-target                     - The target/ dir of build arifacts.
 clean-venv                       - The Python virtualenv.
 
 
+
 -----------------------------------------------------------------------
-vendor                          Vendor Rust dependencies into the
-                                vendor/ subdirectory on the
-                                filesystem.
+vendor                          Download and store source code
+vendor-rust                     dependencies within this project
+                                directory.
+
+
+-----------------------------------------------------------------------
+init                            Locally installs various developer
+                                tools and vendors dependencies.
 
 
 -----------------------------------------------------------------------
@@ -30,6 +36,7 @@ fmt-python
 fmt-rust
 
 
+
 -----------------------------------------------------------------------
 fmt-check                       Check formatting, but do not fix
 fmt-check-c                     anything. Useful for CI.
@@ -37,36 +44,25 @@ fmt-check-javascript
 fmt-check-python
 fmt-check-rust
 
+
+
 -----------------------------------------------------------------------
 lint                            Lint code for errors.
 lint-python
 lint-rust
 
 
+
 -----------------------------------------------------------------------
 docs                            Build the documentation website.
 
-
------------------------------------------------------------------------
-babycat.h                       Build a C header file that describe
-                                Babycat's C API.
 
 
 -----------------------------------------------------------------------
 build                           Build the babycat libraries+bindings.
 
-babycat.h                       Build the C header file that describes
-                                babycat's C bindings.
-
-build-python                    Build a Python abi3 wheel for the
+build-python              Build a Python abi3 wheel for the
                                 current operating system.
-
-build-python-and-install        Builds a Python abi3wheel for the
-                                current operating system, and then
-                                installs it in the virtualenv.
-
-build-python-manylinux          Build a Python abi3 manylinux wheel
-                                using a Docker container.
 
 build-rust                      Build a Rust library.
 
@@ -83,11 +79,67 @@ build-wasm-web                  Builds the WebAssembly bindings to
                                 not require a JavaScript bundler
                                 like Webpack.
 
+
+
+-----------------------------------------------------------------------
+(These are additional build ccommands that are not covered in
+ `make build`.)
+babycat.h                       Build the C header file that describes
+                                babycat's C bindings.
+
+build-python-manylinux    Build a Python abi3 manylinux wheel
+                                in a Docker container.
+
 build-binary                    Builds the Babycat command line app.
                                 This command is not invoked by the
                                 above `make build` command because
                                 the command line app has additional
                                 dependencies on Linux.
+
+
+
+-----------------------------------------------------------------------
+build-ex                        Builds all of the "example"
+                                programs.
+
+build-ex-resampler-comparison   Builds the "resampler comparison"
+                                example.
+
+build-ex-decode-rust            Builds the Rust decoding example.
+
+build-ex-decode-c               Builds the C decoding example.
+
+build-ex-decode-wasm            Builds the WebAssembly/Webpack
+                                decoding example.
+
+
+
+-----------------------------------------------------------------------
+run-ex-resampler-comparison     Runs the "resampler comparison"
+                                example.
+
+run-ex-decode-rust              Runs the Rust decoding example.
+
+run-ex-decode-c                 Runs the C decoding example.
+
+run-ex-decode-python            Runs the Python decoding example.
+
+
+
+-----------------------------------------------------------------------
+                                Installs compiled binarines in the
+                                local environment.
+
+install-python-wheel            Builds a Python abi3 wheel for the
+                                current operating system, and then
+                                installs it in the virtualenv.
+
+install-python-wheel-manylinux  Builds a Python abi3 manylinux wheel
+                                for and then installs it in the
+                                virtualenv. This command only works
+                                on Linux machines with Docker
+                                installed.
+
 
 
 -----------------------------------------------------------------------
@@ -99,31 +151,18 @@ test-rust
 test-wasm-nodejs
 
 
+
 -----------------------------------------------------------------------
 doctest                         Run *ONLY* tests that are written in
 doctest-python                  documentation strings.
 doctest-rust
 
 
+
 -----------------------------------------------------------------------
 bench                           Run benchmarks.
 bench-rust
 
-
------------------------------------------------------------------------
-example-resampler-comparison    Run the sample rate conversion
-                                example.
-
-example-decode-rust             Run the Rust decoding example.
-
-example-decode-python           Run the Python decoding example.
-
-example-decode-c                Run the C decoding example.
-
-example-decode-wasm             Build (but do NOT run) the
-                                WebAssembly/JavaScript decoding
-                                example. If you want to run it,
-                                you need to view it in a web browser.
 
 
 -----------------------------------------------------------------------
@@ -144,6 +183,7 @@ docker-build-main               - main: Many versions of Python and
 
 docker-build-pip                - pip: A container for building
                                   manylinux images.
+
 
 
 -----------------------------------------------------------------------
