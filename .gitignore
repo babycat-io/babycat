@@ -1,5 +1,6 @@
 # exclude node packages
 node_modules
+package-lock.json
 
 # Ignore our vendored Rust dependencies
 vendor
