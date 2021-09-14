@@ -4,6 +4,9 @@ node_modules
 # Ignore our vendored Rust dependencies
 vendor
 
+# Ignore our Makefile build caching directory
+.b/
+
 # Rust files to exclude
 /target
 Cargo.lock

@@ -1,23 +1,23 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
- module.exports = {
-   mode: 'production',
-   experiments: {
+module.exports = {
+  mode: 'production',
+  experiments: {
     asyncWebAssembly: true,
     topLevelAwait: true,
-   },
-   entry: {
-     index: './src/index.js',
-   },
+  },
+  entry: {
+    index: './src/index.js',
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Output Management',
+      title: 'Index',
       filename: 'index.html',
     }),
   ],
-   output: {
-     filename: '[name].bundle.js',
-     path: path.resolve(__dirname, 'dist'),
-   },
- };
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, '../../target/frontend-wasm/release/examples/decode/'),
+  },
+};
