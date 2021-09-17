@@ -108,10 +108,7 @@ mod backend;
 
 // Compile the Rust frontend if we're building a command-line
 // application or a Rust binary.
-#[cfg(any(
-    feature = "frontend-binary",
-    feature = "frontend-rust"
-))]
+#[cfg(any(feature = "frontend-binary", feature = "frontend-rust"))]
 pub use crate::backend::*;
 
 // Otherwise, compile either the C, Python, or WebAssembly frontends.
