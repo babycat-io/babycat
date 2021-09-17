@@ -8,39 +8,48 @@ babycat.FloatWaveform
    .frameRateHz() <frameRateHz>
    .numChannels() <numChannels>
    .numFrames() <numFrames>
-   .interleavedSamples() <interleavedSamples>
    .fromFramesOfSilence() <fromFramesOfSilence>
    .fromMillisecondsOfSilence() <fromMillisecondsOfSilence>
    .fromEncodedArray() <fromEncodedArray>
    .fromEncodedArrayWithHint() <fromEncodedArrayWithHint>
    .resample() <resample>
    .resampleByMode() <resampleByMode>
+   .toInterleavedSamples() <toInterleavedSamples>
    .toWavBuffer() <toWavBuffer>
 
 
 .. js:class:: babycat.FloatWaveform
+
 
 Waveform properties
 -------------------
 - :doc:`frameRateHz`
 - :doc:`numChannels`
 - :doc:`numFrames`
-- :doc:`interleavedSamples`
+
 
 Generating waveform from silence
 --------------------------------
 - :doc:`fromFramesOfSilence`
 - :doc:`fromMillisecondsOfSilence`
 
+
 Decoding audio
 --------------
 - :doc:`fromEncodedArray`
 - :doc:`fromEncodedArrayWithHint`
 
+
 Resampling audio
 ----------------
 - :doc:`resample`
 - :doc:`resampleByMode`
+
+
+Exporting decoded audio
+-----------------------
+- :doc:`toInterleavedSamples`
+
 
 Encoding audio
 --------------

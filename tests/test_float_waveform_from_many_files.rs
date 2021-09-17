@@ -17,7 +17,7 @@ mod test_float_waveform_from_many_files {
             assert_eq!(COF_FRAME_RATE_HZ, waveform.frame_rate_hz());
             assert_eq!(
                 (COF_NUM_FRAMES * COF_NUM_CHANNELS as u64) as usize,
-                waveform.interleaved_samples().len()
+                waveform.to_interleaved_samples().len()
             );
         }
     }
@@ -39,7 +39,7 @@ mod test_float_waveform_from_many_files {
             assert_eq!(COF_FRAME_RATE_HZ, waveform.frame_rate_hz());
             assert_eq!(
                 (num_frames * COF_NUM_CHANNELS as u64) as usize,
-                waveform.interleaved_samples().len()
+                waveform.to_interleaved_samples().len()
             );
         }
     }
@@ -60,7 +60,7 @@ mod test_float_waveform_from_many_files {
             assert_eq!(COF_FRAME_RATE_HZ, waveform.frame_rate_hz());
             assert_eq!(
                 (COF_NUM_FRAMES * COF_NUM_CHANNELS as u64) as usize,
-                waveform.interleaved_samples().len()
+                waveform.to_interleaved_samples().len()
             );
         }
     }
@@ -77,7 +77,7 @@ mod test_float_waveform_from_many_files {
             assert_eq!(ALL_FRAME_RATE_HZ[i], waveform.frame_rate_hz());
             assert_eq!(
                 (ALL_NUM_FRAMES[i] * ALL_NUM_CHANNELS[i] as u64) as usize,
-                waveform.interleaved_samples().len()
+                waveform.to_interleaved_samples().len()
             );
         }
     }

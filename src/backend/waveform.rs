@@ -19,5 +19,5 @@ pub trait Waveform<T> {
     fn num_frames(&self) -> u64;
 
     /// Return the waveform as a slice of interleaved samples.
-    fn interleaved_samples(&self) -> &[T];
+    fn to_interleaved_samples(&self) -> &[T];
 }

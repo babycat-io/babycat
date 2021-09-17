@@ -156,7 +156,7 @@ fn benchmark_left_channel_tone() {
         Default::default(),
     )
     .unwrap()
-    .interleaved_samples()
+    .to_interleaved_samples()
     .to_owned();
     benchmark_all_funcs("left_channel_tone_1", 44100, 4410, 2, &left_channel_tone);
     benchmark_all_funcs("left_channel_tone_2", 44100, 11025, 2, &left_channel_tone);
@@ -175,7 +175,7 @@ fn benchmark_blippy_trance() {
         Default::default(),
     )
     .unwrap()
-    .interleaved_samples()
+    .to_interleaved_samples()
     .to_owned();
     benchmark_all_funcs("blippy_trance_1", 44100, 4410, 2, &blippy_trance);
     benchmark_all_funcs("blippy_trance_2", 44100, 11025, 2, &blippy_trance);
@@ -194,7 +194,7 @@ fn benchmark_on_hold_for_you() {
         Default::default(),
     )
     .unwrap()
-    .interleaved_samples()
+    .to_interleaved_samples()
     .to_owned();
     benchmark_all_funcs("on_hold_for_you_1", 44100, 4410, 2, &on_hold_for_you);
     benchmark_all_funcs("on_hold_for_you_2", 44100, 11025, 2, &on_hold_for_you);

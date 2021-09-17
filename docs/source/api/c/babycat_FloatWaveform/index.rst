@@ -10,13 +10,14 @@ babycat_FloatWaveform
    babycat_float_waveform_get_num_channels
    babycat_float_waveform_get_num_frames
    babycat_float_waveform_get_num_samples
-   babycat_float_waveform_get_interleaved_samples
+   babycat_float_waveform_to_interleaved_samples
    babycat_float_waveform_from_frames_of_silence
    babycat_float_waveform_from_milliseconds_of_silence
    babycat_float_waveform_from_encoded_bytes
    babycat_float_waveform_from_file
    babycat_float_waveform_resample
    babycat_float_waveform_resample_by_mode
+
 
 Typedef members
 ---------------
@@ -34,7 +35,7 @@ Waveform properties
 - :doc:`babycat_float_waveform_get_num_channels`
 - :doc:`babycat_float_waveform_get_num_frames`
 - :doc:`babycat_float_waveform_get_num_samples`
-- :doc:`babycat_float_waveform_get_interleaved_samples`
+
 
 Generating waveform from silence
 --------------------------------
@@ -46,6 +47,11 @@ Decoding audio
 --------------
 - :doc:`babycat_float_waveform_from_encoded_bytes`
 - :doc:`babycat_float_waveform_from_file`
+
+
+Exporting decoded audio
+-----------------------
+- :doc:`babycat_float_waveform_to_interleaved_samples`
 
 
 Resampling audio

@@ -13,7 +13,7 @@ mod test_int_waveform {
         assert_eq!(int_waveform_1.num_frames(), 0x8000);
         assert_eq!(int_waveform_1.num_channels(), 2);
         assert_eq!(int_waveform_1.frame_rate_hz(), 44100);
-        assert_eq!(int_waveform_1.interleaved_samples(), int_samples);
+        assert_eq!(int_waveform_1.to_interleaved_samples(), int_samples);
         // Convert it to a FloatWaveform.
         let float_waveform = FloatWaveform::from(int_waveform_1.clone());
         assert_eq!(float_waveform.num_frames(), 0x8000);
@@ -25,7 +25,7 @@ mod test_int_waveform {
         assert_eq!(int_waveform_2.num_frames(), 0x8000);
         assert_eq!(int_waveform_2.num_channels(), 2);
         assert_eq!(int_waveform_2.frame_rate_hz(), 44100);
-        assert_eq!(int_waveform_2.interleaved_samples(), int_samples);
+        assert_eq!(int_waveform_2.to_interleaved_samples(), int_samples);
     }
 
     #[test]

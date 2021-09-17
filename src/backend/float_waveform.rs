@@ -31,7 +31,7 @@ pub struct FloatWaveform {
 impl From<crate::backend::int_waveform::IntWaveform> for FloatWaveform {
     fn from(item: crate::backend::int_waveform::IntWaveform) -> Self {
         let buffer: Vec<f32> = item
-            .interleaved_samples()
+            .to_interleaved_samples()
             .iter()
             .map(|val| i16_to_f32(*val))
             .collect();
@@ -60,6 +60,14 @@ impl fmt::Debug for FloatWaveform {
 }
 
 impl FloatWaveform {
+    ///
+    pub fn from_interleaved_samples(
+        frame_rate_hz: u32,
+        num_channels: u32,
+        interleaved_samples: &[f32],
+    ) -> Self {
+        Self::new(frame_rate_hz, num_channels, interleaved_samples.to_owned())
+    }
     /// Decodes audio stored in an in-memory byte array.
     ///
     /// # Arguments
@@ -346,7 +354,7 @@ impl FloatWaveform {
             return Err(Error::WrongNumChannelsAndMono);
         }
 
-        /// Initialize our audio decoding backend.
+        // Initialize our audio decoding backend.
         let mut decoder = match decode_args.decoding_backend {
             DEFAULT_DECODING_BACKEND | DECODING_BACKEND_SYMPHONIA => {
                 SymphoniaDecoder::new(encoded_stream, file_extension, mime_type)?
@@ -757,7 +765,7 @@ impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     }
 
     /// Returns the waveform as a slice of channel-interleaved `f32` samples.
-    fn interleaved_samples(&self) -> &[f32] {
+    fn to_interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
     }
 }
