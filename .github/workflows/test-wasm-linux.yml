@@ -35,15 +35,15 @@ jobs:
       with:
         node-version: "14"
 
-    - name: Install wasm-pack
-      run: cargo install wasm-pack --version=^0.10.1
-
     - name: Cache wasm-pack
       id: cache-wasm-pack
       uses: actions/cache@v2
       with:
         path: /usr/share/rust/.cargo/bin/wasm-pack
         key: test-wasm-linux-cache-wasm-pack-0-10-1
+
+    - name: Install wasm-pack if not in the cache
+      run: wasm-pack --version || cargo install wasm-pack --version=^0.10.1
 
     - uses: actions/checkout@v2
 
