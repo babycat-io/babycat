@@ -339,14 +339,14 @@ lint: lint-python lint-rust
 
 ## build-rust
 target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --features=frontend-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --no-default-features --features=frontend-rust
 	@touch target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 build-rust: target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 .PHONY: build-rust
 
 ## build-c
 target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-c $(CARGO) build --release --features=frontend-c
+	CARGO_TARGET_DIR=target/frontend-c $(CARGO) build --release --no-default-features --features=frontend-c
 	@touch target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
 build-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 .PHONY: build-c
@@ -361,7 +361,7 @@ build-python: .b/build-python
 .PHONY: build-python
 
 target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust .b/init-rustup-wasm32-unknown-unknown $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-wasm $(CARGO) build --release --features=frontend-wasm
+	CARGO_TARGET_DIR=target/frontend-wasm $(CARGO) build --release --no-default-features --features=frontend-wasm
 	@touch target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
 
 ## build-wasm-bundler
@@ -410,7 +410,7 @@ build-python-manylinux: $(MANYLINUX_WHEEL_DIR)/*.whl
 # We don't want to make `make build` fail if the user does not have
 # those libraries.
 target/frontend-binary/release/$(BABYCAT_BINARY_NAME): .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-binary $(CARGO) build --release --features=frontend-binary --bin=babycat
+	CARGO_TARGET_DIR=target/frontend-binary $(CARGO) build --release --no-default-features --features=frontend-binary --bin=babycat
 	@touch target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 .PHONY: build-binary
@@ -454,7 +454,7 @@ docs-sphinx-netlify: .b/docs-sphinx-netlify
 
 ## docs-rustdoc
 .b/docs-rustdoc: .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --features=frontend-rust --no-deps
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --no-default-features --features=frontend-rust --no-deps
 	@touch .b/docs-rustdoc
 docs-rustdoc: .b/docs-rustdoc
 .PHONY: docs-rustdoc
@@ -506,7 +506,7 @@ test-python: .b/init-python .b/install-python-wheel
 
 ## test-rust
 test-rust: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --features=frontend-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --no-default-features --features=frontend-rust
 .PHONY: test-rust
 
 ## test-wasm-nodejs
