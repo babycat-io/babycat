@@ -1,5 +1,5 @@
 use crate::backend::Waveform;
-use numpy::{IntoPyArray, PyArray2};
+use numpy::{IntoPyArray, PyArray2, PyReadonlyArray2};
 use pyo3::prelude::*;
 use pyo3::types::PyByteArray;
 use pyo3::PyObjectProtocol;
@@ -208,6 +208,94 @@ impl FloatWaveform {
         .into()
     }
 
+    /// Creates a :py:class:`FloatWaveform` from interleaved audio samples.
+    ///
+    /// Example:
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> interleaved_samples = [-1.0, 0.0, 1.0, -1.0, 0.0, 1.0]
+    ///     >>> waveform = FloatWaveform.from_interleaved_samples(
+    ///     ...     frame_rate_hz=44_100,
+    ///     ...     num_channels=3,
+    ///     ...     interleaved_samples=interleaved_samples,
+    ///     ... )
+    ///     >>> waveform
+    ///     <babycat.FloatWaveform: 2 frames, 3 channels, 44100 hz>
+    ///
+    /// Args:
+    ///     frame_rate_hz(int): The frame rate that applies to the waveform
+    ///         described by ``interleaved_samples``.
+    ///
+    ///     num_channels(int): The number of channels in the waveform
+    ///         described by ``interleaved_samples``.
+    ///
+    ///     interleaved_samples(list): A one-dimensional Python list of
+    ///         interleaved :py:class:`float` audio samples.
+    ///
+    /// Returns:
+    ///     FloatWaveform: A waveform representing ``interleaved_samples``.
+    ///
+    #[staticmethod]
+    #[args("*", frame_rate_hz, num_channels, interleaved_samples)]
+    #[text_signature = "(
+        frame_rate_hz,
+        num_channels,
+        interleaved_samples,
+    )"]
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_interleaved_samples(
+        frame_rate_hz: u32,
+        num_channels: u32,
+        interleaved_samples: Vec<f32>,
+    ) -> Self {
+        crate::backend::FloatWaveform::new(frame_rate_hz, num_channels, interleaved_samples).into()
+    }
+
+    /// Creates a :py:class:`FloatWaveform` from a two-dimensional NumPy ``float32`` array.
+    ///
+    /// This static method takes a two-dimensional NumPy array of the
+    /// shape ``(frames, channels)``.
+    ///
+    /// Example:
+    ///     >>> import numpy as np
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> frame = np.array([-1.0, 0.0, 1.0], dtype="float32")
+    ///     >>> arr = np.stack([frame, frame])
+    ///     >>> waveform = FloatWaveform.from_numpy(
+    ///     ...     frame_rate_hz=44_100,
+    ///     ...     arr=arr,
+    ///     ... )
+    ///     waveform
+    ///     <babycat.FloatWaveform: 2 frames, 3 channel, 44100 hz>
+    ///
+    /// Args:
+    ///     frame_rate_hz(int): The frame rate that applies to the waveform
+    ///         described by ``arr``.
+    ///
+    ///     arr: A two-dimensional NumPy array with the channels dimension
+    ///         on axis 1.
+    ///
+    /// Returns:
+    ///     FloatWaveform: A waveform with a copy of the waveform in ``arr``.
+    ///
+    /// Raises:
+    ///     TypeError: Raised when ``arr`` is the wrong shape or dtype.
+    ///
+    #[staticmethod]
+    #[args("*", frame_rate_hz, arr)]
+    #[text_signature = "(
+        frame_rate_hz,
+        arr,
+    )"]
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_numpy(frame_rate_hz: u32, arr: PyReadonlyArray2<f32>) -> PyResult<Self> {
+        let num_channels: u32 = arr.shape()[1] as u32;
+        float_waveform_to_pyresult(Ok(crate::backend::FloatWaveform::new(
+            frame_rate_hz,
+            num_channels,
+            arr.to_vec().unwrap(),
+        )))
+    }
+
     /// Decodes audio stored as ``bytes``.
     ///
     /// Example:
@@ -411,7 +499,7 @@ impl FloatWaveform {
     ///     2
     ///     >>> waveform.frame_rate_hz
     ///     44100
-    ///     >>> waveform.numpy().shape
+    ///     >>> waveform.to_numpy().shape
     ///     (9586944, 2)
     ///
     /// Example:
@@ -938,6 +1026,13 @@ impl FloatWaveform {
         float_waveform_to_pyresult(self.inner.resample_by_mode(frame_rate_hz, resample_mode))
     }
 
+    /// Returns the audio waveform as a Python list of interleaved samples.
+    #[args()]
+    #[text_signature = "()"]
+    pub fn to_interleaved_samples(&self) -> Vec<f32> {
+        self.inner.to_interleaved_samples().to_owned()
+    }
+
     /// Returns the waveform as a 2D :py:class:`numpy.ndarray` array with shape ``(frames, channels)``
     ///
     /// Babycat internally stores decoded audio as a Rust ``Vec<f32>``.
@@ -956,9 +1051,9 @@ impl FloatWaveform {
     ///
     #[args()]
     #[text_signature = "()"]
-    pub fn numpy(&self, py: Python) -> Py<PyArray2<f32>> {
+    pub fn to_numpy(&self, py: Python) -> Py<PyArray2<f32>> {
         self.inner
-            .interleaved_samples()
+            .to_interleaved_samples()
             .to_owned()
             .into_pyarray(py)
             .reshape([

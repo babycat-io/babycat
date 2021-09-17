@@ -284,10 +284,10 @@ pub unsafe extern "C" fn babycat_float_waveform_get_num_samples(
 ///
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
-pub unsafe extern "C" fn babycat_float_waveform_get_interleaved_samples(
+pub unsafe extern "C" fn babycat_float_waveform_to_interleaved_samples(
     waveform: *mut FloatWaveform,
 ) -> *const f32 {
-    waveform.as_ref().unwrap().interleaved_samples().as_ptr()
+    waveform.as_ref().unwrap().to_interleaved_samples().as_ptr()
 }
 
 /// Resample a `babycat_FloatWaveform` with the default resampler.

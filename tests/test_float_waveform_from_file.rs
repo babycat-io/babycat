@@ -31,7 +31,7 @@ mod test_float_waveform_from_file {
         assert_eq!(frame_rate_hz, waveform.frame_rate_hz());
         assert_eq!(
             (num_frames * num_channels as u64) as usize,
-            waveform.interleaved_samples().len()
+            waveform.to_interleaved_samples().len()
         );
     }
 
@@ -142,7 +142,7 @@ mod test_float_waveform_from_file {
         assert_eq!(1, mono_waveform.num_channels());
         assert_eq!(LCT_NUM_FRAMES, mono_waveform.num_frames());
         assert_eq!(LCT_FRAME_RATE_HZ, mono_waveform.frame_rate_hz());
-        let mono_sum_waveform: f32 = mono_waveform.interleaved_samples().iter().sum();
+        let mono_sum_waveform: f32 = mono_waveform.to_interleaved_samples().iter().sum();
         // Now, let's do the stereo decoding.
         let stereo_decode_args = DecodeArgs {
             ..Default::default()
@@ -152,7 +152,7 @@ mod test_float_waveform_from_file {
         assert_eq!(LCT_NUM_CHANNELS, stereo_waveform.num_channels());
         assert_eq!(LCT_NUM_FRAMES, stereo_waveform.num_frames());
         assert_eq!(LCT_FRAME_RATE_HZ, stereo_waveform.frame_rate_hz());
-        let stereo_sum_waveform: f32 = stereo_waveform.interleaved_samples().iter().sum();
+        let stereo_sum_waveform: f32 = stereo_waveform.to_interleaved_samples().iter().sum();
         // Check that the mono waveform is quieter because we made it
         // by averaging in the other silent channel.
         assert!(float_cmp::approx_eq!(

@@ -1,6 +1,9 @@
 # These are the Rust files being tracked by Git.
 RUST_SRC_FILES ?= $(shell git ls-files --cached --deleted --modified --others src)
 
+# These are the documentation files tracked by Git.
+DOCS_FILES ?= $(shell git ls-files --cached --deleted --modified --others docs)
+
 
 # These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
@@ -419,7 +422,7 @@ build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 # ===================================================================
 
 ## docs
-.b/docs: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h
+.b/docs: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h $(DOCS_FILES)
 	rm -rf docs/build
 	mkdir docs/build
 	$(DOXYGEN)

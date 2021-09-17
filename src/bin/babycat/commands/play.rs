@@ -44,7 +44,7 @@ impl From<&FloatWaveform> for FloatWaveformSource {
             num_samples,
             current_sample_idx,
             duration,
-            interleaved_samples: item.interleaved_samples().to_vec(),
+            interleaved_samples: item.to_interleaved_samples().to_vec(),
         }
     }
 }

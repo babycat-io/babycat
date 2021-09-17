@@ -24,7 +24,7 @@ use serde::{Deserialize, Serialize};
 ///     format!("{:?}", float_waveform),
 ///     "FloatWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
 /// );
-/// println!("{:?}", &float_waveform.interleaved_samples()[30000..30005]);
+/// println!("{:?}", &float_waveform.to_interleaved_samples()[30000..30005]);
 /// // [0.0238994, 0.08098572, 0.0208567, 0.09139156, 0.015145444]
 ///
 ///
@@ -34,7 +34,7 @@ use serde::{Deserialize, Serialize};
 ///     format!("{:?}", int_waveform),
 ///     "IntWaveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
 /// );
-/// println!("{:?}", &int_waveform.interleaved_samples()[30000..30005]);
+/// println!("{:?}", &int_waveform.to_interleaved_samples()[30000..30005]);
 /// // [783, 2653, 683, 2994, 496]
 /// ```
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -48,7 +48,7 @@ pub struct IntWaveform {
 impl From<crate::backend::float_waveform::FloatWaveform> for IntWaveform {
     fn from(item: crate::backend::float_waveform::FloatWaveform) -> Self {
         let buffer: Vec<i16> = item
-            .interleaved_samples()
+            .to_interleaved_samples()
             .iter()
             .map(|val| f32_to_i16(*val))
             .collect();
@@ -112,7 +112,7 @@ impl crate::backend::waveform::Waveform<i16> for IntWaveform {
     }
 
     /// Returns the waveform as a slice of channel-interleaved `i16` samples.
-    fn interleaved_samples(&self) -> &[i16] {
+    fn to_interleaved_samples(&self) -> &[i16] {
         &self.interleaved_samples
     }
 }

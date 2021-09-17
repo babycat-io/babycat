@@ -87,7 +87,7 @@
 //!     match &named_result.result {
 //!         Ok(waveform) => {
 //!             // Do further processing.
-//!             waveform.interleaved_samples();
+//!             waveform.to_interleaved_samples();
 //!         }
 //!         Err(err) => {
 //!             // Handle decoding errors.

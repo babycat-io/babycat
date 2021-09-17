@@ -3,6 +3,7 @@ babycat.FloatWaveform
 
 .. py:class:: babycat.FloatWaveform
 
+
 Waveform properties
 -------------------
 .. toctree::
@@ -13,13 +14,22 @@ Waveform properties
    .num_frames <num_frames>
 
 
-Generating waveform from silence
---------------------------------
+Generating waveforms from silence
+---------------------------------
 .. toctree::
    :maxdepth: 2
 
    .from_frames_of_silence() <from_frames_of_silence>
    .from_milliseconds_of_silence() <from_milliseconds_of_silence>
+
+
+Importing already-decoded audio waveforms
+-----------------------------------------
+.. toctree::
+   :maxdepth: 2
+
+   .from_interleaved_samples() <from_interleaved_samples>
+   .from_numpy() <from_numpy>
 
 
 Decoding audio
@@ -41,12 +51,20 @@ Resampling audio
    .resample_by_mode() <resample_by_mode>
 
 
+Exporting decoded audio
+-----------------------
+.. toctree::
+   :maxdepth: 2
+
+   .to_interleaved_samples() <to_interleaved_samples>
+   .to_numpy() <to_numpy>
+
+
 Encoding audio
 --------------
 .. toctree::
    :maxdepth: 2
 
+
    .to_wav_buffer() <to_wav_buffer>
    .to_wav_file() <to_wav_file>
-   .numpy() <numpy>
-

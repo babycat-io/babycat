@@ -96,8 +96,8 @@ impl FloatWaveform {
     }
 
     /// Returns channel-interleaved samples.
-    pub fn interleavedSamples(&self) -> Float32Array {
-        Float32Array::from(self.inner.interleaved_samples())
+    pub fn toInterleavedSamples(&self) -> Float32Array {
+        Float32Array::from(self.inner.to_interleaved_samples())
     }
 
     /// Return the frame rate.
