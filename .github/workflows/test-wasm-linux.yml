@@ -36,17 +36,20 @@ jobs:
         node-version: "14"
 
     - name: Cache the wasm-pack binary
+      id: cache-wasm-pack-binary
       uses: actions/cache@v2
       with:
         path: /usr/share/rust/.cargo/bin/wasm-pack
         key: test-wasm-linux-cache-wasm-pack-0-10-1
 
     - name: Install wasm-pack (if it is not cached)
-      run: wasm-pack --version || cargo install wasm-pack --version=^0.10.1
+      run: cargo install wasm-pack --version=^0.10.1
+      if: steps.cache-wasm-pack-binary.outputs.cache-hit != 'true'
 
     - uses: actions/checkout@v2
 
     - name: Cache vendored Rust dependencies
+      id: cache-vendored-rust-dependencies
       uses: actions/cache@v2
       with:
         path: ./vendor
@@ -54,8 +57,10 @@ jobs:
 
     - name: Vendor Rust code (if it is not cached)
       run: make vendor
+      if: steps.cache-vendored-rust-dependencies.outputs.cache-hit != 'true'
 
     - name: Cache JavaScript test dependencies
+      id: cache-javascript-test-dependencies
       uses: actions/cache@v2
       with:
         path: ./tests-wasm-nodejs/node_modules
@@ -63,6 +68,7 @@ jobs:
 
     - name: Install JavaScript test requirements (if they are not cached)
       run: make init-javascript-tests
+      if: steps.cache-javascript-test-dependencies.outputs.cache-hit != 'true'
 
     - name: Build the WebAssembly frontend
       run: make build-wasm-nodejs

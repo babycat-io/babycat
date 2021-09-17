@@ -33,6 +33,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Cache vendored Rust dependencies
+      id: cache-vendored-rust-dependencies
       uses: actions/cache@v2
       with:
         path: ./vendor
@@ -40,6 +41,7 @@ jobs:
 
     - name: Vendor Rust code (if it is not cached)
       run: make vendor
+      if: steps.cache-vendored-rust-dependencies.outputs.cache-hit != 'true'
 
     - name: Build babycat command line program
       run: make build-binary
