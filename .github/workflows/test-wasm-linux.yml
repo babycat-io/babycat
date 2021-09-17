@@ -21,9 +21,6 @@ jobs:
   test-wasm-linux:
     runs-on: ubuntu-20.04
 
-    steps:
-    - uses: actions/checkout@v2
-
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
@@ -35,8 +32,17 @@ jobs:
       with:
         node-version: "14"
 
+    steps:
+    - uses: actions/checkout@v2
+
     - name: Vendor Rust code
       run: make vendor
+
+    - name: Setup JavaScript requirements
+      run: make init-javascript
+
+    - name: Run WebAssembly tests
+      run: make build-wasm-nodejs
 
     - name: Run WebAssembly tests
       run: make test-wasm-nodejs

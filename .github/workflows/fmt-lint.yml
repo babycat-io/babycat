@@ -21,8 +21,10 @@ jobs:
   fmt-lint:
     runs-on: ubuntu-20.04
 
-    steps:
-    - uses: actions/checkout@v2
+    - name: Install ALSA development headers
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends libasound2-dev
 
     - name: Install Rust
       uses: actions-rs/toolchain@v1
@@ -41,6 +43,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: "14"
+
+    steps:
+    - uses: actions/checkout@v2
 
     - name: Check code formatting
       run: make fmt-check

@@ -21,14 +21,14 @@ jobs:
   test-rust-windows:
     runs-on: windows-2019
 
-    steps:
-    - uses: actions/checkout@v2
-
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
           toolchain: "1.53.0"
           override: true
+
+    steps:
+    - uses: actions/checkout@v2
 
     - name: Vendor Rust code
       run: make vendor
