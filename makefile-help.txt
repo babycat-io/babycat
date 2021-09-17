@@ -54,14 +54,20 @@ lint-rust
 
 
 -----------------------------------------------------------------------
-docs                            Build the documentation website.
+docs                            Builds documentation.
 
+docs-rustdoc                    Only build the Rustdoc documentation.
+
+docs-sphinx                     Only build the Sphinx documentation.
+
+docs-sphinx-netlify             Builds the Sphinx documentation
+                                without using a Python virtualenv.
 
 
 -----------------------------------------------------------------------
 build                           Build the babycat libraries+bindings.
 
-build-python              Build a Python abi3 wheel for the
+build-python                    Build a Python abi3 wheel for the
                                 current operating system.
 
 build-rust                      Build a Rust library.
