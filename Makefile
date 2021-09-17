@@ -421,21 +421,21 @@ build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 # docs ==============================================================
 # ===================================================================
 
-## docs
-.b/docs: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h $(DOCS_FILES)
+## docs-sphinx
+.b/docs-sphinx: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h
 	rm -rf docs/build
 	mkdir docs/build
 	$(DOXYGEN)
 	$(ACTIVATE_VENV_CMD) && export PATH=$(PWD)/node_modules/.bin:$$HOME/.bin:$$PATH && $(MAKE) -C docs dirhtml
-	@touch .b/docs
-docs: .b/docs
-.PHONY: docs
+	@touch .b/docs-sphinx
+docs-sphinx: .b/docs-sphinx
+.PHONY: docs-sphinx
 
-## docs-netlify
+## docs-sphinx-netlify
 # This is the command we use to build docs on Netlify.
 # The Netlify build image has Python 3.8 installed,
 # but does not come with the virtualenv extension.
-.b/docs-netlify: .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h .b/build-python
+.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h .b/build-python
 # Clean any previous builds.
 	rm -rf docs/build
 	mkdir docs/build
@@ -447,10 +447,21 @@ docs: .b/docs
 	python3 -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
 # Generate the docs.
 	export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
-	@touch .b/docs-netlify
-docs-netlify: .b/docs-netlify
-.PHONY: docs-netlify
+	@touch .b/docs-sphinx-netlify
+docs-sphinx-netlify: .b/docs-sphinx-netlify
+.PHONY: docs-sphinx-netlify
 
+
+## docs-rustdoc
+.b/docs-rustdoc: .b/init-rust $(RUST_SRC_FILES)
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --features=frontend-rust --no-deps
+	@touch .b/docs-rustdoc
+docs-rustdoc: .b/docs-rustdoc
+.PHONY: docs-rustdoc
+
+
+docs: .b/docs-sphinx .b/docs-rustdoc
+.PHONY: docs
 
 
 # ===================================================================
