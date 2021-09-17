@@ -22,13 +22,14 @@ jobs:
   test-rust-macos:
     runs-on: macos-10.15
 
+    steps:
+
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
           toolchain: "1.53.0"
           override: true
 
-    steps:
     - uses: actions/checkout@v2
 
     - name: Vendor Rust code

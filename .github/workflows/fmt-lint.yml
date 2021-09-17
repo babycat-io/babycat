@@ -21,6 +21,8 @@ jobs:
   fmt-lint:
     runs-on: ubuntu-20.04
 
+    steps:
+
     - name: Install ALSA development headers
       run: |
         sudo apt-get update
@@ -44,7 +46,6 @@ jobs:
       with:
         node-version: "14"
 
-    steps:
     - uses: actions/checkout@v2
 
     - name: Check code formatting
