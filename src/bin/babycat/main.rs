@@ -35,6 +35,7 @@ fn main() {
             convert_to_mono,
             zero_pad_ending,
             resample_mode,
+            decoding_backend,
         } => commands::convert::convert(
             &input_filename,
             &output_filename,
@@ -46,6 +47,7 @@ fn main() {
             convert_to_mono,
             zero_pad_ending,
             &resample_mode,
+            &decoding_backend,
         ),
         command_args::SubcommandArgs::Play { input_filename } => {
             commands::play::play(input_filename).unwrap_or_exit()

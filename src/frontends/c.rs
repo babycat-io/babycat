@@ -24,8 +24,10 @@ pub const ERROR_CANNOT_ZERO_PAD: u32 = 203;
 //
 /// Returned when we were not able to detect the encoded input as decodable audio.
 pub const ERROR_UNKNOWN_INPUT_ENCODING: u32 = 300;
-/// Returned when we were not abel to decode the given (encoded) audio.
+/// Returned when we were not able to decode the given (encoded) audio.
 pub const ERROR_UNKNOWN_DECODE_ERROR: u32 = 301;
+/// Returned when we were not able to recognize the given decoding backend.
+pub const ERROR_UNKNOWN_DECODING_BACKEND: u32 = 302;
 //
 /// Returned whe we encountered an unknown error when encoding a waveform into particular format.
 pub const ERROR_UNKNOWN_ENCODE_ERROR: u32 = 400;
@@ -54,6 +56,8 @@ fn error_to_num(err: Error) -> u32 {
         Error::WrongNumChannelsAndMono => ERROR_WRONG_NUM_CHANNELS_AND_MONO,
 
         Error::CannotZeroPadWithoutSpecifiedLength => ERROR_CANNOT_ZERO_PAD,
+
+        Error::UnknownDecodingBackend(..) => ERROR_UNKNOWN_DECODING_BACKEND,
 
         Error::UnknownInputEncoding => ERROR_UNKNOWN_INPUT_ENCODING,
 

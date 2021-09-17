@@ -33,6 +33,8 @@ pub enum Error {
     CannotZeroPadWithoutSpecifiedLength,
     //
     // Decoding errors
+    /// Raised when we do not recognize the decoding backend.
+    UnknownDecodingBackend(u32),
     /// Raised when we were not able to detect the encoded input as decodable audio.
     UnknownInputEncoding,
     /// Raised when we were not able to decode the given (encoded) audio.
@@ -80,6 +82,8 @@ impl Error {
                 "CannotZeroPadWithoutSpecifiedLength".to_string()
             }
 
+            Error::UnknownDecodingBackend(b) => format!("UnknownDecodingBackend({})", b),
+
             Error::UnknownInputEncoding => "UnknownInputEncoding".to_string(),
 
             Error::UnknownDecodeError => "UnknownDecodeError".to_string(),
@@ -121,6 +125,8 @@ impl fmt::Display for Error {
             Error::WrongNumChannelsAndMono => write!(f, "You cannot set `convert_to_mono` as `true` and also set `num_channels` = 1. Pick one or the other. You either want `convert_to_mono` to average all channels as one channel... or you want to select the first channel with `num_channels`."),
 
             Error::CannotZeroPadWithoutSpecifiedLength => write!(f, "You cannot set `zero_pad_ending` without also specifying *where* the ending should be. Either set `zero_pad_ending` = `false` or specify `end_time_milliseconds` to a value above 0."),
+
+            Error::UnknownDecodingBackend(b) => write!(f, "Could not recognize the audio decoding backend `{}`.", b),
 
             Error::UnknownInputEncoding => write!(f, "Unknown input encoding for audio."),
 
