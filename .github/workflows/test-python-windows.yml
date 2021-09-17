@@ -40,7 +40,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ./vendor
-        key: test-python-windows-${{ hashFiles('./Cargo.lock') }}
+        key: test-python-windows-${{ hashFiles('./Cargo.toml') }}
 
     - name: Vendor Rust code (if it is not cached)
       run: make vendor
