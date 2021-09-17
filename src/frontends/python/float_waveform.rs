@@ -345,6 +345,7 @@ impl FloatWaveform {
         convert_to_mono = false,
         zero_pad_ending = false,
         resample_mode = 0,
+        decoding_backend = 0,
         file_extension = "\"\"",
         mime_type = "\"\""
     )]
@@ -357,6 +358,7 @@ impl FloatWaveform {
         convert_to_mono = False,
         zero_pad_ending = False,
         resample_mode = 0,
+        decoding_backend = 0,
         file_extension = \"\",
         mime_type = \"\",
     )"]
@@ -370,6 +372,7 @@ impl FloatWaveform {
         convert_to_mono: bool,
         zero_pad_ending: bool,
         resample_mode: u32,
+        decoding_backend: u32,
         file_extension: &str,
         mime_type: &str,
     ) -> PyResult<Self> {
@@ -381,6 +384,7 @@ impl FloatWaveform {
             convert_to_mono,
             zero_pad_ending,
             resample_mode,
+            decoding_backend,
         };
         float_waveform_to_pyresult(crate::backend::FloatWaveform::from_encoded_bytes_with_hint(
             &encoded_bytes,
@@ -494,6 +498,8 @@ impl FloatWaveform {
     ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
     ///         highest-quality setting.
     ///
+    ///     decoding_backend(int, optional): Sets the audio decoding
+    ///         backend to use. Defaults to the Symphonia backend.
     ///
     /// Returns:
     ///     FloatWaveform: A waveform decoded from ``filename``.
@@ -556,7 +562,8 @@ impl FloatWaveform {
         num_channels = 0,
         convert_to_mono = false,
         zero_pad_ending = false,
-        resample_mode = 0
+        resample_mode = 0,
+        decoding_backend = 0
     )]
     #[text_signature = "(
         filename,
@@ -567,6 +574,7 @@ impl FloatWaveform {
         convert_to_mono = False,
         zero_pad_ending = False,
         resample_mode = 0,
+        decoding_backend = 0,
     )"]
     #[allow(clippy::too_many_arguments)]
     pub fn from_file(
@@ -578,6 +586,7 @@ impl FloatWaveform {
         convert_to_mono: bool,
         zero_pad_ending: bool,
         resample_mode: u32,
+        decoding_backend: u32,
     ) -> PyResult<Self> {
         let decode_args = crate::backend::DecodeArgs {
             start_time_milliseconds,
@@ -587,6 +596,7 @@ impl FloatWaveform {
             convert_to_mono,
             zero_pad_ending,
             resample_mode,
+            decoding_backend,
         };
         float_waveform_to_pyresult(crate::backend::FloatWaveform::from_file(
             filename,
@@ -706,6 +716,8 @@ impl FloatWaveform {
     ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
     ///         highest-quality setting.
     ///
+    ///     decoding_backend(int, optional): Sets the audio decoding
+    ///         backend to use. Defaults to the Symphonia backend.
     ///
     ///     num_workers(int, optional): The number of threads--*Rust threads*, not Python
     ///         threads--to use for parallel decoding of the audio files in
@@ -732,6 +744,7 @@ impl FloatWaveform {
         convert_to_mono = false,
         zero_pad_ending = false,
         resample_mode = 0,
+        decoding_backend = 0,
         num_workers = 0
     )]
     #[text_signature = "(
@@ -743,6 +756,7 @@ impl FloatWaveform {
         convert_to_mono = False,
         zero_pad_ending = False,
         resample_mode = 0,
+        decoding_backend = 0,
         num_workers = 0,
     )"]
     #[allow(clippy::too_many_arguments)]
@@ -755,6 +769,7 @@ impl FloatWaveform {
         convert_to_mono: bool,
         zero_pad_ending: bool,
         resample_mode: u32,
+        decoding_backend: u32,
         num_workers: usize,
     ) -> Vec<FloatWaveformNamedResult> {
         let decode_args = crate::backend::DecodeArgs {
@@ -765,6 +780,7 @@ impl FloatWaveform {
             convert_to_mono,
             zero_pad_ending,
             resample_mode,
+            decoding_backend,
         };
         let batch_args = crate::backend::BatchArgs { num_workers };
         let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();

@@ -346,7 +346,13 @@ impl FloatWaveform {
             return Err(Error::WrongNumChannelsAndMono);
         }
 
-        let mut decoder = SymphoniaDecoder::new(encoded_stream, file_extension, mime_type)?;
+        /// Initialize our audio decoding backend.
+        let mut decoder = match decode_args.decoding_backend {
+            DEFAULT_DECODING_BACKEND | DECODING_BACKEND_SYMPHONIA => {
+                SymphoniaDecoder::new(encoded_stream, file_extension, mime_type)?
+            }
+            _ => return Err(Error::UnknownDecodingBackend(decode_args.decoding_backend)),
+        };
 
         // Examine the actual shape of this audio file.
         let original_frame_rate_hz = decoder.frame_rate_hz();

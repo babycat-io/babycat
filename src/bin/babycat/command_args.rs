@@ -89,6 +89,14 @@ pub enum SubcommandArgs {
             help = "Select the backend to use for resampling. Valid values are: libsamplerate, babycat_lanczos, babycat_sinc"
         )]
         resample_mode: String,
+
+        #[structopt(
+            long,
+            display_order = 11,
+            default_value = "symphonia",
+            help = "Select the backend to use for audio decoding. Valid values are: symphonia"
+        )]
+        decoding_backend: String,
     },
     Play {
         #[structopt(long, display_order = 1, help = "The audio file to play")]

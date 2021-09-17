@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+pub mod decoding_backend;
 pub mod exceptions;
 pub mod float_waveform;
 pub mod resample_mode;
@@ -13,8 +14,13 @@ pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
     let exceptions_submodule = exceptions::make_exceptions_submodule(py)?;
     m.add_submodule(exceptions_submodule)?;
 
+    // Configure the resample submodule.
     let resample_submodule = resample_mode::make_resample_mode_submodule(py)?;
     m.add_submodule(resample_submodule)?;
+
+    // Configure the decoding backend submodule.
+    let decoding_backend_submodule = decoding_backend::make_decoding_backend_submodule(py)?;
+    m.add_submodule(decoding_backend_submodule)?;
 
     // Configure the FloatWaveform class, which does most of the heavy lifting.
     m.add_class::<float_waveform::FloatWaveform>()?;

@@ -1,6 +1,7 @@
 use log::info;
 
 use babycat::FloatWaveform;
+use babycat::DECODING_BACKEND_SYMPHONIA;
 use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
 use babycat::RESAMPLE_MODE_BABYCAT_SINC;
 use babycat::RESAMPLE_MODE_LIBSAMPLERATE;
@@ -21,6 +22,7 @@ pub fn convert(
     convert_to_mono: bool,
     zero_pad_ending: bool,
     resample_mode: &str,
+    decoding_backend: &str,
 ) {
     //
     // Input validation.
@@ -41,6 +43,13 @@ pub fn convert(
             panic!("NO");
         }
     };
+    let decoding_backend_int = {
+        if decoding_backend == "symphonia" {
+            DECODING_BACKEND_SYMPHONIA
+        } else {
+            panic!("NO");
+        }
+    };
     //
     // Set up decoding.
     let decode_args = DecodeArgs {
@@ -51,6 +60,7 @@ pub fn convert(
         convert_to_mono,
         zero_pad_ending,
         resample_mode: resample_mode_int,
+        decoding_backend: decoding_backend_int,
     };
     //
     // Decode from filesystem.

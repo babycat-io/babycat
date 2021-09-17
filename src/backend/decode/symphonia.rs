@@ -80,7 +80,7 @@ fn num_frames_in_packet(audio_buffer: &AudioBufferType) -> usize {
     }
 }
 
-/// An audio decoder from Philip Deljanov's Symphonia library.
+/// An audio decoder from Philip Deljanov's [`symphonia`] audio decoding library.
 pub struct SymphoniaDecoder {
     _decoder: Box<dyn SymphoniaDecoderTrait>,
     _reader: Box<dyn FormatReader>,

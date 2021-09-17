@@ -18,6 +18,8 @@ pub const DEFAULT_CONVERT_TO_MONO: bool = false;
 pub const DEFAULT_ZERO_PAD_ENDING: bool = false;
 /// Sets the default resampler.
 pub const DEFAULT_RESAMPLE_MODE: u32 = 0;
+/// Sets the default audio decoding backend.
+pub const DEFAULT_DECODING_BACKEND: u32 = 0;
 
 /// Use this value to resample audio with libsamplerate.
 ///
@@ -28,6 +30,9 @@ pub const RESAMPLE_MODE_LIBSAMPLERATE: u32 = 1;
 pub const RESAMPLE_MODE_BABYCAT_LANCZOS: u32 = 2;
 /// Use this value to resample audio with Babycat's sinc resampler.
 pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
+
+/// Sets the decoding backend as [`SymphoniaDecoder`](crate::decode::SymphoniaDecoder).
+pub const DECODING_BACKEND_SYMPHONIA: u32 = 1;
 
 /// Specifies what transformations to apply to the audio during the decoding
 /// process.
@@ -91,6 +96,13 @@ pub struct DecodeArgs {
     ///
     #[serde(default)]
     pub resample_mode: u32,
+    #[serde(default)]
+    /// Sets which audio decoding backend to use.
+    /// Currently the only available decoding backend is
+    /// [`babycat::DECODING_BACKEND_SYMPHONIA`](crate::DECODING_BACKEND_SYMPHONIA), which
+    /// corresponds to the [`SymphoniaDecoder`](crate::decode::SymphoniaDecoder), which
+    /// is a wrapper for the [`symphonia`] library.
+    pub decoding_backend: u32,
 }
 
 impl Default for DecodeArgs {
@@ -103,6 +115,7 @@ impl Default for DecodeArgs {
             convert_to_mono: DEFAULT_CONVERT_TO_MONO,
             zero_pad_ending: DEFAULT_ZERO_PAD_ENDING,
             resample_mode: DEFAULT_RESAMPLE_MODE,
+            decoding_backend: DEFAULT_DECODING_BACKEND,
         }
     }
 }
