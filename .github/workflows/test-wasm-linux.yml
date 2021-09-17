@@ -36,7 +36,6 @@ jobs:
         node-version: "14"
 
     - name: Cache wasm-pack
-      id: cache-wasm-pack
       uses: actions/cache@v2
       with:
         path: /usr/share/rust/.cargo/bin/wasm-pack
@@ -47,7 +46,13 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    - name: Vendor Rust code
+    - name: Cache vendored Rust code
+      uses: actions/cache@v2
+      with:
+        path: ./vendor
+        key: test-wasm-linux-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Vendor Rust code (if it is not cached)
       run: make vendor
 
     - name: Setup JavaScript requirements
