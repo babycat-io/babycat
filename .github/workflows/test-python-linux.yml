@@ -39,5 +39,8 @@ jobs:
     - name: Vendor Rust code
       run: make vendor
 
+    - name: Build Python frontend
+      run: make build-python
+
     - name: Run Python tests
       run: make test-python

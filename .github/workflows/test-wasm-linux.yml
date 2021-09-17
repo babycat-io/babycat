@@ -28,6 +28,7 @@ jobs:
       with:
           toolchain: "1.53.0"
           override: true
+          target: wasm32-unknown-unknown
 
     - name: Install Node.js
       uses: actions/setup-node@v2
@@ -42,7 +43,7 @@ jobs:
     - name: Setup JavaScript requirements
       run: make init-javascript
 
-    - name: Run WebAssembly tests
+    - name: Build the WebAssembly frontend
       run: make build-wasm-nodejs
 
     - name: Run WebAssembly tests

@@ -34,5 +34,8 @@ jobs:
     - name: Vendor Rust code
       run: make vendor
 
+    - name: Build C frontend
+      run: make build-c
+
     - name: Run C tests
       run: make test-c
