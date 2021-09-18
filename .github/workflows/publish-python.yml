@@ -23,11 +23,11 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v2
-
     - uses: actions/setup-python@v2
       with:
         python-version: "3.6"
+
+    - uses: actions/checkout@v2
 
     - name: Get the version
       id: get_version
@@ -36,8 +36,11 @@ jobs:
     - name: Set the version in our Cargo.toml
       run: ./.version-bump.py ${{ steps.get_version.outputs.VERSION }}
 
-    - name: Initialize the environment
+    - name: Install Python build tools
       run: python3 -m pip install --upgrade pip wheel twine
+
+    - name: Vendor Rust code
+      run: make vendor
 
     - name: Build Windows and MacOS Python wheels
       if: matrix.os != 'ubuntu-20.04'

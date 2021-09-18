@@ -15,24 +15,32 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: "1.53.0"
+          override: true
+          target: wasm32-unknown-unknown
 
     - name: Install Node.js
       uses: actions/setup-node@v2
       with:
         node-version: "14"
 
-    - name: Get the version
+    - uses: actions/checkout@v2
+
+    - name: Get the version from the Git tag name
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
 
     - name: Set the version in our Cargo.toml
       run: ./.version-bump.py ${{ steps.get_version.outputs.VERSION }}
 
-    - name: Initialize the environment
-      run: |
-        rustup target add wasm32-unknown-unknown
-        cargo install wasm-pack
+    - name: Install wasm-pack
+      run: cargo install wasm-pack --version=^0.10.1
+
+    - name: Vendor Rust code
+      run: make vendor
 
     - name: Build the WebAssembly bundle
       run: make build-wasm-bundler
