@@ -19,7 +19,16 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-20.04, macos-10.15, windows-2019]
+        include:
+          - os: ubuntu-20.04
+            cargo_home: /usr/share/rust/.cargo
+            rustup_home: /usr/share/rust/.rustup
+          - os: macos-10.15
+            cargo_home: /Users/runner/.cargo
+            rustup_home: /Users/runner/.rustup
+          - os: windows-2019
+            cargo_home: C:\Rust\.cargo
+            rustup_home: C:\Rust\.rustup
 
     steps:
 

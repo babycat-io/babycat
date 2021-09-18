@@ -9,6 +9,11 @@ on:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_HOME: /usr/share/rust/.cargo
+  RUSTUP_HOME: /usr/share/rust/.rustup
+
 jobs:
   publish-rust:
     runs-on: ubuntu-20.04
