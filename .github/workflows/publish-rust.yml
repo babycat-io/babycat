@@ -39,9 +39,7 @@ jobs:
       run: make vendor
 
     - name: Disable cargo vendoring to make 'cargo publish' work
-      run: |
-        rm .cargo/config.toml
-        touch .cargo/config.toml
+      run: cp .cargo/config-no-vendoring.toml .cargo/config.toml
 
     - name: Log into crates.io
       run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
