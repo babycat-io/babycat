@@ -16,6 +16,9 @@ env:
 jobs:
   publish-python:
     runs-on: ${{ matrix.os }}
+    env:
+      CARGO_HOME: ${{ matrix.cargo_home }}
+      RUSTUP_HOME: ${{ matrix.rustup_home }}
     strategy:
       fail-fast: true
       matrix:
