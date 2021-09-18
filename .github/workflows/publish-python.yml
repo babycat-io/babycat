@@ -60,16 +60,24 @@ jobs:
     - name: Vendor Rust code
       run: make vendor
 
-    - name: Build Windows and MacOS Python wheels
+    - name: Build Windows and macOS Python wheels
       if: matrix.os != 'ubuntu-20.04'
       run: make build-python
+
+    - name: Publish Windows and macOS Python wheels to PyPI
+      run: twine upload --non-interactive target/frontend-python/*.whl
+      if: matrix.os != 'ubuntu-20.04'
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
 
     - name: Build the manylinux Python wheel
       if: matrix.os == 'ubuntu-20.04'
       run: make build-python-manylinux
 
-    - name: Publish to PyPI
-      run: twine upload --non-interactive target/python/*
+    - name: Publish the manylinux Python wheel to PyPI
+      run: twine upload --non-interactive target/frontend-python--manylinux/*.whl
+      if: matrix.os == 'ubuntu-20.04'
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
