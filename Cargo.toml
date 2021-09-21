@@ -25,12 +25,8 @@ required-features = ["frontend-binary"]
 name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
-[patch.crates-io]
-symphonia = { git = "https://github.com/neocrym-forks/Symphonia", rev = "2cafae82b664ceb14dd5d058f534574399764165" }
-
 [dependencies]
-# we patch this dependency with our own fork
-symphonia = { version = "0.3.0",  features = [ "aac", "flac", "mp3", "pcm", "isomp4", "wav", "ogg" ] }
+symphonia = { version = "0.4.0",  features = [ "aac", "flac", "mp3", "pcm", "isomp4", "wav", "ogg", "vorbis" ] }
 
 base64 = "0.13"
 float-cmp= "0.8"
