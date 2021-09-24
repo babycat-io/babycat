@@ -1,3 +1,5 @@
+//! ![Babycat: Audio analysis made easy.](https://static.neocrym.com/images/babycat/v1/1x/babycat-body-icon-dark-social-media-cover--1x.png)
+//!
 //! Babycat is a library that makes it easy to decode and manipulate
 //! many audio files at once.
 //!
@@ -95,6 +97,10 @@
 //!     }
 //! }
 //! ```
+
+#![doc(
+    html_logo_url = "https://static.neocrym.com/images/babycat/v1/1x/babycat-face-icon-on-transparent--1x.png"
+)]
 
 // Leak a str or String value.
 // This is useful for passing string values to an error enum.
