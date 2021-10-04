@@ -40,6 +40,7 @@ Decoding audio
    .from_encoded_bytes() <from_encoded_bytes>
    .from_file() <from_file>
    .from_many_files() <from_many_files>
+   .from_many_files_to_numpy() <from_many_files_to_numpy>
 
 
 Resampling audio

@@ -878,6 +878,243 @@ impl FloatWaveform {
             .collect()
     }
 
+    /// Uses multithreading in Rust to decode many audio files in parallel,
+    /// returning a Python list of :py:class:`numpy.array`--one for
+    /// each decoded waveform.
+    ///
+    /// This method is a slightly faster alternative to :py:meth:`FloatWaveform.from_many_files`
+    /// if you want to decode multiple audio files in parallel, converting
+    /// them directly into NumPy arrays. Use this method if you want to
+    /// decode audio files into NumPy arrays as fast as possible.
+    ///
+    /// .. admonition:: Don't use this method if you need to handle errors
+    ///     :class: danger
+    ///
+    ///     If :py:meth:`~FloatWaveform.from_many_files_to_numpy` fails to decode
+    ///     any of the input filenames, it will raise an exception from the first
+    ///     audio file that fails to decode. However, the exception may not
+    ///     contain the filename of the audio file. If you need this
+    ///     information, it is better to use :py:meth:`~FloatWaveform.from_many_files`
+    ///     instead, which returns a list of :py:class:`FloatWaveformNamedResult`
+    ///     objects that contain audio filenames and either a
+    ///     :py:class:`FloatWaveform`` from a successful decoding, or an exception
+    ///     from a failed decoding.
+    ///
+    /// Example:
+    ///     **Decode three audio files directly to NumPy arrays.**
+    ///
+    ///     >>> from babycat import FloatWaveform
+    ///     >>> filenames = [
+    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/mono-dtmf-tones/track.mp3",
+    ///     ...     "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     ... ]
+    ///     >>> arrays = FloatWaveform.from_many_files_to_numpy(
+    ///     ...     filenames,
+    ///     ...     frame_rate_hz=44_100,
+    ///     ... )
+    ///     >>> arrays[0].shape  # 9586944 frames, 2 channels
+    ///     (9586944, 2)
+    ///     >>> arrays[1].shape  #  442368 frames, 1 channel
+    ///     (442368, 1)
+    ///     >>> arrays[2].shape  # 2491776 frames, 2 channels
+    ///     (2491776, 2)
+    ///
+    /// Args:
+    ///     filenames(list[str]): A :py:class:`list` of filenames--each as
+    ///         :py:class:`str`--to decode in parallel.
+    ///
+    ///     start_time_milliseconds(int, optional): We discard
+    ///         any audio before this millisecond offset. By default, this
+    ///         does nothing and the audio is decoded from the beginning.
+    ///         Negative offsets are invalid.
+    ///
+    ///     end_time_milliseconds(int, optional): We discard
+    ///         any audio after this millisecond offset. By default,
+    ///         this does nothing and the audio is decoded all the way
+    ///         to the end. If ``start_time_milliseconds`` is specified,
+    ///         then ``end_time_milliseconds`` must be greater. The resulting
+    ///
+    ///     frame_rate_hz(int, optional): A destination frame rate to resample
+    ///         the audio to. Do not specify this parameter if you wish
+    ///         Babycat to preserve the audio's original frame rate.
+    ///         This does nothing if ``frame_rate_hz`` is equal to the
+    ///         audio's original frame rate.
+    ///
+    ///     num_channels(int, optional): Set this to a positive integer ``n``
+    ///         to select the *first* ``n`` channels stored in the
+    ///         audio file. By default, Babycat will return all of the channels
+    ///         in the original audio. This will raise an exception
+    ///         if you specify a ``num_channels`` greater than the actual
+    ///         number of channels in the audio.
+    ///
+    ///     convert_to_mono(bool, optional): Set to ``True`` to average all channels
+    ///         into a single monophonic (mono) channel. If
+    ///         ``num_channels = n`` is also specified, then only the
+    ///         first ``n`` channels will be averaged. Note that
+    ///         ``convert_to_mono`` cannot be set to ``True`` while
+    ///         also setting ``num_channels = 1``.
+    ///
+    ///     zero_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will zero-pad the ending of the decoded waveform
+    ///         to ensure that the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``zero_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``
+    ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///
+    ///     resample_mode(int, optional): If you set ``frame_rate_hz``
+    ///         to resample the audio when decoding, you can also set
+    ///         ``resample_mode`` to pick which resampling backend to use.
+    ///         The :py:mod:`babycat.resample_mode` submodule contains
+    ///         the various available resampling algorithms compiled into Babycat.
+    ///         By default, Babycat resamples audio using
+    ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    ///         highest-quality setting.
+    ///
+    ///     decoding_backend(int, optional): Sets the audio decoding
+    ///         backend to use. Defaults to the Symphonia backend.
+    ///
+    ///     num_workers(int, optional): The number of threads--*Rust threads*, not Python
+    ///         threads--to use for parallel decoding of the audio files in
+    ///         ``filenames``. By default, Babycat creates the same
+    ///         number of threads as the number of logical CPU cores on
+    ///         your machine.
+    ///
+    /// Returns:
+    ///     list[numpy.ndarray]: A list of NumPy arrays--one for each input audio file.
+    ///
+    /// Raises:
+    ///     babycat.exceptions.FeatureNotCompiled: Raised when you are trying
+    ///         to use a feature at runtime that as not included in Babycat
+    ///         at compile-time.
+    ///
+    ///     babycat.exceptions.WrongTimeOffset: Raised when
+    ///         ``start_time_milliseconds``and/or ``end_time_milliseconds``
+    ///         is invalid.
+    ///
+    ///     babycat.exceptions.WrongNumChannels: Raised when you specified
+    ///         a value for ``num_channels`` that is greater than the
+    ///         number of channels the audio has.
+    ///
+    ///     babycat.exceptions.WrongNumChannelsAndMono: Raised when the
+    ///         user sets both ``convert_to_mono = True`` and
+    ///         ``num_channels = 1``.
+    ///
+    ///     babycat.exceptions.CannotZeroPadWithoutSpecifiedLength: Raised
+    ///         when ``zero_pad_ending`` is set without setting
+    ///         ``end_time_milliseconds``.
+    ///
+    ///     babycat.exceptions.UnknownInputEncoding: Raised when we
+    ///         failed to detect valid audio in the input data.
+    ///
+    ///     babycat.exceptions.UnknownDecodeError: Raised when we
+    ///         failed to decode the input audio stream, but
+    ///         we don't know why.
+    ///
+    ///     babycat.exceptions.ResamplingError: Raised when we
+    ///         failed to encode an audio stream into an output format.
+    ///
+    ///     babycat.exceptions.WrongFrameRate: Raised when the
+    ///         user set ``frame_rate_hz`` to a value that we
+    ///         cannot resample to.
+    ///
+    ///     babycat.exceptions.WrongFrameRateRatio: Raised
+    ///         when ``frame_rate_hz`` would upsample or
+    ///         downsample by a factor ``>= 256``. Try resampling in
+    ///         smaller increments.
+    ///
+    ///
+    #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+    #[staticmethod]
+    #[args(
+        filenames,
+        "*",
+        start_time_milliseconds = 0,
+        end_time_milliseconds = 0,
+        frame_rate_hz = 0,
+        num_channels = 0,
+        convert_to_mono = false,
+        zero_pad_ending = false,
+        resample_mode = 0,
+        decoding_backend = 0,
+        num_workers = 0
+    )]
+    #[text_signature = "(
+        filenames,
+        start_time_milliseconds = 0,
+        end_time_milliseconds= 0,
+        frame_rate_hz = 0,
+        num_channels = 0,
+        convert_to_mono = False,
+        zero_pad_ending = False,
+        resample_mode = 0,
+        decoding_backend = 0,
+        num_workers = 0,
+    )"]
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_many_files_to_numpy(
+        filenames: Vec<String>,
+        start_time_milliseconds: u64,
+        end_time_milliseconds: u64,
+        frame_rate_hz: u32,
+        num_channels: u32,
+        convert_to_mono: bool,
+        zero_pad_ending: bool,
+        resample_mode: u32,
+        decoding_backend: u32,
+        num_workers: usize,
+    ) -> PyResult<Vec<Py<PyArray2<f32>>>> {
+        let decode_args = crate::backend::DecodeArgs {
+            start_time_milliseconds,
+            end_time_milliseconds,
+            frame_rate_hz,
+            num_channels,
+            convert_to_mono,
+            zero_pad_ending,
+            resample_mode,
+            decoding_backend,
+        };
+        let batch_args = crate::backend::BatchArgs { num_workers };
+        let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
+
+        // Decode the audio files.
+        let named_results =
+            crate::backend::FloatWaveform::from_many_files(&filenames_ref, decode_args, batch_args);
+
+        // Create the output list of NumPy arrays.
+        let mut arrays: Vec<Py<PyArray2<f32>>> = Vec::new();
+
+        Python::with_gil(|py| {
+            // Iterate over the results and turn them into NumPy arrays.
+            for nr in named_results {
+                match nr.result {
+                    // Return the first decoding error we encounter.
+                    // If we never encounter any decoding errors, then we will return
+                    // a Python list of NumPy arrays--one for each filename.
+                    Err(error) => {
+                        // TODO(jamesmishra): Include the filename of the audio file that raised the exception.
+                        return Err(error.into());
+                    }
+                    // Convert a Rust FloatWaveform object into a NumPy array.
+                    Ok(waveform) => {
+                        let arr = numpy::PyArray::from_slice(py, waveform.to_interleaved_samples())
+                            // Always reshape each array as channels-last.
+                            .reshape([
+                                waveform.num_frames() as usize,
+                                waveform.num_channels() as usize,
+                            ])
+                            .unwrap()
+                            .to_owned();
+                        arrays.push(arr);
+                    }
+                }
+            }
+            Ok(arrays)
+        })
+    }
+
     /// Returns the decoded waveform's frame rate in hertz.
     ///
     /// If you did not set ``frame_rate_hz`` as an argument during decoding,

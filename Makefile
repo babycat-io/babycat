@@ -29,7 +29,7 @@ WHEEL_DIR ?= target/frontend-python
 MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
+PYTHON_CODE_PATHS ?= ./benches-python ./tests-python ./docs/source/conf.py
 
 
 # Windows and Unix have different paths for activating
@@ -550,8 +550,13 @@ bench-rust: .b/init-rust
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench
 .PHONY: bench-rust
 
+## bench-python
+bench-python: .b/init-python .b/install-python-wheel
+	$(ACTIVATE_VENV_CMD) && pytest benches-python/*
+.PHONY: bench-python
+
 ## bench
-bench: bench-rust
+bench: bench-rust bench-python
 .PHONY: bench
 
 

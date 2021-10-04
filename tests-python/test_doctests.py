@@ -31,3 +31,7 @@ def test_float_waveform_from_file():
 
 def test_float_waveform_from_many_files():
     run_doctest(babycat.FloatWaveform.from_many_files)
+
+
+def test_float_waveform_from_many_files_to_numpy():
+    run_doctest(babycat.FloatWaveform.from_many_files_to_numpy)

@@ -167,6 +167,7 @@ doctest-rust
 
 -----------------------------------------------------------------------
 bench                           Run benchmarks.
+bench-python
 bench-rust
 
 
