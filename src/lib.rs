@@ -54,7 +54,7 @@
 //! # Examples
 //! **Decode multiple audio files in parallel.**
 //! ```
-//! use babycat::{DecodeArgs, Waveform};
+//! use babycat::{WaveformArgs, Waveform};
 //!
 //! // These are test files in the Babycat Git repository.
 //! let filenames = &[
@@ -64,7 +64,7 @@
 //! ];
 //!
 //! // Perform the following transformations on EACH track.
-//! let decode_args = DecodeArgs {
+//! let waveform_args = WaveformArgs {
 //!     // Upsample the audio to 48khz.
 //!     frame_rate_hz: 48000,
 //!     // Average all audio channels into a single monophonic channel.
@@ -80,7 +80,7 @@
 //! // Read and decode the tracks in parallel.
 //! let batch = babycat::Waveform::from_many_files(
 //!    filenames,
-//!    decode_args,
+//!    waveform_args,
 //!    batch_args,
 //! );
 //!

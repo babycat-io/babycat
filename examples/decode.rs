@@ -1,11 +1,11 @@
-use babycat::{DecodeArgs, Waveform};
+use babycat::{Waveform, WaveformArgs};
 
 fn main() {
-    let decode_args = DecodeArgs {
+    let waveform_args = WaveformArgs {
         ..Default::default()
     };
     let waveform =
-        match Waveform::from_file("audio-for-tests/circus-of-freaks/track.mp3", decode_args) {
+        match Waveform::from_file("audio-for-tests/circus-of-freaks/track.mp3", waveform_args) {
             Ok(w) => w,
             Err(err) => {
                 println!("Decoding error: {}", err);

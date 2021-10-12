@@ -1,7 +1,7 @@
 use log::info;
 
-use babycat::DecodeArgs;
 use babycat::Waveform;
+use babycat::WaveformArgs;
 use babycat::DECODING_BACKEND_SYMPHONIA;
 use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
 use babycat::RESAMPLE_MODE_BABYCAT_SINC;
@@ -52,7 +52,7 @@ pub fn convert(
     };
     //
     // Set up decoding.
-    let decode_args = DecodeArgs {
+    let waveform_args = WaveformArgs {
         start_time_milliseconds,
         end_time_milliseconds,
         frame_rate_hz,
@@ -65,7 +65,7 @@ pub fn convert(
     //
     // Decode from filesystem.
     let decoding_start_time = std::time::Instant::now();
-    let waveform = Waveform::from_file(input_filename, decode_args).unwrap_or_exit();
+    let waveform = Waveform::from_file(input_filename, waveform_args).unwrap_or_exit();
     let decoding_elapsed = std::time::Instant::now() - decoding_start_time;
     info!(
         "Decoded {} frames of {} channels at {} hz in {} seconds from {}",

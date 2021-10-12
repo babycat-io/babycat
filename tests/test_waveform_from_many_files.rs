@@ -2,14 +2,14 @@ mod fixtures;
 
 mod test_waveform_from_many_files {
     use crate::fixtures::*;
-    use babycat::{BatchArgs, DecodeArgs, Waveform};
+    use babycat::{BatchArgs, Waveform, WaveformArgs};
 
     #[test]
     fn test_all_same_file_1() {
         let filenames = &[COF_FILENAME, COF_FILENAME, COF_FILENAME];
-        let decode_args = Default::default();
+        let waveform_args = Default::default();
         let batch_args = Default::default();
-        let batch = Waveform::from_many_files(filenames, decode_args, batch_args);
+        let batch = Waveform::from_many_files(filenames, waveform_args, batch_args);
         for named_result in batch {
             let waveform = named_result.result.unwrap();
             assert_eq!(COF_NUM_CHANNELS, waveform.num_channels());
@@ -25,12 +25,12 @@ mod test_waveform_from_many_files {
     #[test]
     fn test_all_same_file_2() {
         let filenames = &[COF_FILENAME, COF_FILENAME, COF_FILENAME];
-        let decode_args = DecodeArgs {
+        let waveform_args = WaveformArgs {
             end_time_milliseconds: 15000,
             ..Default::default()
         };
         let batch_args = Default::default();
-        let batch = Waveform::from_many_files(filenames, decode_args, batch_args);
+        let batch = Waveform::from_many_files(filenames, waveform_args, batch_args);
         let num_frames = 661500;
         for named_result in batch {
             let waveform = named_result.result.unwrap();
@@ -47,12 +47,12 @@ mod test_waveform_from_many_files {
     #[test]
     fn test_all_same_file_single_threaded_1() {
         let filenames = &[COF_FILENAME, COF_FILENAME, COF_FILENAME];
-        let decode_args = Default::default();
+        let waveform_args = Default::default();
         let batch_args = BatchArgs {
             num_workers: 1,
             ..Default::default()
         };
-        let batch = Waveform::from_many_files(filenames, decode_args, batch_args);
+        let batch = Waveform::from_many_files(filenames, waveform_args, batch_args);
         for named_result in batch {
             let waveform = named_result.result.unwrap();
             assert_eq!(COF_NUM_CHANNELS, waveform.num_channels());
@@ -67,9 +67,9 @@ mod test_waveform_from_many_files {
 
     #[test]
     fn test_different_filenames_1() {
-        let decode_args = Default::default();
+        let waveform_args = Default::default();
         let batch_args = Default::default();
-        let batch = Waveform::from_many_files(ALL_FILENAMES, decode_args, batch_args);
+        let batch = Waveform::from_many_files(ALL_FILENAMES, waveform_args, batch_args);
         for (i, named_result) in batch.into_iter().enumerate() {
             let waveform = named_result.result.unwrap();
             assert_eq!(ALL_NUM_CHANNELS[i], waveform.num_channels());
@@ -85,9 +85,9 @@ mod test_waveform_from_many_files {
     #[test]
     fn test_file_not_found_error_1() {
         let filenames = &[COF_FILENAME, "asdfasdf"];
-        let decode_args = Default::default();
+        let waveform_args = Default::default();
         let batch_args = Default::default();
-        let batch = Waveform::from_many_files(filenames, decode_args, batch_args);
+        let batch = Waveform::from_many_files(filenames, waveform_args, batch_args);
         assert_eq!(batch.len(), 2);
         let first_result = batch[0].result.as_ref().unwrap();
         assert_eq!(COF_NUM_CHANNELS, first_result.num_channels());

@@ -46,14 +46,14 @@ impl Waveform {
     /// Decodes audio stored in an in-memory byte array.
     pub fn fromEncodedArray(
         encodedArray: Uint8Array,
-        decodeArgs: JsValue,
+        WaveformArgs: JsValue,
     ) -> Result<Waveform, JsValue> {
-        let parsedDecodeArgs: crate::backend::DecodeArgs = match decodeArgs.into_serde() {
+        let parsedWaveformArgs: crate::backend::WaveformArgs = match WaveformArgs.into_serde() {
             Ok(parsed) => parsed,
             Err(err) => return Err(throw_js_error(err)),
         };
         let cursor = std::io::Cursor::new(encodedArray.to_vec());
-        match crate::backend::Waveform::from_encoded_stream(cursor, parsedDecodeArgs) {
+        match crate::backend::Waveform::from_encoded_stream(cursor, parsedWaveformArgs) {
             Ok(inner) => Ok(Waveform { inner }),
             Err(err) => Err(throw_js_error(err)),
         }
@@ -62,18 +62,18 @@ impl Waveform {
     /// Decodes audio using an in-memory byte array, using user-specified encoding hints.
     pub fn fromEncodedArrayWithHint(
         encodedArray: Uint8Array,
-        decodeArgs: JsValue,
+        WaveformArgs: JsValue,
         fileExtension: &str,
         mimeType: &str,
     ) -> Result<Waveform, JsValue> {
-        let parsedDecodeArgs: crate::backend::DecodeArgs = match decodeArgs.into_serde() {
+        let parsedWaveformArgs: crate::backend::WaveformArgs = match WaveformArgs.into_serde() {
             Ok(parsed) => parsed,
             Err(err) => return Err(throw_js_error(err)),
         };
         let cursor = std::io::Cursor::new(encodedArray.to_vec());
         match crate::backend::Waveform::from_encoded_stream_with_hint(
             cursor,
-            parsedDecodeArgs,
+            parsedWaveformArgs,
             fileExtension,
             mimeType,
         ) {

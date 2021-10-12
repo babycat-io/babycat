@@ -15,8 +15,8 @@ use symphonia::core::probe::Hint;
 use symphonia::core::sample::{i24, u24};
 
 use crate::backend::decode::Decoder;
-use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
+use crate::backend::waveform_args::*;
 
 /// A generic enum covering all of the [AudioBuffer] sample tyes.
 enum AudioBufferType {

@@ -1,16 +1,16 @@
-babycat_DecodeArgs
-==================
+babycat_WaveformArgs
+====================
 
 .. toctree::
    :maxdepth: 2
    :hidden:
 
-   babycat_decode_args_init_default
+   babycat_waveform_args_init_default
 
 Struct members
 --------------
 
-.. doxygenstruct:: babycat_DecodeArgs
+.. doxygenstruct:: babycat_WaveformArgs
    :members:
    :protected-members:
    :private-members:
@@ -20,4 +20,4 @@ Struct members
 Relevant functions
 ------------------
 
-- :doc:`babycat_decode_args_init_default`
+- :doc:`babycat_waveform_args_init_default`

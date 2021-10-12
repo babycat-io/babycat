@@ -1,6 +1,6 @@
-use crate::backend::DecodeArgs;
 use crate::backend::Error;
 use crate::backend::Waveform;
+use crate::backend::WaveformArgs;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
@@ -119,10 +119,10 @@ impl From<Result<Waveform, Error>> for WaveformResult {
     }
 }
 
-/// Returns a `babycat_DecodeArgs` struct with all default values.
+/// Returns a `babycat_WaveformArgs` struct with all default values.
 #[no_mangle]
-pub extern "C" fn babycat_decode_args_init_default() -> DecodeArgs {
-    DecodeArgs {
+pub extern "C" fn babycat_waveform_args_init_default() -> WaveformArgs {
+    WaveformArgs {
         ..Default::default()
     }
 }
@@ -170,7 +170,7 @@ pub extern "C" fn babycat_waveform_from_milliseconds_of_silence(
 ///
 /// @param encoded_bytes A byte array containing encoded (e.g. MP3) audio.
 /// @param encoded_bytes_len The length of the `encoded_bytes` byte array.
-/// @param decode_args Instructions on how to decode the audio.
+/// @param waveform_args Instructions on how to decode the audio.
 /// @param file_extension A hint, in the form of a file extension, to indicate
 ///        the encoding of the audio in `encoded_bytes`.
 /// @param mime_type A hint, in the form of a MIME type, to indicate
@@ -181,7 +181,7 @@ pub extern "C" fn babycat_waveform_from_milliseconds_of_silence(
 pub unsafe extern "C" fn babycat_waveform_from_encoded_bytes_with_hint(
     encoded_bytes: *mut u8,
     encoded_bytes_len: usize,
-    decode_args: DecodeArgs,
+    waveform_args: WaveformArgs,
     file_extension: *const c_char,
     mime_type: *const c_char,
 ) -> WaveformResult {
@@ -191,7 +191,7 @@ pub unsafe extern "C" fn babycat_waveform_from_encoded_bytes_with_hint(
     let mime_type_str = CStr::from_ptr(mime_type).to_str().unwrap();
     Waveform::from_encoded_bytes_with_hint(
         &encoded_bytes_vec,
-        decode_args,
+        waveform_args,
         file_extension_str,
         mime_type_str,
     )
@@ -202,33 +202,33 @@ pub unsafe extern "C" fn babycat_waveform_from_encoded_bytes_with_hint(
 ///
 /// @param encoded_bytes A byte array containing encoded (e.g. MP3) audio.
 /// @param encoded_bytes_len The length of the `encoded_bytes` byte array.
-/// @param decode_args Instructions on how to decode the audio.
+/// @param waveform_args Instructions on how to decode the audio.
 ///
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_waveform_from_encoded_bytes(
     encoded_bytes: *mut u8,
     encoded_bytes_len: usize,
-    decode_args: DecodeArgs,
+    waveform_args: WaveformArgs,
 ) -> WaveformResult {
     let encoded_bytes_vec =
         Vec::<u8>::from_raw_parts(encoded_bytes, encoded_bytes_len, encoded_bytes_len);
-    Waveform::from_encoded_bytes(&encoded_bytes_vec, decode_args).into()
+    Waveform::from_encoded_bytes(&encoded_bytes_vec, waveform_args).into()
 }
 
 /// Decodes audio stored in a local file.
 ///
 /// @param filename A filename of an encoded audio file on the local filesystem.
-/// @param decode_args Instructions on how to decode the audio.
+/// @param waveform_args Instructions on how to decode the audio.
 ///
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_waveform_from_file(
     filename: *const c_char,
-    decode_args: DecodeArgs,
+    waveform_args: WaveformArgs,
 ) -> WaveformResult {
     let filename_rust = CStr::from_ptr(filename).to_str().unwrap();
-    Waveform::from_file(filename_rust, decode_args).into()
+    Waveform::from_file(filename_rust, waveform_args).into()
 }
 
 /// Returns the frame rate of an existing `babycat_Waveform`.

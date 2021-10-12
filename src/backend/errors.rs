@@ -10,26 +10,26 @@ pub enum Error {
     FeatureNotCompiled(&'static str),
     //
     // Input validation errors
-    /// Raised when [`DecodeArgs.start_time_milliseconds`][crate::DecodeArgs#structfield.start_time_milliseconds] or [`DecodeArgs.end_time_milliseconds`][crate::DecodeArgs#structfield.end_time_milliseconds] is invalid.
+    /// Raised when [`WaveformArgs.start_time_milliseconds`][crate::WaveformArgs#structfield.start_time_milliseconds] or [`WaveformArgs.end_time_milliseconds`][crate::WaveformArgs#structfield.end_time_milliseconds] is invalid.
     ///
     /// For example, this error is raised if you set the end timestamp to be before
     /// the start timestamp.
     WrongTimeOffset(u64, u64),
     /// Raised when you wanted to decode more channels than the audio actually had.
     WrongNumChannels(u32, u32),
-    /// Raised if you specified [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono] as `true` and [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels] as 1.
+    /// Raised if you specified [`WaveformArgs.convert_to_mono`][crate::WaveformArgs#structfield.convert_to_mono] as `true` and [`WaveformArgs.num_channels`][crate::WaveformArgs#structfield.num_channels] as 1.
     ///
     /// Setting both parameters is redundant and contradictory. You should either use
-    /// [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono]
-    /// to flatten all channels or [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels] = 1 to select the first channel and discard the rest.
-    /// You can set [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels]
-    /// `n > 1` and use  [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono] to only flatten those `n` channels.
+    /// [`WaveformArgs.convert_to_mono`][crate::WaveformArgs#structfield.convert_to_mono]
+    /// to flatten all channels or [`WaveformArgs.num_channels`][crate::WaveformArgs#structfield.num_channels] = 1 to select the first channel and discard the rest.
+    /// You can set [`WaveformArgs.num_channels`][crate::WaveformArgs#structfield.num_channels]
+    /// `n > 1` and use  [`WaveformArgs.convert_to_mono`][crate::WaveformArgs#structfield.convert_to_mono] to only flatten those `n` channels.
     /// If you need to select channels in some other way, then do not provide either
-    /// [`DecodeArgs.convert_to_mono`][crate::DecodeArgs#structfield.convert_to_mono]
-    /// or [`DecodeArgs.num_channels`][crate::DecodeArgs#structfield.num_channels].
+    /// [`WaveformArgs.convert_to_mono`][crate::WaveformArgs#structfield.convert_to_mono]
+    /// or [`WaveformArgs.num_channels`][crate::WaveformArgs#structfield.num_channels].
     /// All channels will be decoded and you can decide what to do with them.
     WrongNumChannelsAndMono,
-    /// Raised if you set [`DecodeArgs.zero_pad_ending`][crate::DecodeArgs#structfield.zero_pad_ending] as `true` without also specifying [`DecodeArgs.end_time_milliseconds`][crate::DecodeArgs#structfield.end_time_milliseconds].
+    /// Raised if you set [`WaveformArgs.zero_pad_ending`][crate::WaveformArgs#structfield.zero_pad_ending] as `true` without also specifying [`WaveformArgs.end_time_milliseconds`][crate::WaveformArgs#structfield.end_time_milliseconds].
     CannotZeroPadWithoutSpecifiedLength,
     //
     // Decoding errors

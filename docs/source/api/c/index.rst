@@ -5,7 +5,7 @@ Babycat C API Documentation
    :maxdepth: 1
    :hidden:
 
-   babycat_DecodeArgs/index
+   babycat_WaveformArgs/index
    babycat_Waveform/index
    babycat_WaveformResult/index
 
@@ -19,7 +19,7 @@ This documentation website splits the Babycat C API across multiple pages, but t
 Data structures (structs and typedefs)
 --------------------------------------
 
-- :doc:`babycat_DecodeArgs/index`: A struct that describes settings for decoding audio.
+- :doc:`babycat_WaveformArgs/index`: A struct that describes settings for decoding audio.
 - :doc:`babycat_Waveform/index`: A typedef struct that represents a single waveform in memory.
 - :doc:`babycat_WaveformResult/index`: A struct that contains either an error code or a pointer to a :doc:`babycat_Waveform/index`.
 

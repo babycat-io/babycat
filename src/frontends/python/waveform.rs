@@ -459,7 +459,7 @@ impl Waveform {
         file_extension: &str,
         mime_type: &str,
     ) -> PyResult<Self> {
-        let decode_args = crate::backend::DecodeArgs {
+        let waveform_args = crate::backend::WaveformArgs {
             start_time_milliseconds,
             end_time_milliseconds,
             frame_rate_hz,
@@ -471,7 +471,7 @@ impl Waveform {
         };
         waveform_to_pyresult(crate::backend::Waveform::from_encoded_bytes_with_hint(
             &encoded_bytes,
-            decode_args,
+            waveform_args,
             file_extension,
             mime_type,
         ))
@@ -671,7 +671,7 @@ impl Waveform {
         resample_mode: u32,
         decoding_backend: u32,
     ) -> PyResult<Self> {
-        let decode_args = crate::backend::DecodeArgs {
+        let waveform_args = crate::backend::WaveformArgs {
             start_time_milliseconds,
             end_time_milliseconds,
             frame_rate_hz,
@@ -681,7 +681,7 @@ impl Waveform {
             resample_mode,
             decoding_backend,
         };
-        waveform_to_pyresult(crate::backend::Waveform::from_file(filename, decode_args))
+        waveform_to_pyresult(crate::backend::Waveform::from_file(filename, waveform_args))
     }
 
     /// Uses multithreading in Rust to decode many audio files in parallel.
@@ -852,7 +852,7 @@ impl Waveform {
         decoding_backend: u32,
         num_workers: usize,
     ) -> Vec<WaveformNamedResult> {
-        let decode_args = crate::backend::DecodeArgs {
+        let waveform_args = crate::backend::WaveformArgs {
             start_time_milliseconds,
             end_time_milliseconds,
             frame_rate_hz,
@@ -864,7 +864,7 @@ impl Waveform {
         };
         let batch_args = crate::backend::BatchArgs { num_workers };
         let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
-        crate::backend::Waveform::from_many_files(&filenames_ref, decode_args, batch_args)
+        crate::backend::Waveform::from_many_files(&filenames_ref, waveform_args, batch_args)
             .into_iter()
             .map(WaveformNamedResult::from)
             .collect()

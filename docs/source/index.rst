@@ -163,13 +163,13 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
 
    .. code:: rust
 
-      use babycat::{DecodeArgs, Waveform};
+      use babycat::{WaveformArgs, Waveform};
 
       fn main() {
-         let decode_args = DecodeArgs {
+         let waveform_args = WaveformArgs {
             ..Default::default()
          };
-         let waveform = match Waveform::from_file("audio.mp3", decode_args) {
+         let waveform = match Waveform::from_file("audio.mp3", waveform_args) {
             Ok(w) => w,
             Err(err) => {
                   println!("Decoding error: {}", err);
@@ -233,9 +233,9 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
 
 
       int main() {
-         babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
+         babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
          babycat_WaveformResult waveform_result =
-               babycat_waveform_from_file("audio.mp3", decode_args);
+               babycat_waveform_from_file("audio.mp3", waveform_args);
          if (waveform_result.error_num != 0) {
             printf("Decoding error: %u", waveform_result.error_num);
             return 1;
