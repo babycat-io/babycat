@@ -1,4 +1,4 @@
-use babycat::{DecodeArgs, FloatWaveform, Waveform};
+use babycat::{DecodeArgs, FloatWaveform};
 
 fn main() {
     let decode_args = DecodeArgs {

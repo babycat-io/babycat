@@ -3,7 +3,6 @@ mod fixtures;
 mod test_float_waveform_from_encoded_bytes {
     use crate::fixtures::*;
     use babycat::FloatWaveform;
-    use babycat::Waveform;
 
     #[test]
     fn test_circus_of_freaks_default_1() {

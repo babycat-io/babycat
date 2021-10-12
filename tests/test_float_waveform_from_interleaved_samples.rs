@@ -1,6 +1,5 @@
 mod test_float_waveform_from_interleaved_samples {
     use babycat::FloatWaveform;
-    use babycat::Waveform;
 
     #[test]
     fn test_four_frames_three_channels() {

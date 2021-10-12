@@ -17,7 +17,7 @@ use crate::backend::decode::SymphoniaDecoder;
 use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
-use crate::backend::waveform::Waveform;
+
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct FloatWaveform {
@@ -693,9 +693,7 @@ impl FloatWaveform {
         }
         Ok(())
     }
-}
 
-impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     /// Constructs a `FloatWaveform` from an already-decoded vector of 32-bit float samples.
     ///
     /// # Arguments
@@ -709,7 +707,7 @@ impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     /// Note that the input vector contains 88,200 audio samples--which we divide into
     /// 44,100 frames containing two samples each.
     /// ```
-    /// use babycat::{FloatWaveform, Waveform};
+    /// use babycat::FloatWaveform;
     ///
     /// let frame_rate_hz = 44100;
     /// let num_channels = 2;
@@ -721,7 +719,7 @@ impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     /// );
     /// ```
     ///
-    fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<f32>) -> Self {
+    pub fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<f32>) -> Self {
         let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
         FloatWaveform {
             interleaved_samples,
@@ -732,22 +730,22 @@ impl crate::backend::waveform::Waveform<f32> for FloatWaveform {
     }
 
     /// Returns the frame rate of the `FloatWaveform`.
-    fn frame_rate_hz(&self) -> u32 {
+    pub fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
     /// Returns the number of channels in the `FloatWaveform`.
-    fn num_channels(&self) -> u32 {
+    pub fn num_channels(&self) -> u32 {
         self.num_channels
     }
 
     /// Returns the total number of decoded frames in the `FloatWaveform`.
-    fn num_frames(&self) -> u64 {
+    pub fn num_frames(&self) -> u64 {
         self.num_frames
     }
 
     /// Returns the waveform as a slice of channel-interleaved `f32` samples.
-    fn to_interleaved_samples(&self) -> &[f32] {
+    pub fn to_interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
     }
 }

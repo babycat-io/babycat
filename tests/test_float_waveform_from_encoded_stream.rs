@@ -3,7 +3,6 @@ mod fixtures;
 mod test_float_waveform_from_encoded_stream {
     use crate::fixtures::*;
     use babycat::FloatWaveform;
-    use babycat::Waveform;
     use std::io::Cursor;
 
     #[test]
