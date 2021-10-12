@@ -6,7 +6,7 @@ fn resample_benchmark(c: &mut Criterion) {
     // precision and counteract the resulting noise.
     group.significance_level(0.1).sample_size(15);
 
-    let audio = babycat::FloatWaveform::from_file(
+    let audio = babycat::Waveform::from_file(
         "./audio-for-tests/blippy-trance/track.wav",
         Default::default(),
     )

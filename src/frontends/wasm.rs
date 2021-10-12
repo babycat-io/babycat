@@ -9,18 +9,18 @@ fn throw_js_error<E: std::fmt::Display>(err: E) -> JsValue {
     js_sys::Error::new(&err_string).into()
 }
 
-/// Docs for FloatWaveform struct.
+/// Docs for Waveform struct.
 #[wasm_bindgen]
-pub struct FloatWaveform {
-    inner: crate::backend::FloatWaveform,
+pub struct Waveform {
+    inner: crate::backend::Waveform,
 }
 
 #[wasm_bindgen]
-impl FloatWaveform {
+impl Waveform {
     /// Creates a silent waveform measured in frames.
     pub fn fromFramesOfSilence(frameRateHz: u32, numChannels: u32, numFrames: u32) -> Self {
-        FloatWaveform {
-            inner: crate::backend::FloatWaveform::from_frames_of_silence(
+        Waveform {
+            inner: crate::backend::Waveform::from_frames_of_silence(
                 frameRateHz,
                 numChannels,
                 numFrames as u64,
@@ -34,8 +34,8 @@ impl FloatWaveform {
         numChannels: u32,
         durationMilliseconds: u32,
     ) -> Self {
-        FloatWaveform {
-            inner: crate::backend::FloatWaveform::from_milliseconds_of_silence(
+        Waveform {
+            inner: crate::backend::Waveform::from_milliseconds_of_silence(
                 frameRateHz,
                 numChannels,
                 durationMilliseconds as u64,
@@ -47,14 +47,14 @@ impl FloatWaveform {
     pub fn fromEncodedArray(
         encodedArray: Uint8Array,
         decodeArgs: JsValue,
-    ) -> Result<FloatWaveform, JsValue> {
+    ) -> Result<Waveform, JsValue> {
         let parsedDecodeArgs: crate::backend::DecodeArgs = match decodeArgs.into_serde() {
             Ok(parsed) => parsed,
             Err(err) => return Err(throw_js_error(err)),
         };
         let cursor = std::io::Cursor::new(encodedArray.to_vec());
-        match crate::backend::FloatWaveform::from_encoded_stream(cursor, parsedDecodeArgs) {
-            Ok(inner) => Ok(FloatWaveform { inner }),
+        match crate::backend::Waveform::from_encoded_stream(cursor, parsedDecodeArgs) {
+            Ok(inner) => Ok(Waveform { inner }),
             Err(err) => Err(throw_js_error(err)),
         }
     }
@@ -65,19 +65,19 @@ impl FloatWaveform {
         decodeArgs: JsValue,
         fileExtension: &str,
         mimeType: &str,
-    ) -> Result<FloatWaveform, JsValue> {
+    ) -> Result<Waveform, JsValue> {
         let parsedDecodeArgs: crate::backend::DecodeArgs = match decodeArgs.into_serde() {
             Ok(parsed) => parsed,
             Err(err) => return Err(throw_js_error(err)),
         };
         let cursor = std::io::Cursor::new(encodedArray.to_vec());
-        match crate::backend::FloatWaveform::from_encoded_stream_with_hint(
+        match crate::backend::Waveform::from_encoded_stream_with_hint(
             cursor,
             parsedDecodeArgs,
             fileExtension,
             mimeType,
         ) {
-            Ok(inner) => Ok(FloatWaveform { inner }),
+            Ok(inner) => Ok(Waveform { inner }),
             Err(err) => Err(throw_js_error(err)),
         }
     }
@@ -116,28 +116,24 @@ impl FloatWaveform {
     }
 
     /// Resamples the waveform using the default resampler.
-    pub fn resample(&self, frameRateHz: u32) -> Result<FloatWaveform, JsValue> {
+    pub fn resample(&self, frameRateHz: u32) -> Result<Waveform, JsValue> {
         match self.inner.resample(frameRateHz) {
-            Ok(inner) => Ok(FloatWaveform { inner }),
+            Ok(inner) => Ok(Waveform { inner }),
             Err(err) => Err(throw_js_error(err)),
         }
     }
 
     /// Resamples the audio using a specific resampler.
-    pub fn resampleByMode(
-        &self,
-        frameRateHz: u32,
-        resampleMode: u32,
-    ) -> Result<FloatWaveform, JsValue> {
+    pub fn resampleByMode(&self, frameRateHz: u32, resampleMode: u32) -> Result<Waveform, JsValue> {
         match self.inner.resample_by_mode(frameRateHz, resampleMode) {
-            Ok(inner) => Ok(FloatWaveform { inner }),
+            Ok(inner) => Ok(Waveform { inner }),
             Err(err) => Err(throw_js_error(err)),
         }
     }
 }
 
-impl From<crate::backend::FloatWaveform> for FloatWaveform {
-    fn from(item: crate::backend::FloatWaveform) -> Self {
-        FloatWaveform { inner: item }
+impl From<crate::backend::Waveform> for Waveform {
+    fn from(item: crate::backend::Waveform) -> Self {
+        Waveform { inner: item }
     }
 }

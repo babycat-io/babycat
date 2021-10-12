@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use babycat::resample::babycat_lanczos::resample as lanczos_resample;
 use babycat::resample::babycat_sinc::resample as sinc_resample;
 use babycat::resample::libsamplerate::resample as libsamplerate_resample;
-use babycat::FloatWaveform;
+use babycat::Waveform;
 
 type Resampler = fn(u32, u32, u32, &[f32]) -> Result<Vec<f32>, babycat::Error>;
 
@@ -151,7 +151,7 @@ fn benchmark_sine_wave() {
 /// The purpose of this benchmark is to verify that the resampler handles resampling
 /// multiple channels separately.
 fn benchmark_left_channel_tone() {
-    let left_channel_tone: Vec<f32> = FloatWaveform::from_file(
+    let left_channel_tone: Vec<f32> = Waveform::from_file(
         "audio-for-tests/left-channel-tone/track.mp3",
         Default::default(),
     )
@@ -170,7 +170,7 @@ fn benchmark_left_channel_tone() {
 
 /// Benchmarks resampling the "blippy_trance" song.
 fn benchmark_blippy_trance() {
-    let blippy_trance: Vec<f32> = FloatWaveform::from_file(
+    let blippy_trance: Vec<f32> = Waveform::from_file(
         "audio-for-tests/blippy-trance/track.mp3",
         Default::default(),
     )
@@ -189,7 +189,7 @@ fn benchmark_blippy_trance() {
 
 /// Benchmarks resampling the "on_hold_for_you" song.
 fn benchmark_on_hold_for_you() {
-    let on_hold_for_you: Vec<f32> = FloatWaveform::from_file(
+    let on_hold_for_you: Vec<f32> = Waveform::from_file(
         "audio-for-tests/on-hold-for-you/track.mp3",
         Default::default(),
     )

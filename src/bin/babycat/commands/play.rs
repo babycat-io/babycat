@@ -9,13 +9,13 @@ use crossterm::terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType, S
 use rodio::Sample;
 use rodio::Source;
 
-use babycat::FloatWaveform;
+use babycat::Waveform;
 
 const NANOSECONDS_PER_SECOND: u64 = 1000000000;
 
 const THIRTY_MILLISECONDS: std::time::Duration = std::time::Duration::from_millis(30);
 
-struct FloatWaveformSource {
+struct WaveformSource {
     frame_rate_hz: u32,
     num_channels: u16,
     num_frames: usize,
@@ -25,8 +25,8 @@ struct FloatWaveformSource {
     interleaved_samples: Vec<f32>,
 }
 
-impl From<&FloatWaveform> for FloatWaveformSource {
-    fn from(item: &FloatWaveform) -> Self {
+impl From<&Waveform> for WaveformSource {
+    fn from(item: &Waveform) -> Self {
         let frame_rate_hz = item.frame_rate_hz();
         let num_channels = item.num_channels() as u16;
         let num_frames = item.num_frames() as usize;
@@ -49,7 +49,7 @@ impl From<&FloatWaveform> for FloatWaveformSource {
     }
 }
 
-impl Iterator for FloatWaveformSource {
+impl Iterator for WaveformSource {
     type Item = f32;
 
     fn next(&mut self) -> Option<f32> {
@@ -63,7 +63,7 @@ impl Iterator for FloatWaveformSource {
     }
 }
 
-impl rodio::source::Source for FloatWaveformSource {
+impl rodio::source::Source for WaveformSource {
     fn current_frame_len(&self) -> Option<usize> {
         Some(self.num_frames)
     }
@@ -211,8 +211,8 @@ fn ui_loop(filename: String) {
     let mut stdout = std::io::stdout();
     let (_stream, stream_handle) = rodio::OutputStream::try_default().unwrap();
     let sink = rodio::Sink::try_new(&stream_handle).unwrap();
-    let waveform = FloatWaveform::from_file(&filename, Default::default()).unwrap();
-    let source = FloatWaveformSource::from(&waveform);
+    let waveform = Waveform::from_file(&filename, Default::default()).unwrap();
+    let source = WaveformSource::from(&waveform);
     let source_duration = source.total_duration().unwrap();
     let mut audio_player = AudioPlayer::new(sink, source);
 

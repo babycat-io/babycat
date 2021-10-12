@@ -1,8 +1,8 @@
-import { FloatWaveform } from "babycat";
+import { Waveform } from "babycat";
 
 function babycatDecode(arrayBuffer) {
   const arr = new Uint8Array(arrayBuffer);
-  const waveform = FloatWaveform.fromEncodedArray(arr, {});
+  const waveform = Waveform.fromEncodedArray(arr, {});
   console.log(
     "Decoded",
     waveform.numFrames(),

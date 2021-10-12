@@ -5,12 +5,12 @@
 /// of many inputs, where each operation could raise a separate error.
 ///
 /// For example,
-/// [`FloatWaveform::from_many_files()`][crate::FloatWaveform#method.from_many_files]
+/// [`Waveform::from_many_files()`][crate::Waveform#method.from_many_files]
 /// reads a list of audio files and decodes them in parallel. For each input,
-/// [`from_many_files()`][crate::FloatWaveform#method.from_many_files] returns a
+/// [`from_many_files()`][crate::Waveform#method.from_many_files] returns a
 /// [`NamedResult`][crate::NamedResult] containing the input filename and a
 /// [`std::result::Result`] that contains a
-/// [`FloatWaveform`][crate::FloatWaveform] if decoding succeeded or a
+/// [`Waveform`][crate::Waveform] if decoding succeeded or a
 /// [`Error`][crate::Error] if decoding failed.
 /// This allows you to track the decoding state of each input file with
 /// minimal bookkeeping on your end.

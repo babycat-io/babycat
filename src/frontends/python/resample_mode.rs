@@ -40,21 +40,21 @@ following resamplers:
 Example:
     **Resample using the `BABYCAT_SINC` resampler.**
 
-    >>> from babycat import FloatWaveform
+    >>> from babycat import Waveform
     >>> from babycat.resample_mode import *
     >>>
-    >>> waveform = FloatWaveform.from_frames_of_silence(
+    >>> waveform = Waveform.from_frames_of_silence(
     ...     frame_rate_hz=44100,
     ...     num_channels=2,
     ...     num_frames=1000,
     ... )
     >>> waveform
-    <babycat.FloatWaveform: 1000 frames, 2 channels, 44100 hz>
+    <babycat.Waveform: 1000 frames, 2 channels, 44100 hz>
     >>> resampled = waveform.resample_by_mode(
     ...     frame_rate_hz=11025,
     ...     resample_mode=RESAMPLE_MODE_BABYCAT_SINC,
     ... )
-    <babycat.FloatWaveform: 250 frames, 2 channels, 11025 hz>
+    <babycat.Waveform: 250 frames, 2 channels, 11025 hz>
 
 ",
     )?;

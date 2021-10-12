@@ -4,7 +4,7 @@ import babycat
 
 def main():
     try:
-        waveform = babycat.FloatWaveform.from_file("audio-for-tests/circus-of-freaks/track.mp3")
+        waveform = babycat.Waveform.from_file("audio-for-tests/circus-of-freaks/track.mp3")
     except (FileNotFoundError, babycat.exceptions.BabycatError) as exc:
         print("Decoding error:", exc)
         return
