@@ -17,7 +17,6 @@ use crate::backend::decode::SymphoniaDecoder;
 use crate::backend::decode_args::*;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
-use crate::backend::sample_rescaling::i16_to_f32;
 use crate::backend::waveform::Waveform;
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -26,23 +25,6 @@ pub struct FloatWaveform {
     frame_rate_hz: u32,
     num_channels: u32,
     num_frames: u64,
-}
-
-impl From<crate::backend::int_waveform::IntWaveform> for FloatWaveform {
-    fn from(item: crate::backend::int_waveform::IntWaveform) -> Self {
-        let buffer: Vec<f32> = item
-            .to_interleaved_samples()
-            .iter()
-            .map(|val| i16_to_f32(*val))
-            .collect();
-
-        FloatWaveform {
-            interleaved_samples: buffer,
-            frame_rate_hz: item.frame_rate_hz(),
-            num_channels: item.num_channels(),
-            num_frames: item.num_frames(),
-        }
-    }
 }
 
 // We manually implement the debug trait so that we don't
