@@ -1,8 +1,8 @@
 # These are the Rust files being tracked by Git.
-RUST_SRC_FILES ?= $(shell git ls-files --cached --deleted --modified --others src)
+RUST_SRC_FILES ?= $(shell git ls-files --cached --modified --others src)
 
 # These are the documentation files tracked by Git.
-DOCS_FILES ?= $(shell git ls-files --cached --deleted --modified --others docs)
+DOCS_FILES ?= $(shell git ls-files --cached --modified --others docs)
 
 
 # These variables set the path for Rust or system tools.
