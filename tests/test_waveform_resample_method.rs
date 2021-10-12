@@ -5,8 +5,8 @@ mod fixtures;
 mod test_waveform_resample_method {
     use crate::fixtures::*;
 
-    use babycat::DecodeArgs;
     use babycat::Waveform;
+    use babycat::WaveformArgs;
     use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
     use babycat::RESAMPLE_MODE_BABYCAT_SINC;
     use babycat::RESAMPLE_MODE_LIBSAMPLERATE;
@@ -22,13 +22,13 @@ mod test_waveform_resample_method {
     fn decode_and_assert(
         test_name: &str,
         filename: &str,
-        decode_args: DecodeArgs,
+        waveform_args: WaveformArgs,
         frame_rate_hz: u32,
         expected_num_channels: u32,
         expected_num_frames: u64,
         expected_frame_rate_hz: u32,
     ) {
-        let waveform = Waveform::from_file(filename, decode_args).unwrap();
+        let waveform = Waveform::from_file(filename, waveform_args).unwrap();
         for &resample_mode in RESAMPLE_MODES {
             match waveform.resample_by_mode(frame_rate_hz, resample_mode) {
                 Ok(resampled) => {

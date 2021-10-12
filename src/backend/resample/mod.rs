@@ -10,11 +10,11 @@ pub mod babycat_sinc;
 pub mod common;
 pub mod libsamplerate;
 
-use crate::backend::decode_args::DEFAULT_RESAMPLE_MODE;
-use crate::backend::decode_args::RESAMPLE_MODE_BABYCAT_LANCZOS;
-use crate::backend::decode_args::RESAMPLE_MODE_BABYCAT_SINC;
-use crate::backend::decode_args::RESAMPLE_MODE_LIBSAMPLERATE;
 use crate::backend::errors::Error;
+use crate::backend::waveform_args::DEFAULT_RESAMPLE_MODE;
+use crate::backend::waveform_args::RESAMPLE_MODE_BABYCAT_LANCZOS;
+use crate::backend::waveform_args::RESAMPLE_MODE_BABYCAT_SINC;
+use crate::backend::waveform_args::RESAMPLE_MODE_LIBSAMPLERATE;
 
 pub fn resample(
     input_frame_rate_hz: u32,

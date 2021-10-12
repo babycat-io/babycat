@@ -41,7 +41,7 @@ pub const DECODING_BACKEND_SYMPHONIA: u32 = 1;
 /// as-is and not change anything.
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct DecodeArgs {
+pub struct WaveformArgs {
     /// We discard any audio before this millisecond
     /// offset. By default, this does nothing and the
     /// audio is decoded from the beginning.
@@ -105,9 +105,9 @@ pub struct DecodeArgs {
     pub decoding_backend: u32,
 }
 
-impl Default for DecodeArgs {
+impl Default for WaveformArgs {
     fn default() -> Self {
-        DecodeArgs {
+        WaveformArgs {
             start_time_milliseconds: DEFAULT_START_TIME_MILLISECONDS,
             end_time_milliseconds: DEFAULT_END_TIME_MILLISECONDS,
             frame_rate_hz: DEFAULT_FRAME_RATE_HZ,

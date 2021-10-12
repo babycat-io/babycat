@@ -2,9 +2,9 @@
 #include <stdio.h>
 
 int main() {
-  babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
   babycat_WaveformResult waveform_result = babycat_waveform_from_file(
-      "audio-for-tests/circus-of-freaks/track.mp3", decode_args);
+      "audio-for-tests/circus-of-freaks/track.mp3", waveform_args);
   if (waveform_result.error_num != 0) {
     printf("Decoding error: %u", waveform_result.error_num);
     return 1;
