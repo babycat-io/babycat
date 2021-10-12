@@ -1,11 +1,11 @@
 use log::info;
 
+use babycat::DecodeArgs;
 use babycat::FloatWaveform;
 use babycat::DECODING_BACKEND_SYMPHONIA;
 use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
 use babycat::RESAMPLE_MODE_BABYCAT_SINC;
 use babycat::RESAMPLE_MODE_LIBSAMPLERATE;
-use babycat::{DecodeArgs, Waveform};
 
 use crate::common::exit_with_msg;
 use crate::common::UnwrapOrExit;

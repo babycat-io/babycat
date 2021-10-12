@@ -9,7 +9,7 @@ use crossterm::terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType, S
 use rodio::Sample;
 use rodio::Source;
 
-use babycat::{FloatWaveform, Waveform};
+use babycat::FloatWaveform;
 
 const NANOSECONDS_PER_SECOND: u64 = 1000000000;
 

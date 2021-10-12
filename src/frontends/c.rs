@@ -1,7 +1,6 @@
 use crate::backend::DecodeArgs;
 use crate::backend::Error;
 use crate::backend::FloatWaveform;
-use crate::backend::Waveform;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 

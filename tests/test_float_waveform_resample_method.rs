@@ -7,7 +7,6 @@ mod test_float_waveform_resample_method {
 
     use babycat::DecodeArgs;
     use babycat::FloatWaveform;
-    use babycat::Waveform;
     use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
     use babycat::RESAMPLE_MODE_BABYCAT_SINC;
     use babycat::RESAMPLE_MODE_LIBSAMPLERATE;

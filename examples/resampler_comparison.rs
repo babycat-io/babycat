@@ -3,7 +3,7 @@ use std::f32::consts::PI;
 use babycat::resample::babycat_lanczos::resample as lanczos_resample;
 use babycat::resample::babycat_sinc::resample as sinc_resample;
 use babycat::resample::libsamplerate::resample as libsamplerate_resample;
-use babycat::{FloatWaveform, Waveform};
+use babycat::FloatWaveform;
 
 type Resampler = fn(u32, u32, u32, &[f32]) -> Result<Vec<f32>, babycat::Error>;
 

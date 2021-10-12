@@ -3,7 +3,7 @@
 // the sawm raw audio.
 
 mod test_float_waveform_different_encodings {
-    use babycat::{FloatWaveform, Waveform};
+    use babycat::FloatWaveform;
     // I am not certain why the same audio file encoded as MP3, WAV, or FLAC
     // ends up with significantly different numbers of samples.
     // The values for num_frames() in unit tests like these might have to change

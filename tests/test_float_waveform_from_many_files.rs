@@ -2,7 +2,7 @@ mod fixtures;
 
 mod test_float_waveform_from_many_files {
     use crate::fixtures::*;
-    use babycat::{BatchArgs, DecodeArgs, FloatWaveform, Waveform};
+    use babycat::{BatchArgs, DecodeArgs, FloatWaveform};
 
     #[test]
     fn test_all_same_file_1() {

@@ -54,7 +54,7 @@
 //! # Examples
 //! **Decode multiple audio files in parallel.**
 //! ```
-//! use babycat::{DecodeArgs, FloatWaveform, Waveform};
+//! use babycat::{DecodeArgs, FloatWaveform};
 //!
 //! // These are test files in the Babycat Git repository.
 //! let filenames = &[

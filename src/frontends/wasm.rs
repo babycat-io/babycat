@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 
-use crate::backend::Waveform;
 use js_sys::Float32Array;
 use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;

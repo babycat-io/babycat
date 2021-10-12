@@ -5,7 +5,6 @@ mod test_float_waveform_from_file {
     use babycat::DecodeArgs;
     use babycat::Error;
     use babycat::FloatWaveform;
-    use babycat::Waveform;
 
     fn decode_cof_mp3(decode_args: DecodeArgs) -> Result<FloatWaveform, Error> {
         FloatWaveform::from_file(COF_FILENAME, decode_args)
