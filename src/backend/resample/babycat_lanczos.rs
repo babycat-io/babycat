@@ -2,8 +2,8 @@
 //! to make benchmarking Babycat internals easier.
 //!
 //! If you want to use Babycat to resample audio, you should decode
-//! the audio into a [`FloatWaveform`][crate::FloatWaveform]
-//! and then use the [`FloatWaveform.resample()`][crate::FloatWaveform#method.resample] method.
+//! the audio into a [`Waveform`][crate::Waveform]
+//! and then use the [`Waveform.resample()`][crate::Waveform#method.resample] method.
 
 use crate::backend::errors::Error;
 use crate::backend::resample::common::get;

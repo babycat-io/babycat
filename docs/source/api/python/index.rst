@@ -5,8 +5,8 @@ Babycat Python API Documentation
    :maxdepth: 5
    :hidden:
 
-   FloatWaveform <FloatWaveform/index>
-   FloatWaveformNamedResult <FloatWaveformNamedResult/index>
+   Waveform <Waveform/index>
+   WaveformNamedResult <WaveformNamedResult/index>
    exceptions <exceptions>
    resample_mode <resample_mode>
 
@@ -19,5 +19,5 @@ Submodules
 
 Classes
 -------
-- :doc:`FloatWaveform/index`: Handles decoding audio into a 32-bit floating point waveform.
-- :doc:`FloatWaveformNamedResult/index`: A wrapper class that holds either a :doc:`FloatWaveformNamedResult/index`.
+- :doc:`Waveform/index`: Handles decoding audio into a 32-bit floating point waveform.
+- :doc:`WaveformNamedResult/index`: A wrapper class that holds either a :doc:`WaveformNamedResult/index`.

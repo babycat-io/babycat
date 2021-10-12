@@ -1,7 +1,7 @@
 //! Low-level API for decoding audio as a Rust iterator of audio samples.
 //!
 //! If you want to manipulate an audio waveform stored entirely in memory,
-//! then you should use the [`FloatWaveform`](crate::FloatWaveform)
+//! then you should use the [`Waveform`](crate::Waveform)
 //! struct instead one of the structs implementing the
 //! [`Decoder`](crate::decode::Decoder) trait.
 //!
@@ -11,7 +11,7 @@
 //!
 //! # Examples
 //! This is how to load the entire waveform into memory, the same way that
-//! [`FloatWaveform`](crate::FloatWaveform) does for you, using the
+//! [`Waveform`](crate::Waveform) does for you, using the
 //! [`SymphoniaDecoder`](crate::decode::SymphoniaDecoder) audio decoder.
 //!
 //! ```

@@ -144,7 +144,7 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
 
       def main():
          try:
-            waveform = babycat.FloatWaveform.from_file("audio.mp3")
+            waveform = babycat.Waveform.from_file("audio.mp3")
          except (FileNotFoundError, babycat.exceptions.BabycatError) as exc:
             print("Decoding error:", exc)
             return
@@ -163,13 +163,13 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
 
    .. code:: rust
 
-      use babycat::{DecodeArgs, FloatWaveform, Waveform};
+      use babycat::{DecodeArgs, Waveform};
 
       fn main() {
          let decode_args = DecodeArgs {
             ..Default::default()
          };
-         let waveform = match FloatWaveform::from_file("audio.mp3", decode_args) {
+         let waveform = match Waveform::from_file("audio.mp3", decode_args) {
             Ok(w) => w,
             Err(err) => {
                   println!("Decoding error: {}", err);
@@ -193,11 +193,11 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
       // <input type="file" /> DOM node.
       // Here is an example of creating an input node and reading from it.
 
-      import { FloatWaveform } from "babycat";
+      import { Waveform } from "babycat";
 
       function babycatDecode(arrayBuffer) {
          const arr = new Uint8Array(arrayBuffer);
-         const waveform = FloatWaveform.fromEncodedArray(arr, {});
+         const waveform = Waveform.fromEncodedArray(arr, {});
          console.log("Decoded",
             waveform.numFrames(),
             "frames with",
@@ -234,16 +234,16 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
 
       int main() {
          babycat_DecodeArgs decode_args = babycat_decode_args_init_default();
-         babycat_FloatWaveformResult waveform_result =
-               babycat_float_waveform_from_file("audio.mp3", decode_args);
+         babycat_WaveformResult waveform_result =
+               babycat_waveform_from_file("audio.mp3", decode_args);
          if (waveform_result.error_num != 0) {
             printf("Decoding error: %u", waveform_result.error_num);
             return 1;
          }
-         struct babycat_FloatWaveform *waveform = waveform_result.result;
-         uint32_t num_frames = babycat_float_waveform_get_num_frames(waveform);
-         uint32_t num_channels = babycat_float_waveform_get_num_channels(waveform);
-         uint32_t frame_rate_hz = babycat_float_waveform_get_frame_rate_hz(waveform);
+         struct babycat_Waveform *waveform = waveform_result.result;
+         uint32_t num_frames = babycat_waveform_get_num_frames(waveform);
+         uint32_t num_channels = babycat_waveform_get_num_channels(waveform);
+         uint32_t frame_rate_hz = babycat_waveform_get_frame_rate_hz(waveform);
          printf("Decoded %u frames with %u channels at %u hz\n", num_frames,
                   num_channels, frame_rate_hz);
 

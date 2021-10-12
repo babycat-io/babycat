@@ -5,6 +5,6 @@ Babycat WebAssembly API Documentation
    :maxdepth: 1
    :hidden:
 
-   FloatWaveform <FloatWaveform/index>
+   Waveform <Waveform/index>
 
-- :doc:`FloatWaveform/index`
+- :doc:`Waveform/index`

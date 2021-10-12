@@ -2,8 +2,8 @@ use pyo3::prelude::*;
 
 pub mod decoding_backend;
 pub mod exceptions;
-pub mod float_waveform;
 pub mod resample_mode;
+pub mod waveform;
 
 /// Module docstring first line
 ///
@@ -22,12 +22,12 @@ pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
     let decoding_backend_submodule = decoding_backend::make_decoding_backend_submodule(py)?;
     m.add_submodule(decoding_backend_submodule)?;
 
-    // Configure the FloatWaveform class, which does most of the heavy lifting.
-    m.add_class::<float_waveform::FloatWaveform>()?;
+    // Configure the Waveform class, which does most of the heavy lifting.
+    m.add_class::<waveform::Waveform>()?;
 
-    // Configure the FloatWaveformNamedResult class, which we
+    // Configure the WaveformNamedResult class, which we
     // use to wrap error messages when decoding.
-    m.add_class::<float_waveform::FloatWaveformNamedResult>()?;
+    m.add_class::<waveform::WaveformNamedResult>()?;
 
     // End of the module
     Ok(())

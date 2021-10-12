@@ -13,21 +13,21 @@ def run_doctest(obj):
         assert results.failed == 0
 
 
-def test_float_waveform_from_frames_of_silence():
-    run_doctest(babycat.FloatWaveform.from_frames_of_silence)
+def test_waveform_from_frames_of_silence():
+    run_doctest(babycat.Waveform.from_frames_of_silence)
 
 
-def test_float_waveform_from_milliseconds_of_silence():
-    run_doctest(babycat.FloatWaveform.from_milliseconds_of_silence)
+def test_waveform_from_milliseconds_of_silence():
+    run_doctest(babycat.Waveform.from_milliseconds_of_silence)
 
 
-def test_float_waveform_from_encoded_bytes():
-    run_doctest(babycat.FloatWaveform.from_encoded_bytes)
+def test_waveform_from_encoded_bytes():
+    run_doctest(babycat.Waveform.from_encoded_bytes)
 
 
-def test_float_waveform_from_file():
-    run_doctest(babycat.FloatWaveform.from_file)
+def test_waveform_from_file():
+    run_doctest(babycat.Waveform.from_file)
 
 
-def test_float_waveform_from_many_files():
-    run_doctest(babycat.FloatWaveform.from_many_files)
+def test_waveform_from_many_files():
+    run_doctest(babycat.Waveform.from_many_files)
