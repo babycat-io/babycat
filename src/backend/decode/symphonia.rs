@@ -1,100 +1,33 @@
 use std::io::Read;
 use std::marker::Send;
 
-use symphonia::core::audio::AudioBuffer;
-use symphonia::core::audio::AudioBufferRef;
-use symphonia::core::audio::Signal;
+use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::Decoder as SymphoniaDecoderTrait;
 use symphonia::core::codecs::DecoderOptions;
-use symphonia::core::conv::IntoSample;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::formats::FormatReader;
 use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use symphonia::core::sample::{i24, u24};
 
 use crate::backend::decode::decoder::Decoder;
 use crate::backend::errors::Error;
-use crate::backend::waveform_args::*;
-
-/// A generic enum covering all of the [AudioBuffer] sample tyes.
-enum AudioBufferType {
-    U8(AudioBuffer<u8>),
-    U16(AudioBuffer<u16>),
-    U24(AudioBuffer<u24>),
-    U32(AudioBuffer<u32>),
-    S8(AudioBuffer<i8>),
-    S16(AudioBuffer<i16>),
-    S24(AudioBuffer<i24>),
-    S32(AudioBuffer<i32>),
-    F32(AudioBuffer<f32>),
-    F64(AudioBuffer<f64>),
-}
-
-/// Converts an [AudioBufferRef] to our [AudioBufferType] enum.
-fn audio_buffer_ref_to_audio_buffer_type(audio_buffer_ref: AudioBufferRef) -> AudioBufferType {
-    match audio_buffer_ref {
-        AudioBufferRef::U8(buf) => AudioBufferType::U8(buf.into_owned()),
-        AudioBufferRef::U16(buf) => AudioBufferType::U16(buf.into_owned()),
-        AudioBufferRef::U24(buf) => AudioBufferType::U24(buf.into_owned()),
-        AudioBufferRef::U32(buf) => AudioBufferType::U32(buf.into_owned()),
-        AudioBufferRef::S8(buf) => AudioBufferType::S8(buf.into_owned()),
-        AudioBufferRef::S16(buf) => AudioBufferType::S16(buf.into_owned()),
-        AudioBufferRef::S24(buf) => AudioBufferType::S24(buf.into_owned()),
-        AudioBufferRef::S32(buf) => AudioBufferType::S32(buf.into_owned()),
-        AudioBufferRef::F32(buf) => AudioBufferType::F32(buf.into_owned()),
-        AudioBufferRef::F64(buf) => AudioBufferType::F64(buf.into_owned()),
-    }
-}
-
-/// Extracts an individual floating point sample from an [AudioBuffer].
-fn get_sample(audio_buffer: &AudioBufferType, frame_idx: usize, channel_idx: usize) -> f32 {
-    match audio_buffer {
-        AudioBufferType::U8(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::U16(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::U24(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::U32(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::S8(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::S16(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::S24(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::S32(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::F32(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-        AudioBufferType::F64(buf) => buf.chan(channel_idx)[frame_idx].into_sample(),
-    }
-}
-
-/// Calculates the number of frame in an [AudioBuffer].
-fn num_frames_in_packet(audio_buffer: &AudioBufferType) -> usize {
-    match audio_buffer {
-        AudioBufferType::U8(buf) => buf.frames(),
-        AudioBufferType::U16(buf) => buf.frames(),
-        AudioBufferType::U24(buf) => buf.frames(),
-        AudioBufferType::U32(buf) => buf.frames(),
-        AudioBufferType::S8(buf) => buf.frames(),
-        AudioBufferType::S16(buf) => buf.frames(),
-        AudioBufferType::S24(buf) => buf.frames(),
-        AudioBufferType::S32(buf) => buf.frames(),
-        AudioBufferType::F32(buf) => buf.frames(),
-        AudioBufferType::F64(buf) => buf.frames(),
-    }
-}
+use crate::backend::waveform_args::DEFAULT_FILE_EXTENSION;
+use crate::backend::waveform_args::DEFAULT_MIME_TYPE;
 
 /// An audio decoder from Philip Deljanov's [`symphonia`] audio decoding library.
 pub struct SymphoniaDecoder {
     _decoder: Box<dyn SymphoniaDecoderTrait>,
     _reader: Box<dyn FormatReader>,
-    _current_packet_audio_buffer: Option<AudioBufferType>,
-    _current_packet_frame_size: usize,
-    _current_packet_frame_idx: usize,
-    _current_packet_channel_idx: usize,
+    _current_packet_audio_buffer: Option<SampleBuffer<f32>>,
+    _current_packet_sample_idx: usize,
     _frame_rate_hz: u32,
     _num_channels: u32,
 }
 
 impl SymphoniaDecoder {
     /// Returns the next packet from the Symphonia decoder.
-    fn next_packet_buffer(&mut self) -> Option<Result<AudioBufferType, Error>> {
+    fn next_packet_buffer(&mut self) -> Option<Result<SampleBuffer<f32>, Error>> {
         while let Ok(packet) = self._reader.next_packet() {
             match self._decoder.decode(&packet) {
                 // Decode errors are not fatal.
@@ -108,10 +41,12 @@ impl SymphoniaDecoder {
                     return Some(Err(Error::UnknownDecodeError));
                 }
 
-                Ok(decoded_buffer_ref) => {
-                    return Some(Ok(audio_buffer_ref_to_audio_buffer_type(
-                        decoded_buffer_ref,
-                    )));
+                Ok(decoded) => {
+                    let spec = decoded.spec().to_owned();
+                    let duration = decoded.capacity() as u64;
+                    let mut buffer = SampleBuffer::<f32>::new(duration, spec);
+                    buffer.copy_interleaved_ref(decoded);
+                    return Some(Ok(buffer));
                 }
             }
         }
@@ -188,9 +123,7 @@ impl Decoder<f32> for SymphoniaDecoder {
             _decoder,
             _reader,
             _current_packet_audio_buffer: None,
-            _current_packet_frame_size: 0,
-            _current_packet_frame_idx: 0,
-            _current_packet_channel_idx: 0,
+            _current_packet_sample_idx: 0,
             _frame_rate_hz,
             _num_channels,
         }))
@@ -232,10 +165,8 @@ impl Iterator for SymphoniaDecoder {
                     // We have successfully decoded the next packet. Update our
                     // struct private variables.
                     Ok(audio_buffer) => {
-                        self._current_packet_frame_size = num_frames_in_packet(&audio_buffer);
                         self._current_packet_audio_buffer = Some(audio_buffer);
-                        self._current_packet_frame_idx = 0;
-                        self._current_packet_channel_idx = 0;
+                        self._current_packet_sample_idx = 0;
                     }
                 },
             }
@@ -244,26 +175,12 @@ impl Iterator for SymphoniaDecoder {
         let current_packet_audio_buffer = self._current_packet_audio_buffer.as_ref().unwrap();
 
         // Look up the next sample in the buffer.
-        let next_sample = get_sample(
-            current_packet_audio_buffer,
-            self._current_packet_frame_idx,
-            self._current_packet_channel_idx,
-        );
-
-        // Bump the channel index. Next time, we will query
-        // the sample belonging to the NEXT channel in the SAME frame...
-        self._current_packet_channel_idx =
-            (self._current_packet_channel_idx + 1) % self._num_channels as usize;
-
-        // ... unless the channel index is zero, in which case we are
-        // now in the NEXT frame...
-        if self._current_packet_channel_idx == 0 {
-            self._current_packet_frame_idx += 1;
-        }
+        let next_sample = current_packet_audio_buffer.samples()[self._current_packet_sample_idx];
+        self._current_packet_sample_idx += 1;
 
         // ...unless the frame index is the same as the packet size,
         // which means that we are now in the NEXT packet.
-        if self._current_packet_frame_idx >= self._current_packet_frame_size {
+        if self._current_packet_sample_idx >= current_packet_audio_buffer.len() {
             self._current_packet_audio_buffer = None;
         }
 
