@@ -14,7 +14,7 @@ use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 use symphonia::core::sample::{i24, u24};
 
-use crate::backend::decode::Decoder;
+use crate::backend::decode::decoder::Decoder;
 use crate::backend::errors::Error;
 use crate::backend::waveform_args::*;
 
