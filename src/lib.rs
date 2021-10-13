@@ -55,6 +55,7 @@
 //! **Decode multiple audio files in parallel.**
 //! ```
 //! use babycat::{WaveformArgs, Waveform};
+//! use babycat::batch::waveforms_from_files;
 //!
 //! // These are test files in the Babycat Git repository.
 //! let filenames = &[
@@ -78,7 +79,7 @@
 //! let batch_args = Default::default();
 //!
 //! // Read and decode the tracks in parallel.
-//! let batch = babycat::Waveform::from_many_files(
+//! let batch = waveforms_from_files(
 //!    filenames,
 //!    waveform_args,
 //!    batch_args,

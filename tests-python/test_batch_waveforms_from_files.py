@@ -1,20 +1,17 @@
 """
 Tests loading waveform from file.
 
-These tests mirror the ones in ``../tests/test_waveform_from_many_files.rs``
+These tests mirror the ones in ``../tests/test_waveform_batch_from_files.rs``
 """
 from fixtures import *
 
 import babycat
 
-Waveform = babycat.Waveform
-bexc = babycat.exceptions
-
 ALL_SAME_FILENAMES = [COF_FILENAME, COF_FILENAME, COF_FILENAME]
 
 
 def test_all_same_file_1():
-    batch = Waveform.from_many_files(ALL_SAME_FILENAMES)
+    batch = babycat.batch.waveforms_from_files(ALL_SAME_FILENAMES)
     for named_result in batch:
         assert named_result.exception is None
         waveform = named_result.waveform
@@ -24,7 +21,9 @@ def test_all_same_file_1():
 
 
 def test_all_same_file_2():
-    batch = Waveform.from_many_files(ALL_SAME_FILENAMES, end_time_milliseconds=15000)
+    batch = babycat.batch.waveforms_from_files(
+        ALL_SAME_FILENAMES, end_time_milliseconds=15000
+    )
     for named_result in batch:
         assert named_result.exception is None
         waveform = named_result.waveform
@@ -34,7 +33,7 @@ def test_all_same_file_2():
 
 
 def test_all_same_file_single_threaded_1():
-    batch = Waveform.from_many_files(
+    batch = babycat.batch.waveforms_from_files(
         ALL_SAME_FILENAMES,
         num_workers=1,
     )
@@ -47,7 +46,7 @@ def test_all_same_file_single_threaded_1():
 
 
 def test_different_filenames_1():
-    batch = Waveform.from_many_files(ALL_FILENAMES)
+    batch = babycat.batch.waveforms_from_files(ALL_FILENAMES)
     for i, named_result in enumerate(batch):
         assert named_result.exception is None
         waveform = named_result.waveform
@@ -57,7 +56,7 @@ def test_different_filenames_1():
 
 
 def test_file_not_found_error_1():
-    batch = Waveform.from_many_files([COF_FILENAME, "asdfasdf"])
+    batch = babycat.batch.waveforms_from_files([COF_FILENAME, "asdfasdf"])
     assert 2 == len(batch)
     assert batch[0].exception is None
     assert batch[0].waveform.num_channels == COF_NUM_CHANNELS

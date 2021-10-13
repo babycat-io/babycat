@@ -4,13 +4,6 @@ use std::marker::Send;
 
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "enable-multithreading")]
-use crate::backend::batch_args::BatchArgs;
-#[cfg(feature = "enable-multithreading")]
-use crate::backend::named_result::NamedResult;
-#[cfg(feature = "enable-multithreading")]
-use rayon::prelude::*;
-
 use crate::backend::common::milliseconds_to_frames;
 use crate::backend::decode::Decoder;
 use crate::backend::decode::SymphoniaDecoder;
@@ -191,88 +184,6 @@ impl Waveform {
         };
 
         Self::from_encoded_stream_with_hint(file, waveform_args, file_extension, DEFAULT_MIME_TYPE)
-    }
-
-    /// Decodes a list of audio files in parallel.
-    ///
-    /// # Arguments
-    /// - `filenames`: A filename of an encoded audio file on the local filesystem.
-    /// - `waveform_args`: Instructions on how to decode the audio.
-    /// - `batch_args`: Instructions on how to divide the work across multiple threads.
-    ///
-    /// # Feature flags
-    /// This function is only available if both of the `enable-filesystem`
-    /// and `enable-multithreading` features are enabled. These features
-    /// are enabled by default in Babycat's Rust, Python, and C frontends.
-    /// These features are disabled in Babycat's WebAssembly frontend.
-    ///
-    /// # Examples
-    /// **(Attempt to) decode three files:**
-    ///
-    /// In this example, we process three filenames and demonstrate how to handle errors.
-    /// The first two files are successfully processed, and we catch a
-    /// [`Error::FileNotFound`][crate::Error::FileNotFound] error when processing the third file.
-    /// ```
-    /// use babycat::{Error, Waveform, NamedResult};
-    ///
-    /// let filenames = &[
-    ///     "audio-for-tests/andreas-theme/track.mp3",
-    ///     "audio-for-tests/blippy-trance/track.mp3",
-    ///     "does-not-exist",
-    /// ];
-    /// let waveform_args = Default::default();
-    /// let batch_args = Default::default();
-    /// let batch = Waveform::from_many_files(
-    ///     filenames,
-    ///     waveform_args,
-    ///     batch_args
-    /// );
-    ///
-    /// fn display_result(nr: &NamedResult<Waveform, Error>) -> String {
-    ///     match &nr.result {
-    ///         Ok(waveform) => format!("\nSuccess: {}:\n{:?}", nr.name, waveform),
-    ///         Err(err) => format!("\nFailure: {}:\n{}", nr.name, err),
-    ///     }
-    /// }
-    /// assert_eq!(
-    ///     display_result(&batch[0]),
-    ///      "
-    /// Success: audio-for-tests/andreas-theme/track.mp3:
-    /// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}",
-    /// );
-    /// assert_eq!(
-    ///     display_result(&batch[1]),
-    ///      "
-    /// Success: audio-for-tests/blippy-trance/track.mp3:
-    /// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5293440}",
-    /// );
-    /// assert_eq!(
-    ///     display_result(&batch[2]),
-    ///      "
-    /// Failure: does-not-exist:
-    /// Cannot find the given filename does-not-exist.",
-    /// );
-    /// ```
-    #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
-    pub fn from_many_files(
-        filenames: &[&str],
-        waveform_args: WaveformArgs,
-        batch_args: BatchArgs,
-    ) -> Vec<NamedResult<Self, Error>> {
-        let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
-            .num_threads(batch_args.num_workers)
-            .build()
-            .unwrap();
-
-        thread_pool.install(|| {
-            filenames
-                .par_iter()
-                .map(|filename| NamedResult {
-                    name: (*filename).to_string(),
-                    result: Self::from_file(filename, waveform_args),
-                })
-                .collect::<Vec<NamedResult<Self, Error>>>()
-        })
     }
 
     /// Decodes audio from an input stream.

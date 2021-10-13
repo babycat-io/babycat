@@ -1,15 +1,21 @@
 use pyo3::prelude::*;
 
+pub mod batch;
 pub mod decoding_backend;
 pub mod exceptions;
 pub mod resample_mode;
 pub mod waveform;
+pub mod waveform_named_result;
 
 /// Module docstring first line
 ///
 /// Module docstring second line
 #[pymodule]
 pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
+    // Configure the batch submodule.
+    let batch_submodule = batch::make_batch_submodule(py)?;
+    m.add_submodule(batch_submodule)?;
+
     // Configure the exceptions submodule.
     let exceptions_submodule = exceptions::make_exceptions_submodule(py)?;
     m.add_submodule(exceptions_submodule)?;
@@ -27,7 +33,7 @@ pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
 
     // Configure the WaveformNamedResult class, which we
     // use to wrap error messages when decoding.
-    m.add_class::<waveform::WaveformNamedResult>()?;
+    m.add_class::<waveform_named_result::WaveformNamedResult>()?;
 
     // End of the module
     Ok(())

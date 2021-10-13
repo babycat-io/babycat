@@ -3,7 +3,7 @@
 // the sawm raw audio.
 
 mod test_waveform_different_encodings {
-    use babycat::Waveform;
+    use babycat::batch::waveforms_from_files;
     // I am not certain why the same audio file encoded as MP3, WAV, or FLAC
     // ends up with significantly different numbers of samples.
     // The values for num_frames() in unit tests like these might have to change
@@ -22,7 +22,7 @@ mod test_waveform_different_encodings {
             "./audio-for-tests/log-sweep/variable-low.mp3",
         ];
         for named_result in
-            Waveform::from_many_files(mp3_filenames, Default::default(), Default::default())
+            waveforms_from_files(mp3_filenames, Default::default(), Default::default())
         {
             println!("{}", named_result.name);
             let waveform = named_result.result.unwrap();
@@ -36,7 +36,7 @@ mod test_waveform_different_encodings {
             "./audio-for-tests/log-sweep/pcm-8.flac",
         ];
         for named_result in
-            Waveform::from_many_files(flac_filenames, Default::default(), Default::default())
+            waveforms_from_files(flac_filenames, Default::default(), Default::default())
         {
             println!("{}", named_result.name);
             let waveform = named_result.result.unwrap();
@@ -50,7 +50,7 @@ mod test_waveform_different_encodings {
             "./audio-for-tests/log-sweep/i32.wav",
         ];
         for named_result in
-            Waveform::from_many_files(wav_filenames, Default::default(), Default::default())
+            waveforms_from_files(wav_filenames, Default::default(), Default::default())
         {
             println!("{}", named_result.name);
             let waveform = named_result.result.unwrap();

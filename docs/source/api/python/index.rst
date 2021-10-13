@@ -5,6 +5,7 @@ Babycat Python API Documentation
    :maxdepth: 5
    :hidden:
 
+   batch <batch/index>
    Waveform <Waveform/index>
    WaveformNamedResult <WaveformNamedResult/index>
    exceptions <exceptions>
@@ -14,8 +15,9 @@ This page shows the public API of the Python ``babycat`` package.
 
 Submodules
 ----------
-- :doc:`exceptions`: A submodule for all Babycat Python exception classes.
-- :doc:`resample_mode`: A submodule containing named constants for each Babycat resampling model.
+- :doc:`batch/index`: Functions for batched multithreaded decoding of multiple audio files.
+- :doc:`exceptions`: All Babycat Python exception classes.
+- :doc:`resample_mode`: Named constants for each Babycat resampling model.
 
 Classes
 -------
