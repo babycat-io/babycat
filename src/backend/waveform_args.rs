@@ -50,30 +50,34 @@ pub struct WaveformArgs {
     pub start_time_milliseconds: u64,
     /// We discard any audio after this millisecond offset. By default,
     /// this does nothing and the audio is decoded all the way
-    /// to the end. If `start_time_milliseconds` is specified,
-    /// then `end_time_milliseconds` must be greater. The resulting
+    /// to the end. If
+    /// [`start_time_milliseconds`](#structfield.start_time_milliseconds)
+    /// is specified, then
+    /// [`end_time_milliseconds`](#structfield.end_time_milliseconds)
+    /// must be greater.
     #[serde(default)]
     pub end_time_milliseconds: u64,
     /// A destination frame rate to resample
     /// the audio to. Do not specify this parameter if you wish
     /// Babycat to preserve the audio's original frame rate.
-    /// This does nothing if `frame_rate_hz` is equal to the
-    /// audio's original frame rate.
+    /// This does nothing if [`frame_rate_hz`](#structfield.frame_rate_hz)
+    /// is equal to the audio's original frame rate.
     #[serde(default)]
     pub frame_rate_hz: u32,
     /// Set this to a positive integer `n`
     /// to select the *first* `n` channels stored in the
     /// audio file. By default, Babycat will return all of the channels
     /// in the original audio. This will raise an exception
-    /// if you specify a `num_channels` greater than the actual
-    /// number of channels in the audio.
+    /// if you specify a [`num_channels`](#structfield.num_channels)
+    /// greater than the actual number of channels in the audio.
     #[serde(default)]
     pub num_channels: u32,
     /// Set to `true` to average all channels
     /// into a single monophonic (mono) channel. If
     /// `num_channels = n` is also specified, then only the
     /// first `n` channels will be averaged. Note that
-    /// `convert_to_mono` cannot be set to `true` while
+    /// [`convert_to_mono`](#structfield.convert_to_mono)
+    /// cannot be set to `true` while
     /// also setting `num_channels = 1`.
     #[serde(default)]
     pub convert_to_mono: bool,
@@ -87,7 +91,8 @@ pub struct WaveformArgs {
     /// if the input audio is shorter than `end_time_milliseconds`.
     #[serde(default)]
     pub zero_pad_ending: bool,
-    /// Sets which resampling method is used if you have set `frame_rate_hz`.
+    /// Sets which resampling method is used if you have set
+    /// [`frame_rate_hz`](#structfield.frame_rate_hz).
     /// This usually defaults to the highest-accuracy resampler compiled
     /// into Babycat. The available choices are:
     /// * [`babycat::RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE)
@@ -101,7 +106,7 @@ pub struct WaveformArgs {
     /// Currently the only available decoding backend is
     /// [`babycat::DECODING_BACKEND_SYMPHONIA`](crate::DECODING_BACKEND_SYMPHONIA), which
     /// corresponds to the [`SymphoniaDecoder`](crate::decode::SymphoniaDecoder), which
-    /// is a wrapper for the [`symphonia`] library.
+    /// is a wrapper for the [`symphonia`](https://github.com/pdeljanov/Symphonia/) library.
     pub decoding_backend: u32,
 }
 
@@ -117,5 +122,55 @@ impl Default for WaveformArgs {
             resample_mode: DEFAULT_RESAMPLE_MODE,
             decoding_backend: DEFAULT_DECODING_BACKEND,
         }
+    }
+}
+
+impl WaveformArgs {
+    /// Set the [`start_time_milliseconds`](#structfield.start_time_milliseconds) field.
+    pub fn set_start_time_milliseconds(&mut self, start_time_milliseconds: u64) -> Self {
+        self.start_time_milliseconds = start_time_milliseconds;
+        *self
+    }
+
+    /// Set the [`end_time_milliseconds`](#structfield.end_time_milliseconds) field.
+    pub fn set_end_time_milliseconds(&mut self, end_time_milliseconds: u64) -> Self {
+        self.end_time_milliseconds = end_time_milliseconds;
+        *self
+    }
+
+    /// Set the [`frame_rate_hz`](#structfield.frame_rate_hz) field.
+    pub fn set_frame_rate_hz(&mut self, frame_rate_hz: u32) -> Self {
+        self.frame_rate_hz = frame_rate_hz;
+        *self
+    }
+
+    /// Set the [`num_channels`](#structfield.num_channels) field.
+    pub fn set_num_channels(&mut self, num_channels: u32) -> Self {
+        self.num_channels = num_channels;
+        *self
+    }
+
+    /// Set the [`convert_to_mono`](#structfield.convert_to_mono) field.
+    pub fn set_convert_to_mono(&mut self, convert_to_mono: bool) -> Self {
+        self.convert_to_mono = convert_to_mono;
+        *self
+    }
+
+    /// Set the [`zero_pad_ending`](#structfield.zero_pad_ending) field.
+    pub fn set_zero_pad_ending(&mut self, zero_pad_ending: bool) -> Self {
+        self.zero_pad_ending = zero_pad_ending;
+        *self
+    }
+
+    /// Set the [`resample_mode`](#structfield.resample_mode) field.
+    pub fn set_resample_mode(&mut self, resample_mode: u32) -> Self {
+        self.resample_mode = resample_mode;
+        *self
+    }
+
+    /// Set the [`decoding_backend`](#structfield.decoding_backend) field.
+    pub fn set_decoding_backend(&mut self, decoding_backend: u32) -> Self {
+        self.decoding_backend = decoding_backend;
+        *self
     }
 }
