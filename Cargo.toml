@@ -16,6 +16,10 @@ include = ["Cargo.toml", "benches", "examples", "rust-toolchain.toml", "src", "t
 name = "resample_benchmark"
 harness = false
 
+[[bench]]
+name = "decoding_benchmark"
+harness = false
+
 [[bin]]
 name = "babycat"
 path = "src/bin/babycat/main.rs"
