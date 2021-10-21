@@ -29,5 +29,5 @@ def test_waveform_from_file():
     run_doctest(babycat.Waveform.from_file)
 
 
-def test_waveform_from_many_files():
-    run_doctest(babycat.Waveform.from_many_files)
+def test_batch():
+    run_doctest(babycat.batch)

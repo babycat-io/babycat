@@ -422,7 +422,7 @@ build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 # ===================================================================
 
 ## docs-sphinx
-.b/docs-sphinx: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h
+.b/docs-sphinx: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h $(DOCS_FILES)
 	rm -rf docs/build
 	mkdir docs/build
 	$(DOXYGEN)
@@ -435,7 +435,7 @@ docs-sphinx: .b/docs-sphinx
 # This is the command we use to build docs on Netlify.
 # The Netlify build image has Python 3.8 installed,
 # but does not come with the virtualenv extension.
-.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h .b/build-python
+.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h .b/build-python $(DOCS_FILES)
 # Clean any previous builds.
 	rm -rf docs/build
 	mkdir docs/build

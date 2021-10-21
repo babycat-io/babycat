@@ -50,8 +50,8 @@ wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = tru
 js-sys = { version = "0.3", optional = true }
 
 # for python frontend
-numpy = { version = "0.13", optional = true }
-pyo3 = { version = "0.13", optional = true }
+numpy = { version = "0.14", optional = true }
+pyo3 = { version = "0.14", optional = true }
 
 # for binary targets
 env_logger = { version = "0.8", optional = true }
