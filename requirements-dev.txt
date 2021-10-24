@@ -14,3 +14,6 @@ pylint==2.7.4
 
 # type annotations
 mypy==0.812
+
+# helps us run benchmarks
+pytest-benchmark==3.4.1

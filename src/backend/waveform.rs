@@ -669,3 +669,11 @@ impl Waveform {
         &self.interleaved_samples
     }
 }
+
+#[allow(clippy::from_over_into)]
+impl Into<ndarray::Array2<f32>> for Waveform {
+    fn into(self) -> ndarray::Array2<f32> {
+        let shape = (self.num_frames as usize, self.num_channels as usize);
+        ndarray::Array::from_shape_vec(shape, self.interleaved_samples).unwrap()
+    }
+}

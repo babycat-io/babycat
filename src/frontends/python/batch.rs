@@ -1,7 +1,11 @@
+use numpy::PyArray2;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
+use rayon::prelude::*;
 
-/// Uses multithreading in Rust to decode many audio files in parallel.
+/// Uses multithreading in Rust to decode many audio files in parallel,
+/// returning :py:func:`~babycat.WaveformNamedResult` objects
+/// containing filenames, waveforms, and/or Python exceptions.
 ///
 ///
 /// Example:
@@ -186,6 +190,174 @@ pub fn waveforms_from_files(
         .collect::<Vec<crate::frontends::python::waveform_named_result::WaveformNamedResult>>()
 }
 
+/// Uses multithreading in Rust to decode many audio files in parallel,
+/// directly returning NumPy arrays.
+///
+/// This function can be much faster than :py:func:`~babycat.batch.waveforms_from_files`
+/// because it manages to avoid overusing the Python Global Interpreter Lock (GIL).
+/// The downside is that this function may raise some strange exceptions, and if
+/// if you want to build strong error-handling logic, you should always use
+/// :py:func:`~babycat.batch.waveforms_from_files` instead.
+///
+/// Example:
+///     **Decode two audio files directly into NumPy arrays.**
+///
+///     >>> import babycat
+///     >>> filenames = [
+///     ...     "audio-for-tests/andreas-theme/track.mp3",
+///     ...     "audio-for-tests/blippy-trance/track.mp3",
+///     ... ]
+///     >>> batch = babycat.batch.waveforms_from_files_to_numpy(filenames)
+///     >>> len(batch)
+///     2
+///     >>> batch[0].shape
+///     (9586944, 2)
+///     >>> batch[1].shape
+///     (5293440, 2)
+///
+/// Args:
+///     filenames(list[str]): A :py:class:`list` of filenames--each as
+///         :py:class:`str`--to decode in parallel.
+///
+///     start_time_milliseconds(int, optional): We discard
+///         any audio before this millisecond offset. By default, this
+///         does nothing and the audio is decoded from the beginning.
+///         Negative offsets are invalid.   
+///
+///     end_time_milliseconds(int, optional): We discard
+///         any audio after this millisecond offset. By default,
+///         this does nothing and the audio is decoded all the way
+///         to the end. If ``start_time_milliseconds`` is specified,
+///         then ``end_time_milliseconds`` must be greater. The resulting
+///
+///     frame_rate_hz(int, optional): A destination frame rate to resample
+///         the audio to. Do not specify this parameter if you wish
+///         Babycat to preserve the audio's original frame rate.
+///         This does nothing if ``frame_rate_hz`` is equal to the
+///         audio's original frame rate.
+///
+///     num_channels(int, optional): Set this to a positive integer ``n``
+///         to select the *first* ``n`` channels stored in the
+///         audio file. By default, Babycat will return all of the channels
+///         in the original audio. This will raise an exception
+///         if you specify a ``num_channels`` greater than the actual
+///         number of channels in the audio.
+///
+///     convert_to_mono(bool, optional): Set to ``True`` to average all channels
+///         into a single monophonic (mono) channel. If
+///         ``num_channels = n`` is also specified, then only the
+///         first ``n`` channels will be averaged. Note that
+///         ``convert_to_mono`` cannot be set to ``True`` while
+///         also setting ``num_channels = 1``.
+///
+///     zero_pad_ending(bool, optional): If you set this to ``True``,
+///         Babycat will zero-pad the ending of the decoded waveform
+///         to ensure that the output waveform's duration is exactly
+///         ``end_time_milliseconds - start_time_milliseconds``.
+///         By default, ``zero_pad_ending = False``, in which case
+///         the output waveform will be shorter than
+///         ``end_time_milliseconds - start_time_milliseconds``
+///         if the input audio is shorter than ``end_time_milliseconds``.
+///
+///     resample_mode(int, optional): If you set ``frame_rate_hz``
+///         to resample the audio when decoding, you can also set
+///         ``resample_mode`` to pick which resampling backend to use.
+///         The :py:mod:`babycat.resample_mode` submodule contains
+///         the various available resampling algorithms compiled into Babycat.
+///         By default, Babycat resamples audio using
+///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+///         highest-quality setting.
+///
+///     decoding_backend(int, optional): Sets the audio decoding
+///         backend to use. Defaults to the Symphonia backend.
+///
+///     num_workers(int, optional): The number of threads--*Rust threads*, not Python
+///         threads--to use for parallel decoding of the audio files in
+///         ``filenames``. By default, Babycat creates the same
+///         number of threads as the number of logical CPU cores on
+///         your machine.
+///
+/// Returns:
+///     list[numpy.array]: A Python list of two-dimensional NumPy arrays, each
+///     one representing a waveform from an input audio file.
+///
+/// Raises:
+///     Raises various wrapped exceptions representing Rust errors. If you need
+///         sophisticated error handling, then use
+///         :py:func:`~babycat.batch.waveforms_from_files` instead of this function.
+#[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+#[pyfunction(
+    filenames,
+    "*",
+    start_time_milliseconds = 0,
+    end_time_milliseconds = 0,
+    frame_rate_hz = 0,
+    num_channels = 0,
+    convert_to_mono = false,
+    zero_pad_ending = false,
+    resample_mode = 0,
+    decoding_backend = 0,
+    num_workers = 0
+)]
+#[pyo3(text_signature = "(
+    filenames,
+    start_time_milliseconds = 0,
+    end_time_milliseconds= 0,
+    frame_rate_hz = 0,
+    num_channels = 0,
+    convert_to_mono = False,
+    zero_pad_ending = False,
+    resample_mode = 0,
+    decoding_backend = 0,
+    num_workers = 0,
+)")]
+#[allow(clippy::too_many_arguments)]
+pub fn waveforms_from_files_to_numpy(
+    filenames: Vec<String>,
+    start_time_milliseconds: u64,
+    end_time_milliseconds: u64,
+    frame_rate_hz: u32,
+    num_channels: u32,
+    convert_to_mono: bool,
+    zero_pad_ending: bool,
+    resample_mode: u32,
+    decoding_backend: u32,
+    num_workers: usize,
+) -> Vec<Py<PyArray2<f32>>> {
+    let waveform_args = crate::backend::WaveformArgs {
+        start_time_milliseconds,
+        end_time_milliseconds,
+        frame_rate_hz,
+        num_channels,
+        convert_to_mono,
+        zero_pad_ending,
+        resample_mode,
+        decoding_backend,
+    };
+    let batch_args = crate::backend::batch::BatchArgs { num_workers };
+    let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
+        .num_threads(batch_args.num_workers)
+        .build()
+        .unwrap();
+
+    let arrays: Vec<ndarray::Array2<f32>> = thread_pool.install(|| {
+        filenames
+            .par_iter()
+            .map(|filename| {
+                crate::backend::Waveform::from_file(filename, waveform_args)
+                    .unwrap()
+                    .into()
+            })
+            .collect()
+    });
+    Python::with_gil(|py| {
+        arrays
+            .into_iter()
+            .map(|arr| PyArray2::from_owned_array(py, arr).to_owned())
+            .collect()
+    })
+}
+
 pub fn make_batch_submodule(py: Python) -> PyResult<&PyModule> {
     let batch_submodule = PyModule::new(py, "batch")?;
 
@@ -197,5 +369,11 @@ Functions that use multithreading to manipulate multiple audio files in parallel
     )?;
 
     batch_submodule.add_function(wrap_pyfunction!(waveforms_from_files, batch_submodule)?)?;
+
+    batch_submodule.add_function(wrap_pyfunction!(
+        waveforms_from_files_to_numpy,
+        batch_submodule
+    )?)?;
+
     Ok(batch_submodule)
 }

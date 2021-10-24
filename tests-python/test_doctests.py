@@ -31,3 +31,11 @@ def test_waveform_from_file():
 
 def test_batch():
     run_doctest(babycat.batch)
+
+
+def test_batch_waveforms_from_files():
+    run_doctest(babycat.batch.waveforms_from_files)
+
+
+def test_batch_waveforms_from_files_to_numpy():
+    run_doctest(babycat.batch.waveforms_from_files_to_numpy)
