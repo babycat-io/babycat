@@ -469,14 +469,14 @@ docs: .b/docs-sphinx .b/docs-rustdoc
 # ===================================================================
 
 ## install-python-wheel
-.b/install-python-wheel: .b/build-python
+.b/install-python-wheel: .b/build-python .b/init-python
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
 	@touch .b/install-python-wheel
 install-python-wheel: .b/install-python-wheel
 .PHONY: install-python-wheel
 
 ## install-python-wheel-manylinux
-install-python-wheel-manylinux: .b/build-python-manylinux
+install-python-wheel-manylinux: .b/build-python-manylinux .b/init-python
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(MANYLINUX_WHEEL_DIR)/*.whl
 	@touch .b/install-python-wheel
 .PHONY: install-python-wheel-manylinux
