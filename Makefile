@@ -1,10 +1,3 @@
-# These are the Rust files being tracked by Git.
-RUST_SRC_FILES ?= $(shell git ls-files --cached --modified --others src)
-
-# These are the documentation files tracked by Git.
-DOCS_FILES ?= $(shell git ls-files --cached --modified --others docs)
-
-
 # These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
@@ -30,6 +23,14 @@ MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux
 VENV_PATH ?= venv
 CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
 PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
+
+
+# These are the Rust files being tracked by Git.
+RUST_SRC_FILES ?= $(shell $(PYTHON) .listfiles.py src)
+
+
+# These are the documentation files tracked by Git.
+DOCS_FILES ?= $(shell $(PYTHON) .listfiles.py docs)
 
 
 # Windows and Unix have different paths for activating
