@@ -34,6 +34,7 @@ symphonia = { version = "0.4.0",  features = [ "aac", "flac", "mp3", "pcm", "iso
 
 base64 = "0.13"
 float-cmp= "0.8"
+ndarray = "0.15"
 hound = "3.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"

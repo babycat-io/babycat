@@ -12,10 +12,6 @@ pub mod waveform_named_result;
 /// Module docstring second line
 #[pymodule]
 pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
-    // Configure the batch submodule.
-    let batch_submodule = batch::make_batch_submodule(py)?;
-    m.add_submodule(batch_submodule)?;
-
     // Configure the exceptions submodule.
     let exceptions_submodule = exceptions::make_exceptions_submodule(py)?;
     m.add_submodule(exceptions_submodule)?;
@@ -34,6 +30,10 @@ pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
     // Configure the WaveformNamedResult class, which we
     // use to wrap error messages when decoding.
     m.add_class::<waveform_named_result::WaveformNamedResult>()?;
+
+    // Configure the BatchProcessor class, which we use to do multithreaded decoding
+    // of audio waveforms.
+    m.add_class::<batch::BatchProcessor>()?;
 
     // End of the module
     Ok(())

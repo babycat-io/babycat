@@ -1,5 +1,5 @@
 #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
-pub mod batch;
+mod batch;
 mod common;
 pub mod decode;
 mod errors;
@@ -9,6 +9,11 @@ mod waveform_args;
 mod waveform_named_result;
 mod waveform_result;
 
+#[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+pub use batch::BatchArgs;
+
+#[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+pub use batch::BatchProcessor;
 pub use errors::*;
 pub use waveform::*;
 pub use waveform_args::*;
