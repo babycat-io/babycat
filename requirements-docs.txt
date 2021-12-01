@@ -1,20 +1,20 @@
 # Sphinx makes our documentation
-Sphinx==3.5.4
+Sphinx==4.3.1
 
 # Generates JavaScript and TypeScript documentation for Sphinx
-sphinx-js==3.0.1
+sphinx-js==3.1.2
 
 # adds metadata to Sphinx pages
-sphinxext-opengraph==0.4.1
+sphinxext-opengraph==0.5.0
 
 # type hints in documentation
-sphinx-autodoc-typehints==1.11.1
+sphinx-autodoc-typehints==1.12.0
 
 # used to display tabs in documentation
-sphinx-inline-tabs==2021.3.28b7
+sphinx-inline-tabs==2021.8.17b10
 
 # generates Sphinx documentation from Doxygen XML files
-breathe==4.30.0
+breathe==4.31.0
 
 # our favorite Sphinx theme. we leave it unpinned to always get the latest.
 neocrym-sphinx-theme
