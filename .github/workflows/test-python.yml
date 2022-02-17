@@ -54,10 +54,10 @@ jobs:
 
     - name: Check some debugging stuff
       run: |
-        which python3
-        which python
-        python -m venv
-        python3 -m venv
+        echo python3 && which python3 || true
+        echo python && which python || true
+        echo python venv && python -m venv venv || true
+        echo python3 venv && python3 -m venv venv || true
 
     - name: Build Python frontend
       run: make build-python
