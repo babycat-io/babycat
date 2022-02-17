@@ -17,7 +17,7 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
 
 # These variables set the paths for Python tools.
-PYTHON ?= python
+PYTHON ?= python3
 WHEEL_DIR ?= target/frontend-python
 MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux
 VENV_PATH ?= venv
