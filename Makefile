@@ -17,7 +17,7 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
 
 # These variables set the paths for Python tools.
-PYTHON ?= python3
+PYTHON ?= python
 WHEEL_DIR ?= target/frontend-python
 MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux
 VENV_PATH ?= venv
@@ -155,7 +155,7 @@ vendor: vendor-rust
 # Set up the Python virtualenv
 $(VENV_PATH)/.ti:
 	$(CREATE_VENV_CMD)
-	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --upgrade pip
 	@touch $(VENV_PATH)/.ti
 
 # Wrapper command for setting up the Python virtualenv
@@ -164,7 +164,7 @@ init-python: $(VENV_PATH)/.ti
 
 # Install packages required to use Babycat.
 $(VENV_PATH)/.requirements.txt.ti: $(VENV_PATH)/.ti
-	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements.txt
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements.txt
 	@touch $(VENV_PATH)/.requirements.txt.ti
 
 init-python-requirements: $(VENV_PATH)/.requirements.txt.ti
@@ -172,7 +172,7 @@ init-python-requirements: $(VENV_PATH)/.requirements.txt.ti
 
 # Install packages required to lint and test Babycat's source code.
 $(VENV_PATH)/.requirements-dev.txt.ti: $(VENV_PATH)/.ti
-	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements-dev.txt
 	@touch $(VENV_PATH)/.requirements-dev.txt.ti
 
 init-python-requirements-dev: $(VENV_PATH)/.requirements-dev.txt.ti
@@ -180,7 +180,7 @@ init-python-requirements-dev: $(VENV_PATH)/.requirements-dev.txt.ti
 
 # Install packages required to build Babycat's documentation.
 $(VENV_PATH)/.requirements-docs.txt.ti: $(VENV_PATH)/.ti
-	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements-docs.txt
 	@touch $(VENV_PATH)/.requirements-docs.txt.ti
 
 init-python-requirements-docs: $(VENV_PATH)/.requirements-docs.txt.ti
@@ -463,9 +463,9 @@ docs-sphinx: .b/docs-sphinx
 # Generate Doxygen XML to document Babycat's C bindings.
 	$(DOXYGEN)
 # Install Python dependencies for building the docs.
-	python3 -m pip install -r requirements-docs.txt
+	python -m pip install -r requirements-docs.txt
 # Install Babycat's Python bindings.
-	python3 -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
+	python -m pip install --force-reinstall $(WHEEL_DIR)/*.whl
 # Generate the docs.
 	export PATH=$(PWD)/node_modules/.bin:$$PATH && $(MAKE) -C docs dirhtml
 	@touch .b/docs-sphinx-netlify
@@ -639,7 +639,7 @@ run-ex-decode-c: target/frontend-c/release/examples/decode
 
 ## run-ex-decode-python
 run-ex-decode-python: .b/install-python-wheel
-	$(ACTIVATE_VENV_CMD) && python3 examples-python/decode.py
+	$(ACTIVATE_VENV_CMD) && python examples-python/decode.py
 .PHONY: build-ex-decode-python
 
 
