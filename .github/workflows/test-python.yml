@@ -35,24 +35,24 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Configure environment variables (Linux)
+    - name: Configure environment variables (Ubuntu)
       run: |
         echo "CARGO_HOME=/usr/share/rust/.cargo" >> $GITHUB_ENV
         echo "RUSTUP_HOME=/usr/share/rust/.rustup" >> $GITHUB_ENV
-      if: ${{ runner.os }} == 'Linux'
+      if: startsWith(matrix.os,'ubuntu')
 
     - name: Configure environment variables (macOS)
       run: |
         echo "CARGO_HOME=/Users/runner/.cargo" >> $GITHUB_ENV
         echo "RUSTUP_HOME=/Users/runner/.rustup" >> $GITHUB_ENV
         echo "MACOSX_DEPLOYMENT_TARGET=10.7" >> $GITHUB_ENV
-      if: ${{ runner.os }} == 'macOS'
+      if: startsWith(matrix.os,'macos')
 
     - name: Configure environment variables (Windows)
       run: |
         echo "CARGO_HOME=C:\Rust\.cargo" >> $GITHUB_ENV
         echo "RUSTUP_HOME=C:\Rust\.rustup" >> $GITHUB_ENV
-      if: ${{ runner.os }} == 'Windows'
+      if: startsWith(matrix.os,'windows')
 
     - name: Echo environment variables
       run: |
