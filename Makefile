@@ -153,16 +153,40 @@ vendor: vendor-rust
 
 ## init-python
 # Set up the Python virtualenv
-.b/init-python: requirements-dev.txt requirements-docs.txt
+$(VENV_PATH)/.ti:
 	$(CREATE_VENV_CMD)
-	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip setuptools wheel
-	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
-	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
-	@touch .b/init-python
-init-python: .b/init-python
+	$(ACTIVATE_VENV_CMD) && python -m pip install --upgrade pip
+	@touch $(VENV_PATH)/.ti
+
+# Wrapper command for setting up the Python virtualenv
+init-python: $(VENV_PATH)/.ti
 .PHONY: init-python
 
-## init-javascript-tools
+# Install packages required to use Babycat.
+$(VENV_PATH)/.requirements.txt.ti: $(VENV_PATH)/.ti
+	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements.txt
+	@touch $(VENV_PATH)/.requirements.txt.ti
+
+init-python-requirements: $(VENV_PATH)/.requirements.txt.ti
+.PHONY: init-python-requirements
+
+# Install packages required to lint and test Babycat's source code.
+$(VENV_PATH)/.requirements-dev.txt.ti: $(VENV_PATH)/.ti
+	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-dev.txt
+	@touch $(VENV_PATH)/.requirements-dev.txt.ti
+
+init-python-requirements-dev: $(VENV_PATH)/.requirements-dev.txt.ti
+.PHONY: init-python-requirements-dev
+
+# Install packages required to build Babycat's documentation.
+$(VENV_PATH)/.requirements-docs.txt.ti: $(VENV_PATH)/.ti
+	$(ACTIVATE_VENV_CMD) && python -m pip install --requirement requirements-docs.txt
+	@touch $(VENV_PATH)/.requirements-docs.txt.ti
+
+init-python-requirements-docs: $(VENV_PATH)/.requirements-docs.txt.ti
+.PHONY: init-python-requirements-docs
+
+
 # Set up our main npm node_modules, containing developer tools
 .b/init-javascript-tools: package.json	
 	$(NPM) rebuild && $(NPM) install
@@ -264,10 +288,9 @@ fmt-javascript: .b/init-javascript-tools
 	@$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 .PHONY: fmt-javascript
 
-#3 fmt-python
-fmt-python: .b/init-python
-	@$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
-	@$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
+fmt-python: init-python-requirements-dev
+	$(ACTIVATE_VENV_CMD) && black $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && isort $(PYTHON_CODE_PATHS)
 .PHONY: fmt-python
 
 ## fmt-rust
@@ -296,10 +319,9 @@ fmt-check-javascript: .b/init-javascript-tools
 	@$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 .PHONY: fmt-check-javascript
 
-## fmt-check-python
-fmt-check-python: .b/init-python
-	@$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
-	@$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
+fmt-check-python: init-python-requirements-dev
+	$(ACTIVATE_VENV_CMD) && black --quiet $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && isort --quiet $(PYTHON_CODE_PATHS)
 .PHONY: fmt-check-python
 
 ## fmt-check-rust
@@ -317,10 +339,9 @@ fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
 # lint ==============================================================
 # ===================================================================
 
-## lint-python
-lint-python: .b/init-python
-	@$(ACTIVATE_VENV_CMD) && pylint --errors-only $(PYTHON_CODE_PATHS)
-	@$(ACTIVATE_VENV_CMD) && mypy --no-error-summary $(PYTHON_CODE_PATHS)
+lint-python: init-python-requirements-dev
+	$(ACTIVATE_VENV_CMD) && pylint $(PYTHON_CODE_PATHS)
+	$(ACTIVATE_VENV_CMD) && mypy $(PYTHON_CODE_PATHS)
 .PHONY: lint-python
 
 ## lint-rust
@@ -422,8 +443,7 @@ build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
 # docs ==============================================================
 # ===================================================================
 
-## docs-sphinx
-.b/docs-sphinx: .b/init-javascript-tools .b/install-python-wheel target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h $(DOCS_FILES)
+.b/docs-sphinx: init-javascript-tools build-python-and-install init-python-requirements-docs build-wasm-bundler babycat.h $(RUST_SRC_FILES)
 	rm -rf docs/build
 	mkdir docs/build
 	$(DOXYGEN)
@@ -460,6 +480,9 @@ docs-sphinx-netlify: .b/docs-sphinx-netlify
 docs-rustdoc: .b/docs-rustdoc
 .PHONY: docs-rustdoc
 
+build-python-and-install: build-python init-python-requirements
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
+.PHONY: build-python-and-install
 
 docs: .b/docs-sphinx .b/docs-rustdoc
 .PHONY: docs
@@ -470,14 +493,14 @@ docs: .b/docs-sphinx .b/docs-rustdoc
 # ===================================================================
 
 ## install-python-wheel
-.b/install-python-wheel: .b/build-python .b/init-python
+.b/install-python-wheel: .b/build-python $(VENV_PATH)/.requirements.txt.ti
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
 	@touch .b/install-python-wheel
 install-python-wheel: .b/install-python-wheel
 .PHONY: install-python-wheel
 
 ## install-python-wheel-manylinux
-install-python-wheel-manylinux: .b/build-python-manylinux .b/init-python
+install-python-wheel-manylinux: .b/build-python-manylinux $(VENV_PATH)/.requirements.txt.ti
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(MANYLINUX_WHEEL_DIR)/*.whl
 	@touch .b/install-python-wheel
 .PHONY: install-python-wheel-manylinux
@@ -501,7 +524,7 @@ test-c-valgrind: target/test_c
 .PHONY: test-c-valgrind
 
 ## test-python
-test-python: .b/init-python .b/install-python-wheel
+test-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
 	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
 .PHONY: test-python
 
@@ -527,7 +550,7 @@ test: test-rust test-python test-wasm-nodejs test-c
 # ===================================================================
 
 ## doctest-python
-doctest-python: .b/init-python .b/install-python-wheel
+doctest-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
 	$(ACTIVATE_VENV_CMD) && pytest tests-python/test_doctests.py
 .PHONY: doctest-python
 

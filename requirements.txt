@@ -1,0 +1,2 @@
+# the oldest version of NumPy that babycat works with
+numpy==1.16.0
