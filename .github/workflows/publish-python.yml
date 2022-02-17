@@ -16,36 +16,28 @@ env:
 jobs:
   publish-python:
     runs-on: ${{ matrix.os }}
-    env:
-      CARGO_HOME: ${{ matrix.cargo_home }}
-      RUSTUP_HOME: ${{ matrix.rustup_home }}
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - os: ubuntu-20.04
-            cargo_home: /usr/share/rust/.cargo
-            rustup_home: /usr/share/rust/.rustup
-          - os: macos-10.15
-            cargo_home: /Users/runner/.cargo
-            rustup_home: /Users/runner/.rustup
-          - os: windows-2019
-            cargo_home: C:\Rust\.cargo
-            rustup_home: C:\Rust\.rustup
+        os:
+          - "ubuntu-20.04"
+          - "macos-10.15"
+          - "windows-2019"
 
     steps:
 
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: "1.53.0"
+          toolchain: "1.56.0"
           override: true
 
     - uses: actions/setup-python@v2
       with:
         python-version: "3.6"
 
-    - uses: actions/checkout@v2
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
 
     - name: Get the version
       id: get_version

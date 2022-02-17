@@ -1,4 +1,4 @@
-# This Action runs the unit tests for babycat's WebAssembly frontend on Linux.
+# Runs the tests for Babycat's WebAssembly frontend.
 name: test-wasm-linux
 
 defaults:
@@ -14,8 +14,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CARGO_HOME: /usr/share/rust/.cargo
-  RUSTUP_HOME: /usr/share/rust/.rustup
 
 jobs:
   test-wasm-linux:
@@ -26,7 +24,7 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: "1.53.0"
+          toolchain: "1.56.0"
           override: true
           target: wasm32-unknown-unknown
 
@@ -46,18 +44,8 @@ jobs:
       run: cargo install wasm-pack --version=^0.10.1
       if: steps.cache-wasm-pack-binary.outputs.cache-hit != 'true'
 
-    - uses: actions/checkout@v2
-
-    - name: Cache vendored Rust dependencies
-      id: cache-vendored-rust-dependencies
-      uses: actions/cache@v2
-      with:
-        path: ./vendor
-        key: test-wasm-linux-${{ hashFiles('./Cargo.toml') }}
-
-    - name: Vendor Rust code (if it is not cached)
-      run: make vendor
-      if: steps.cache-vendored-rust-dependencies.outputs.cache-hit != 'true'
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
 
     - name: Cache JavaScript test dependencies
       id: cache-javascript-test-dependencies

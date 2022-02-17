@@ -15,7 +15,8 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
 
     - name: Create GitHub release
       id: create_release

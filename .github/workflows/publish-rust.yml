@@ -11,8 +11,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  CARGO_HOME: /usr/share/rust/.cargo
-  RUSTUP_HOME: /usr/share/rust/.rustup
+  MACOSX_DEPLOYMENT_TARGET: "10.7"
 
 jobs:
   publish-rust:
@@ -23,10 +22,11 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: "1.53.0"
+          toolchain: "1.56.0"
           override: true
 
-    - uses: actions/checkout@v2
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
 
     - name: Get the version from our Git tag
       id: get_version

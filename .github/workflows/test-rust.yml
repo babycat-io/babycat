@@ -1,5 +1,5 @@
-# Runs the tests for Babycat's Python frontend.
-name: test-python
+# Runs the tests for Babycat's Rust frontend.
+name: test-rust
 
 defaults:
   run:
@@ -22,17 +22,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version:
-          - "3.6"
-          - "3.7"
-          - "3.8"
-          - "3.9"
-          - "3.10"
         os:
           - "ubuntu-20.04"
           - "macos-10.15"
           - "windows-2019"
-
     steps:
 
     - name: Install Rust
@@ -41,20 +34,14 @@ jobs:
           toolchain: "1.56.0"
           override: true
 
-    - name: Install Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
     - name: Vendor Rust code
       run: make vendor
 
-    - name: Build Python frontend
-      run: make build-python
+    - name: Build Rust frontend
+      run: make build-rust
 
-    - name: Run Python tests
-      run: make test-python
-      if: matrix.python-version == '3.8' || matrix.python-version == '3.9' || matrix.python-version == '3.10'
+    - name: Run Rust tests
+      run: make test-rust
