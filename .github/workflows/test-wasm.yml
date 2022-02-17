@@ -1,5 +1,5 @@
 # Runs the tests for Babycat's WebAssembly frontend.
-name: test-wasm-linux
+name: test-wasm
 
 defaults:
   run:
@@ -16,7 +16,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test-wasm-linux:
+  test-wasm:
     runs-on: ubuntu-20.04
 
     steps:

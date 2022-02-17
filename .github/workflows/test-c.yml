@@ -1,5 +1,5 @@
-# This Action runs the unit tests for babycat's C frontend on macOS.
-name: test-c-macos
+# Runs the tests for Babycat's Python frontend.
+name: test-c
 
 defaults:
   run:
