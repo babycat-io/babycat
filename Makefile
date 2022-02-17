@@ -17,20 +17,9 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
 
 # These variables set the paths for Python tools.
-PYTHON ?= python3
 WHEEL_DIR ?= target/frontend-python
 MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux
-VENV_PATH ?= venv
-CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
 PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
-
-
-# These are the Rust files being tracked by Git.
-RUST_SRC_FILES ?= $(shell $(PYTHON) .listfiles.py src)
-
-
-# These are the documentation files tracked by Git.
-DOCS_FILES ?= $(shell $(PYTHON) .listfiles.py docs)
 
 
 # Windows and Unix have different paths for activating
@@ -39,14 +28,23 @@ DOCS_FILES ?= $(shell $(PYTHON) .listfiles.py docs)
 # to use the Python path in $(PYTHON). The "python" command
 # will automatically point to the right Python.
 # TODO(jamesmishra): Handle the distinction between bash and cmd.
+VENV_PATH ?= venv
 ifeq ($(OS),Windows_NT)
+	PYTHON ?= python
+	CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
 	ACTIVATE_VENV_PATH ?= $(VENV_PATH)/Scripts/activate
 	ACTIVATE_VENV_CMD ?= . $(ACTIVATE_VENV_PATH)
 else
+	PYTHON ?= python3
 	ACTIVATE_VENV_PATH ?= $(VENV_PATH)/bin/activate
 	ACTIVATE_VENV_CMD ?= . $(ACTIVATE_VENV_PATH)
 endif
 
+# These are the Rust files being tracked by Git.
+RUST_SRC_FILES ?= $(shell $(PYTHON) .listfiles.py src)
+
+# These are the documentation files tracked by Git.
+DOCS_FILES ?= $(shell $(PYTHON) .listfiles.py docs)
 
 # This is the shared library filename
 # (excluding the extension, see SHARED_LIB_EXT below)
