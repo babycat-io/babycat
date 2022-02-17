@@ -52,6 +52,13 @@ jobs:
     - name: Vendor Rust code
       run: make vendor
 
+    - name: Check some debugging stuff
+      run: |
+        which python3
+        which python
+        python -m venv
+        python3 -m venv
+
     - name: Build Python frontend
       run: make build-python
 
