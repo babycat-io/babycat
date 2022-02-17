@@ -42,5 +42,8 @@ jobs:
 
     - uses: actions/checkout@v2
 
+    - name: Vendor Rust code
+      run: make vendor
+
     - name: Build babycat command line program
       run: make build-binary

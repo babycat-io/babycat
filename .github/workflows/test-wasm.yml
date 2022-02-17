@@ -47,6 +47,9 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
+    - name: Vendor Rust code
+      run: make vendor
+
     - name: Cache JavaScript test dependencies
       id: cache-javascript-test-dependencies
       uses: actions/cache@v2
