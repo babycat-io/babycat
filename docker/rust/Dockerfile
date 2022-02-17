@@ -10,8 +10,8 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENV RUSTUP_VERSION 1.23.1
-ENV RUST_VERSION 1.53.0
+ENV RUSTUP_VERSION 1.24.3
+ENV RUST_VERSION 1.56.0
 ENV RUST_ARCH x86_64-unknown-linux-gnu
 ENV RUSTUP_HOME /usr/local/rustup
 ENV CARGO_HOME /usr/local/cargo
