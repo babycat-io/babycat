@@ -47,7 +47,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Check out Babycat code from GitHub
-    - uses: actions/checkout@v2
+      uses: actions/checkout@v2
 
     - name: Cache vendored Rust dependencies
       id: cache-vendored-rust-dependencies
