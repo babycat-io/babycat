@@ -1,0 +1,65 @@
+# This Action runs the unit tests for babycat's Python frontend on Linux.
+name: test-python
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    tags-ignore:
+      - 'v*' # Don't run these tests twice when cutting a new version.
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_HOME: /usr/share/rust/.cargo
+  RUSTUP_HOME: /usr/share/rust/.rustup
+
+jobs:
+  test-python:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version:
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "3.10"
+        os:
+          - "ubuntu-20.04"
+          - "macos-10.15"
+          - "windows-2019"
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: "1.53.0"
+          override: true
+
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - uses: actions/checkout@v2
+
+    - name: Cache vendored Rust dependencies
+      id: cache-vendored-rust-dependencies
+      uses: actions/cache@v2
+      with:
+        path: ./vendor
+        key: test-python-${{ matrix.python-version }}-${{ hashFiles('./Cargo.toml') }}
+
+    - name: Vendor Rust code (if it is not cached)
+      run: make vendor
+      if: steps.cache-vendored-rust-dependencies.outputs.cache-hit != 'true'
+
+    - name: Build Python frontend
+      run: make build-python
+
+    - name: Run Python tests
+      run: make test-python
