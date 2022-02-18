@@ -1,6 +1,7 @@
 use std::fmt;
 use std::io::Read;
 use std::marker::Send;
+use std::marker::Sync;
 
 use serde::{Deserialize, Serialize};
 
@@ -196,7 +197,7 @@ impl Waveform {
     /// - `encoded_stream`: An I/O stream of encoded audio to decode.
     /// - `waveform_args`: Instructions on how to decode the audio.
     ///
-    pub fn from_encoded_stream<R: 'static + Read + Send>(
+    pub fn from_encoded_stream<R: 'static + Read + Send + Sync>(
         encoded_stream: R,
         waveform_args: WaveformArgs,
     ) -> Result<Self, Error> {
@@ -218,7 +219,7 @@ impl Waveform {
     /// - `mime_type`: A hint--in the form of a MIME type--to indicate
     ///   the encoding of the audio in `encoded_bytes`.
     ///
-    pub fn from_encoded_stream_with_hint<R: 'static + Read + Send>(
+    pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
         encoded_stream: R,
         waveform_args: WaveformArgs,
         file_extension: &str,

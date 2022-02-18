@@ -30,7 +30,8 @@ name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
 [dependencies]
-symphonia = { version = "0.4.0",  features = [ "aac", "flac", "mp3", "pcm", "isomp4", "wav", "ogg", "vorbis" ] }
+symphonia = { version = "0.5.0",  features = [ "aac", "alac", "flac", "mp3", 
+"mkv", "pcm", "isomp4", "wav", "ogg", "vorbis" ] }
 
 base64 = "0.13"
 float-cmp= "0.8"
