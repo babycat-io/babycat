@@ -36,6 +36,7 @@ ifeq ($(OS),Windows_NT)
 	ACTIVATE_VENV_CMD ?= . $(ACTIVATE_VENV_PATH)
 else
 	PYTHON ?= python3
+	CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
 	ACTIVATE_VENV_PATH ?= $(VENV_PATH)/bin/activate
 	ACTIVATE_VENV_CMD ?= . $(ACTIVATE_VENV_PATH)
 endif
