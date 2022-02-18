@@ -17,7 +17,7 @@ env:
   MACOSX_DEPLOYMENT_TARGET: "10.7"
 
 jobs:
-  test:
+  test-python:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -51,13 +51,6 @@ jobs:
 
     - name: Vendor Rust code
       run: make vendor
-
-    - name: Check some debugging stuff
-      run: |
-        echo python3 && which python3 || true
-        echo python && which python || true
-        echo python venv && python -m venv venv || true
-        echo python3 venv && python3 -m venv venv || true
 
     - name: Build Python frontend
       run: make build-python
