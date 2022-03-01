@@ -13,6 +13,7 @@ use std::f32::consts::PI;
 
 const KERNEL_A: i32 = 5;
 
+#[inline(always)]
 fn lanczos_kernel(x: f32, a: f32) -> f32 {
     if float_cmp::approx_eq!(f32, x, 0.0_f32) {
         return 1.0;
@@ -23,6 +24,7 @@ fn lanczos_kernel(x: f32, a: f32) -> f32 {
     0.0
 }
 
+#[inline(always)]
 fn compute_sample(
     input_audio: &[f32],
     frame_idx: f32,
@@ -44,6 +46,7 @@ fn compute_sample(
     the_sample
 }
 
+#[inline(always)]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,

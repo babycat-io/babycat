@@ -7,10 +7,12 @@
 
 use crate::backend::errors::Error;
 
+#[inline(always)]
 pub fn get<T: Copy>(v: &[T], frame: usize, channel_idx: usize, num_channels: usize) -> T {
     v[frame * num_channels + channel_idx]
 }
 
+#[inline(always)]
 pub fn validate_args(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
@@ -42,6 +44,7 @@ pub fn validate_args(
     Ok(())
 }
 
+#[inline(always)]
 pub fn get_num_output_frames(
     input_audio: &[f32],
     input_frame_rate_hz: u32,

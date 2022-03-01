@@ -16,6 +16,7 @@ use crate::backend::waveform_args::RESAMPLE_MODE_BABYCAT_LANCZOS;
 use crate::backend::waveform_args::RESAMPLE_MODE_BABYCAT_SINC;
 use crate::backend::waveform_args::RESAMPLE_MODE_LIBSAMPLERATE;
 
+#[inline(always)]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,

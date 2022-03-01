@@ -18,6 +18,7 @@ use crate::backend::resample::common::validate_args;
 /// for the WebAssembly frontend.
 ///
 #[allow(unused_variables)]
+#[inline(always)]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
