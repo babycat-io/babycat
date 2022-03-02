@@ -16,13 +16,6 @@ Cargo.lock
 # as opposed to using one checked into version control.
 babycat.h
 
-# ignore compiled test c file
-test_c/test_babycat
-
-# Ignore generated documentation
-docs2/build/
-docs/source/api/python/generated
-
 # Random things to exclude
 .DS_Store
 .vscode
