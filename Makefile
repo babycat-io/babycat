@@ -568,9 +568,18 @@ doctest: doctest-rust doctest-python
 # bench =============================================================
 # ===================================================================
 
+## bench-rust-decoding
+bench-rust-decoding: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=decoding_benchmark
+.PHONY: bench-rust-decoding
+
+## bench-rust-resample
+bench-rust-resample: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_benchmark
+.PHONY: bench-rust-resample
+
 ## bench-rust
-bench-rust: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench
+bench-rust: bench-rust-decoding bench-rust-resample
 .PHONY: bench-rust
 
 ## bench

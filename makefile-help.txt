@@ -166,8 +166,16 @@ doctest-rust
 
 
 -----------------------------------------------------------------------
-bench                           Run benchmarks.
-bench-rust
+bench                           Run all benchmarks.
+
+bench-rust                      Run all benchmarks for the Rust
+                                frontend.
+
+bench-rust-decoding             Run the Rust frontend's benchmarks
+                                for Babycat's decoders.
+
+bench-rust-resample             Run the Rust frontend's benchmarks
+                                for Babycat's resamplers.
 
 
 
