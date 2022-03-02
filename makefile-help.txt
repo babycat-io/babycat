@@ -88,12 +88,12 @@ build-wasm-web                  Builds the WebAssembly bindings to
 
 
 -----------------------------------------------------------------------
-(These are additional build ccommands that are not covered in
+(These are additional build commands that are not covered in
  `make build`.)
 babycat.h                       Build the C header file that describes
                                 babycat's C bindings.
 
-build-python-manylinux    Build a Python abi3 manylinux wheel
+build-python-manylinux          Build a Python abi3 manylinux wheel
                                 in a Docker container.
 
 build-binary                    Builds the Babycat command line app.
@@ -175,8 +175,9 @@ bench-rust-decoding             Run the Rust frontend's benchmarks
                                 for Babycat's decoders.
 
 bench-rust-resample             Run the Rust frontend's benchmarks
-                                for Babycat's resamplers.
-
+bench-rust-resample-bc-lanczos  for Babycat's resamplers.
+bench-rust-resample-bc-sinc
+bench-rust-resample-libsamplerate
 
 
 -----------------------------------------------------------------------

@@ -573,9 +573,23 @@ bench-rust-decoding: .b/init-rust
 	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=decoding_benchmark
 .PHONY: bench-rust-decoding
 
+## bench-rust-resample-bc-lanczos
+bench-rust-resample-bc-lanczos: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_babycat_lanczos
+.PHONY: bench-rust-resample-bc-lanczos
+
+## bench-rust-resample-bc-sinc
+bench-rust-resample-bc-sinc: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_babycat_sinc
+.PHONY: bench-rust-resample-bc-sinc
+
+## bench-rust-resample-libsamplerate
+bench-rust-resample-libsamplerate: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_libsamplerate
+.PHONY: bench-rust-resample-libsamplerate
+
 ## bench-rust-resample
-bench-rust-resample: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_benchmark
+bench-rust-resample: bench-rust-resample-bc-lanczos bench-rust-resample-bc-sinc bench-rust-resample-libsamplerate
 .PHONY: bench-rust-resample
 
 ## bench-rust
