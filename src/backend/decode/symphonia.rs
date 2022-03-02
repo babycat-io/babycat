@@ -1,5 +1,6 @@
 use std::io::Read;
 use std::marker::Send;
+use std::marker::Sync;
 
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::Decoder as SymphoniaDecoderTrait;
@@ -55,7 +56,7 @@ impl SymphoniaDecoder {
 }
 
 impl Decoder<f32> for SymphoniaDecoder {
-    fn new<R: 'static + Read + Send>(
+    fn new<R: 'static + Read + Send + Sync>(
         encoded_stream: R,
         file_extension: &str,
         mime_type: &str,

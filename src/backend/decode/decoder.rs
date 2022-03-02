@@ -1,12 +1,13 @@
 use std::io::Read;
 use std::marker::Send;
+use std::marker::Sync;
 
 use crate::backend::errors::Error;
 
 /// Methods common to all audio decoders.
 pub trait Decoder<T>: Iterator {
     /// Create a new audio decoder.
-    fn new<R: 'static + Read + Send>(
+    fn new<R: 'static + Read + Send + Sync>(
         encoded_stream: R,
         file_extension: &str,
         mime_type: &str,
