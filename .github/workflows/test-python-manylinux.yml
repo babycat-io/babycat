@@ -34,7 +34,7 @@ jobs:
       run: make build-python-manylinux
 
     - name: Install the manylinux wheel
-      run: make install-python-manylinux
+      run: make install-python-wheel-manylinux
 
     - name: Run Python tests
       run: make test-python-manylinux
