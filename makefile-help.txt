@@ -150,11 +150,20 @@ install-python-wheel-manylinux  Builds a Python abi3 manylinux wheel
 
 -----------------------------------------------------------------------
 test                            Run all unit and integration tests.
-test-c
-test-c-valgrind                 Runs C tests while checking for memory
-                                leaks using Valgrind.
-test-rust
-test-wasm-nodejs
+
+test-c                          Run C unit tests.
+
+test-c-valgrind                 Run C unit tests while checking for
+                                memory leaks using Valgrind.
+
+test-python                     Run Python tests.
+
+test-python-manylinux           Run Python tests after building and
+                                installing the manylinux wheel.
+
+test-rust                       Run Rust unit tests.
+
+test-wasm-nodejs                Run WebAssembly unit tests.
 
 
 

@@ -1,0 +1,40 @@
+# Run the tests for the Python manylinux wheel
+name: test-python-manylinux
+
+defaults:
+  run:
+    shell: bash
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    tags-ignore:
+      - 'v*' # Don't run these tests twice when cutting a new version.
+
+jobs:
+  test-python-manylinux:
+    runs-on: "ubuntu-20.04"
+
+    steps:
+
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
+
+    - name: Initialize our Python requirements
+      run: make init-python-requirements init-python-requirements-dev
+
+    - name: Build the manylinux Docker container
+      run: make docker-build-pip
+
+    - name: Disable vendoring of Rust dependencies
+      run: mv .cargo/config-no-vendoring.toml .cargo/config.toml
+
+    - name: Build a Babycat Python manylinux wheel
+      run: make build-python-manylinux
+
+    - name: Install the manylinux wheel
+      run: make install-python-manylinux
+
+    - name: Run Python tests
+      run: make test-python-manylinux

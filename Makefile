@@ -499,9 +499,10 @@ install-python-wheel: .b/install-python-wheel
 .PHONY: install-python-wheel
 
 ## install-python-wheel-manylinux
-install-python-wheel-manylinux: .b/build-python-manylinux $(VENV_PATH)/.requirements.txt.ti
+.b/install-python-wheel-manylinux: $(MANYLINUX_WHEEL_DIR)/*.whl $(VENV_PATH)/.requirements.txt.ti
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(MANYLINUX_WHEEL_DIR)/*.whl
-	@touch .b/install-python-wheel
+	@touch .b/install-python-wheel-manylinux
+install-python-wheel-manylinux: .b/install-python-wheel-manylinux
 .PHONY: install-python-wheel-manylinux
 
 
@@ -526,6 +527,11 @@ test-c-valgrind: target/test_c
 test-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
 	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
 .PHONY: test-python
+
+## test-python-manylinux
+test-python-manylinux: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel-manylinux
+	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
+.PHONY: test-python-manylinux
 
 ## test-rust
 test-rust: .b/init-rust
