@@ -1,3 +1,4 @@
+# == Core metadata ==
 [package]
 name = "babycat"
 version = "0.0.0"
@@ -10,8 +11,8 @@ repository = "https://github.com/babycat-io/babycat"
 license = "MIT"
 include = ["Cargo.toml", "benches", "examples", "rust-toolchain.toml", "src", "tests"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# == Benchmarks ==
 [[bench]]
 name = "resample_babycat_lanczos"
 harness = false
@@ -28,15 +29,25 @@ harness = false
 name = "decoding_benchmark"
 harness = false
 
+
+# == Binary targets ==
 [[bin]]
 name = "babycat"
 path = "src/bin/babycat/main.rs"
 required-features = ["frontend-binary"]
 
+# == Library targets ==
 [lib]
 name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
+
+# == Build profiles ==
+[profile.bench]
+lto = "fat"
+
+
+# == Dependencies ==
 [dependencies]
 symphonia = { version = "0.5.0",  features = [ "aac", "alac", "flac", "mp3", 
 "mkv", "pcm", "isomp4", "wav", "ogg", "vorbis" ] }
@@ -74,6 +85,7 @@ wasm-bindgen-test = "0.3"
 criterion = { version = "0.3", features = ["html_reports"] }
 
 
+# == Features ==
 [features]
 default = ["frontend-rust"]
 
@@ -116,6 +128,8 @@ frontend-c = [
     "enable-libsamplerate",
 ]
 
+
+# == Python package metadata ==
 [package.metadata.maturin]
 requires-dist = ["numpy >= 1.16.0"]
 classifier = [
