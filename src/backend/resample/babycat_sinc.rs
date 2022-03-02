@@ -13,7 +13,7 @@ use crate::backend::{
 #[allow(clippy::excessive_precision)]
 const KAISER_BEST_WINDOW: [f32; 32769] = include!("kaiser_best.txt");
 
-#[inline(always)]
+#[inline]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
@@ -61,7 +61,7 @@ pub fn resample(
     Ok(ret)
 }
 
-#[inline(always)]
+#[inline]
 fn resample_f(
     in_audio: &[f32],
     out_audio: &mut [f32],
