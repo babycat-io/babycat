@@ -16,7 +16,7 @@ const KAISER_BEST_WINDOW: [f32; 32769] = include!("kaiser_best.txt");
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     input_audio: &[f32],
 ) -> Result<Vec<f32>, Error> {
     validate_args(input_frame_rate_hz, output_frame_rate_hz, num_channels)?;

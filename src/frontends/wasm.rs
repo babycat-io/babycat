@@ -10,20 +10,22 @@ fn throw_js_error<E: std::fmt::Display>(err: E) -> JsValue {
 }
 
 /// Docs for Waveform struct.
+#[allow(clippy::unused_unit)]
 #[wasm_bindgen]
 pub struct Waveform {
     inner: crate::backend::Waveform,
 }
 
+#[allow(clippy::unused_unit)]
 #[wasm_bindgen]
 impl Waveform {
     /// Creates a silent waveform measured in frames.
-    pub fn fromFramesOfSilence(frameRateHz: u32, numChannels: u32, numFrames: u32) -> Self {
+    pub fn fromFramesOfSilence(frameRateHz: u32, numChannels: u16, numFrames: usize) -> Self {
         Waveform {
             inner: crate::backend::Waveform::from_frames_of_silence(
                 frameRateHz,
                 numChannels,
-                numFrames as u64,
+                numFrames as usize,
             ),
         }
     }
@@ -31,14 +33,14 @@ impl Waveform {
     /// Crates a silent waveform measured in milliseconds.
     pub fn fromMillisecondsOfSilence(
         frameRateHz: u32,
-        numChannels: u32,
-        durationMilliseconds: u32,
+        numChannels: u16,
+        durationMilliseconds: usize,
     ) -> Self {
         Waveform {
             inner: crate::backend::Waveform::from_milliseconds_of_silence(
                 frameRateHz,
                 numChannels,
-                durationMilliseconds as u64,
+                durationMilliseconds as usize,
             ),
         }
     }
@@ -106,13 +108,13 @@ impl Waveform {
     }
 
     /// Returns the number of channels.
-    pub fn numChannels(&self) -> u32 {
+    pub fn numChannels(&self) -> u16 {
         self.inner.num_channels()
     }
 
     /// Returns the number of frames.
-    pub fn numFrames(&self) -> u32 {
-        self.inner.num_frames() as u32
+    pub fn numFrames(&self) -> usize {
+        self.inner.num_frames()
     }
 
     /// Resamples the waveform using the default resampler.

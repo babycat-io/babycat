@@ -158,10 +158,10 @@ use pyo3::wrap_pyfunction;
 #[allow(clippy::too_many_arguments)]
 pub fn waveforms_from_files(
     filenames: Vec<String>,
-    start_time_milliseconds: u64,
-    end_time_milliseconds: u64,
+    start_time_milliseconds: usize,
+    end_time_milliseconds: usize,
     frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     convert_to_mono: bool,
     zero_pad_ending: bool,
     resample_mode: u32,

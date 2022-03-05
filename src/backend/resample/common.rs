@@ -14,7 +14,7 @@ pub fn get<T: Copy>(v: &[T], frame: usize, channel_idx: usize, num_channels: usi
 pub fn validate_args(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
 ) -> Result<(), Error> {
     if input_frame_rate_hz == 0 || output_frame_rate_hz == 0 {
         return Err(Error::WrongFrameRate(
@@ -46,7 +46,7 @@ pub fn get_num_output_frames(
     input_audio: &[f32],
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
 ) -> usize {
     ((input_audio.len() as f64 * output_frame_rate_hz as f64 / input_frame_rate_hz as f64).ceil()
         / num_channels as f64)

@@ -5,13 +5,13 @@ pub const DEFAULT_FILE_EXTENSION: &str = "";
 /// The default MIME type hint when decoding. Hints are not necessary.
 pub const DEFAULT_MIME_TYPE: &str = "";
 /// The default start time cutoff when decoding audio. We start at the beginning.
-pub const DEFAULT_START_TIME_MILLISECONDS: u64 = 0;
+pub const DEFAULT_START_TIME_MILLISECONDS: usize = 0;
 /// The default end time cutoff when decoding audio. We continue decoding until the end of the file.
-pub const DEFAULT_END_TIME_MILLISECONDS: u64 = 0;
+pub const DEFAULT_END_TIME_MILLISECONDS: usize = 0;
 /// The default frame rate to resample to. By default, we do not change the frame rate's audio.
 pub const DEFAULT_FRAME_RATE_HZ: u32 = 0;
 /// The default number of channels to decode. By default, we decode all of the available channels.
-pub const DEFAULT_NUM_CHANNELS: u32 = 0;
+pub const DEFAULT_NUM_CHANNELS: u16 = 0;
 /// By default, we do not flatten all audio channels into a mono channel.
 pub const DEFAULT_CONVERT_TO_MONO: bool = false;
 /// By default, we do not zero-pad the ending of an audio file.
@@ -47,7 +47,7 @@ pub struct WaveformArgs {
     /// audio is decoded from the beginning.
     /// Negative offsets are invalid.
     #[serde(default)]
-    pub start_time_milliseconds: u64,
+    pub start_time_milliseconds: usize,
     /// We discard any audio after this millisecond offset. By default,
     /// this does nothing and the audio is decoded all the way
     /// to the end. If
@@ -56,7 +56,7 @@ pub struct WaveformArgs {
     /// [`end_time_milliseconds`](#structfield.end_time_milliseconds)
     /// must be greater.
     #[serde(default)]
-    pub end_time_milliseconds: u64,
+    pub end_time_milliseconds: usize,
     /// A destination frame rate to resample
     /// the audio to. Do not specify this parameter if you wish
     /// Babycat to preserve the audio's original frame rate.
@@ -71,7 +71,7 @@ pub struct WaveformArgs {
     /// if you specify a [`num_channels`](#structfield.num_channels)
     /// greater than the actual number of channels in the audio.
     #[serde(default)]
-    pub num_channels: u32,
+    pub num_channels: u16,
     /// Set to `true` to average all channels
     /// into a single monophonic (mono) channel. If
     /// `num_channels = n` is also specified, then only the
@@ -127,13 +127,13 @@ impl Default for WaveformArgs {
 
 impl WaveformArgs {
     /// Set the [`start_time_milliseconds`](#structfield.start_time_milliseconds) field.
-    pub fn set_start_time_milliseconds(&mut self, start_time_milliseconds: u64) -> Self {
+    pub fn set_start_time_milliseconds(&mut self, start_time_milliseconds: usize) -> Self {
         self.start_time_milliseconds = start_time_milliseconds;
         *self
     }
 
     /// Set the [`end_time_milliseconds`](#structfield.end_time_milliseconds) field.
-    pub fn set_end_time_milliseconds(&mut self, end_time_milliseconds: u64) -> Self {
+    pub fn set_end_time_milliseconds(&mut self, end_time_milliseconds: usize) -> Self {
         self.end_time_milliseconds = end_time_milliseconds;
         *self
     }
@@ -145,7 +145,7 @@ impl WaveformArgs {
     }
 
     /// Set the [`num_channels`](#structfield.num_channels) field.
-    pub fn set_num_channels(&mut self, num_channels: u32) -> Self {
+    pub fn set_num_channels(&mut self, num_channels: u16) -> Self {
         self.num_channels = num_channels;
         *self
     }

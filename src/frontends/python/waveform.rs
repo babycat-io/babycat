@@ -77,7 +77,11 @@ impl Waveform {
         num_channels,
         num_frames,
     )")]
-    pub fn from_frames_of_silence(frame_rate_hz: u32, num_channels: u32, num_frames: u64) -> Self {
+    pub fn from_frames_of_silence(
+        frame_rate_hz: u32,
+        num_channels: u16,
+        num_frames: usize,
+    ) -> Self {
         crate::backend::Waveform::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
             .into()
     }
@@ -115,8 +119,8 @@ impl Waveform {
     )")]
     pub fn from_milliseconds_of_silence(
         frame_rate_hz: u32,
-        num_channels: u32,
-        duration_milliseconds: u64,
+        num_channels: u16,
+        duration_milliseconds: usize,
     ) -> Self {
         crate::backend::Waveform::from_milliseconds_of_silence(
             frame_rate_hz,
@@ -162,7 +166,7 @@ impl Waveform {
     #[allow(clippy::too_many_arguments)]
     pub fn from_interleaved_samples(
         frame_rate_hz: u32,
-        num_channels: u32,
+        num_channels: u16,
         interleaved_samples: Vec<f32>,
     ) -> Self {
         crate::backend::Waveform::new(frame_rate_hz, num_channels, interleaved_samples).into()
@@ -206,7 +210,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_numpy(frame_rate_hz: u32, arr: PyReadonlyArray2<f32>) -> PyResult<Self> {
-        let num_channels: u32 = arr.shape()[1] as u32;
+        let num_channels: u16 = arr.shape()[1] as u16;
         waveform_to_pyresult(Ok(crate::backend::Waveform::new(
             frame_rate_hz,
             num_channels,
@@ -371,10 +375,10 @@ impl Waveform {
     #[allow(clippy::too_many_arguments)]
     pub fn from_encoded_bytes(
         encoded_bytes: Vec<u8>,
-        start_time_milliseconds: u64,
-        end_time_milliseconds: u64,
+        start_time_milliseconds: usize,
+        end_time_milliseconds: usize,
         frame_rate_hz: u32,
-        num_channels: u32,
+        num_channels: u16,
         convert_to_mono: bool,
         zero_pad_ending: bool,
         resample_mode: u32,
@@ -585,10 +589,10 @@ impl Waveform {
     #[allow(clippy::too_many_arguments)]
     pub fn from_file(
         filename: &str,
-        start_time_milliseconds: u64,
-        end_time_milliseconds: u64,
+        start_time_milliseconds: usize,
+        end_time_milliseconds: usize,
         frame_rate_hz: u32,
-        num_channels: u32,
+        num_channels: u16,
         convert_to_mono: bool,
         zero_pad_ending: bool,
         resample_mode: u32,
@@ -636,7 +640,7 @@ impl Waveform {
     ///     int: The number of channels
     ///
     #[getter]
-    pub fn get_num_channels(&self) -> u32 {
+    pub fn get_num_channels(&self) -> u16 {
         self.inner.num_channels()
     }
 
@@ -650,7 +654,7 @@ impl Waveform {
     ///     int: The number of frames
     ///
     #[getter]
-    pub fn get_num_frames(&self) -> u64 {
+    pub fn get_num_frames(&self) -> usize {
         self.inner.num_frames()
     }
 

@@ -111,6 +111,9 @@ macro_rules! leak_str {
     };
 }
 
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+extern crate ffmpeg_next as ffmpeg;
+
 mod backend;
 
 // Compile the Rust frontend if we're building a command-line

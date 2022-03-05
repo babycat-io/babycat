@@ -6,7 +6,6 @@ use std::marker::Sync;
 use serde::{Deserialize, Serialize};
 
 use crate::backend::common::milliseconds_to_frames;
-use crate::backend::decode::Decoder;
 use crate::backend::decode::SymphoniaDecoder;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
@@ -17,8 +16,8 @@ use crate::backend::waveform_args::*;
 pub struct Waveform {
     interleaved_samples: Vec<f32>,
     frame_rate_hz: u32,
-    num_channels: u32,
-    num_frames: u64,
+    num_channels: u16,
+    num_frames: usize,
 }
 
 // We manually implement the debug trait so that we don't
@@ -39,7 +38,7 @@ impl Waveform {
     ///
     pub fn from_interleaved_samples(
         frame_rate_hz: u32,
-        num_channels: u32,
+        num_channels: u16,
         interleaved_samples: &[f32],
     ) -> Self {
         Self::new(frame_rate_hz, num_channels, interleaved_samples.to_owned())
@@ -304,23 +303,25 @@ impl Waveform {
 
         // Compute the exact start and end sample indexes for us to begin
         // and end decoding.
-        let start_time_frames: u64 =
-            waveform_args.start_time_milliseconds * original_frame_rate_hz as u64 / 1000;
-        let end_time_frames: u64 =
-            waveform_args.end_time_milliseconds * original_frame_rate_hz as u64 / 1000;
+        let start_time_frames: usize =
+            waveform_args.start_time_milliseconds * original_frame_rate_hz as usize / 1000;
+        let end_time_frames: usize =
+            waveform_args.end_time_milliseconds * original_frame_rate_hz as usize / 1000;
 
-        let start_time_samples = start_time_frames * original_num_channels as u64;
-        let end_time_samples = end_time_frames * original_num_channels as u64;
+        let start_time_samples = start_time_frames * original_num_channels as usize;
+        let end_time_samples = end_time_frames * original_num_channels as usize;
 
         // Decode all packets, ignoring decode errors.
         let mut buffer: Vec<f32> = Vec::new();
-        let mut current_sample_idx: u64 = 0;
+        let mut current_sample_idx: usize = 0;
+
+        let mut decoder_iter = decoder.begin()?;
 
         'frame_loop: loop {
             // If the current sample is before our start offset,
             // then ignore it.
             if current_sample_idx < start_time_samples {
-                let _ = decoder.next();
+                let _ = decoder_iter.next();
                 current_sample_idx += 1;
                 continue;
             }
@@ -335,7 +336,7 @@ impl Waveform {
             if waveform_args.convert_to_mono {
                 let mut current_sample_sum = 0.0_f32;
                 for channel_idx in 0..original_num_channels {
-                    match decoder.next() {
+                    match decoder_iter.next() {
                         None => break 'frame_loop,
                         Some(next_sample_result) => {
                             current_sample_idx += 1;
@@ -350,7 +351,7 @@ impl Waveform {
                 buffer.push(current_sample_sum);
             } else {
                 for channel_idx in 0..original_num_channels {
-                    match decoder.next() {
+                    match decoder_iter.next() {
                         None => break 'frame_loop,
                         Some(next_sample_result) => {
                             current_sample_idx += 1;
@@ -374,10 +375,10 @@ impl Waveform {
         if waveform_args.zero_pad_ending
             && waveform_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
         {
-            let expected_buffer_len = (end_time_frames - start_time_frames) * num_channels as u64;
-            let buffer_padding = expected_buffer_len - buffer.len() as u64;
+            let expected_buffer_len = (end_time_frames - start_time_frames) * num_channels as usize;
+            let buffer_padding = expected_buffer_len - buffer.len();
             if buffer_padding > 0 {
-                buffer.extend(vec![0.0_f32; buffer_padding as usize]);
+                buffer.extend(vec![0.0_f32; buffer_padding]);
             }
         }
 
@@ -401,7 +402,7 @@ impl Waveform {
             }
         }
 
-        let num_frames = buffer.len() as u64 / num_channels as u64;
+        let num_frames = buffer.len() / num_channels as usize;
         Ok(Waveform {
             frame_rate_hz: final_frame_rate_hz,
             num_channels,
@@ -429,12 +430,16 @@ impl Waveform {
     /// );
     /// ```
     ///
-    pub fn from_frames_of_silence(frame_rate_hz: u32, num_channels: u32, num_frames: u64) -> Self {
+    pub fn from_frames_of_silence(
+        frame_rate_hz: u32,
+        num_channels: u16,
+        num_frames: usize,
+    ) -> Self {
         Waveform {
             frame_rate_hz,
             num_channels,
             num_frames,
-            interleaved_samples: vec![0.0; (num_channels as u64 * num_frames) as usize],
+            interleaved_samples: vec![0.0; num_channels as usize * num_frames],
         }
     }
 
@@ -459,8 +464,8 @@ impl Waveform {
     ///
     pub fn from_milliseconds_of_silence(
         frame_rate_hz: u32,
-        num_channels: u32,
-        duration_milliseconds: u64,
+        num_channels: u16,
+        duration_milliseconds: usize,
     ) -> Self {
         let num_frames = milliseconds_to_frames(frame_rate_hz, duration_milliseconds);
         Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
@@ -547,7 +552,7 @@ impl Waveform {
             &self.interleaved_samples,
             resample_mode,
         )?;
-        let num_frames = interleaved_samples.len() as u64 / self.num_channels as u64;
+        let num_frames = interleaved_samples.len() / self.num_channels as usize;
         Ok(Self {
             interleaved_samples,
             frame_rate_hz,
@@ -640,8 +645,8 @@ impl Waveform {
     /// );
     /// ```
     ///
-    pub fn new(frame_rate_hz: u32, num_channels: u32, interleaved_samples: Vec<f32>) -> Self {
-        let num_frames = interleaved_samples.len() as u64 / num_channels as u64;
+    pub fn new(frame_rate_hz: u32, num_channels: u16, interleaved_samples: Vec<f32>) -> Self {
+        let num_frames = interleaved_samples.len() / num_channels as usize;
         Waveform {
             interleaved_samples,
             frame_rate_hz,
@@ -656,12 +661,12 @@ impl Waveform {
     }
 
     /// Returns the number of channels in the `Waveform`.
-    pub fn num_channels(&self) -> u32 {
+    pub fn num_channels(&self) -> u16 {
         self.num_channels
     }
 
     /// Returns the total number of decoded frames in the `Waveform`.
-    pub fn num_frames(&self) -> u64 {
+    pub fn num_frames(&self) -> usize {
         self.num_frames
     }
 

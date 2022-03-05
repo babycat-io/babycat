@@ -143,8 +143,8 @@ pub unsafe extern "C" fn babycat_waveform_free(waveform: *mut Waveform) {
 #[no_mangle]
 pub extern "C" fn babycat_waveform_from_frames_of_silence(
     frame_rate_hz: u32,
-    num_channels: u32,
-    num_frames: u64,
+    num_channels: u16,
+    num_frames: usize,
 ) -> *mut Waveform {
     Waveform::from_frames_of_silence(frame_rate_hz, num_channels, num_frames).into()
 }
@@ -159,8 +159,8 @@ pub extern "C" fn babycat_waveform_from_frames_of_silence(
 #[no_mangle]
 pub extern "C" fn babycat_waveform_from_milliseconds_of_silence(
     frame_rate_hz: u32,
-    num_channels: u32,
-    duration_milliseconds: u64,
+    num_channels: u16,
+    duration_milliseconds: usize,
 ) -> *mut Waveform {
     Waveform::from_milliseconds_of_silence(frame_rate_hz, num_channels, duration_milliseconds)
         .into()
@@ -245,7 +245,7 @@ pub unsafe extern "C" fn babycat_waveform_get_frame_rate_hz(waveform: *mut Wavef
 ///
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
-pub unsafe extern "C" fn babycat_waveform_get_num_channels(waveform: *mut Waveform) -> u32 {
+pub unsafe extern "C" fn babycat_waveform_get_num_channels(waveform: *mut Waveform) -> u16 {
     (*(waveform)).num_channels()
 }
 
@@ -254,7 +254,7 @@ pub unsafe extern "C" fn babycat_waveform_get_num_channels(waveform: *mut Wavefo
 ///
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
-pub unsafe extern "C" fn babycat_waveform_get_num_frames(waveform: *mut Waveform) -> u64 {
+pub unsafe extern "C" fn babycat_waveform_get_num_frames(waveform: *mut Waveform) -> usize {
     (*(waveform)).num_frames()
 }
 
@@ -264,9 +264,9 @@ pub unsafe extern "C" fn babycat_waveform_get_num_frames(waveform: *mut Waveform
 ///
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
-pub unsafe extern "C" fn babycat_waveform_get_num_samples(waveform: *mut Waveform) -> u64 {
+pub unsafe extern "C" fn babycat_waveform_get_num_samples(waveform: *mut Waveform) -> usize {
     let w = &*(waveform);
-    w.num_frames() * w.num_channels() as u64
+    w.num_frames() * w.num_channels() as usize
 }
 
 /// Returns a pointer to an in-memory array of interleaved audio samples.

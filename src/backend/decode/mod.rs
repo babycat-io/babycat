@@ -28,7 +28,17 @@
 //! ```
 //!
 mod decoder;
+mod decoder_iter;
 mod symphonia;
 
 pub use crate::backend::decode::decoder::Decoder;
-pub use crate::backend::decode::symphonia::SymphoniaDecoder;
+pub use crate::backend::decode::decoder_iter::DecoderIter;
+pub use crate::backend::decode::symphonia::decoder::SymphoniaDecoder;
+pub use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
+
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+mod ffmpeg;
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+pub use crate::backend::decode::ffmpeg::decoder::FFmpegDecoder;
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+pub use crate::backend::decode::ffmpeg::decoder_iter::FFmpegDecoderIter;

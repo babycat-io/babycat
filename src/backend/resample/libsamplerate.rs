@@ -21,7 +21,7 @@ use crate::backend::resample::common::validate_args;
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     input_audio: &[f32],
 ) -> Result<Vec<f32>, Error> {
     #[cfg(feature = "enable-libsamplerate")]
