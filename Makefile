@@ -1,7 +1,3 @@
-FEATURES ?=
-
-FS_NAMESPACE ?=
-
 
 # You can enable Babycat's FFmpeg integration with these command line variables.
 #
@@ -16,18 +12,18 @@ FS_NAMESPACE ?=
 #
 # You can replace "build-rust" with any other Makefile command.
 ifdef ENABLE_FFMPEG_BUILD_LINK_STATIC
-	FEATURES += enable-ffmpeg-build-link-static,
-	FS_NAMESPACE += ffmpeg-build-link-static/
+	FEATURES+=enable-ffmpeg-build-link-static,
+	FS_NAMESPACE+=ffmpeg-build-link-static/
 else
 	ifdef ENABLE_FFMPEG_LINK_STATIC
-		FEATURES += enable-ffmpeg-link-static,
-		FS_NAMESPACE += ffmpeg-link-static/
+		FEATURES+=enable-ffmpeg-link-static,
+		FS_NAMESPACE+=ffmpeg-link-static/
 	else
 		ifdef ENABLE_FFMPEG_LINK_DYNAMIC
-			FEATURES += enable-ffmpeg-link-dynamic,
-			FS_NAMESPACE += ffmpeg-link-dynamic/
+			FEATURES+=enable-ffmpeg-link-dynamic,
+			FS_NAMESPACE+=ffmpeg-link-dynamic/
 		else
-			FS_NAMESPACE += no-ffmpeg/
+			FS_NAMESPACE+=no-ffmpeg/
 		endif
 	endif
 endif
@@ -37,40 +33,40 @@ endif
 # You can specify a different value on the command line.
 # To make a build with the "debug" profile, run the shell command:
 #		PROFILE=debug make build-rust
-PROFILE ?= release
+PROFILE?=release
 ifeq ($(PROFILE),release)
-	PROFILE_ARG := --release
+	PROFILE_ARG:=--release
 else
 	ifeq ($(PROFILE),debug)
 		PROFILE_ARG :=
 	else
-		PROFILE_ARG := --profile=$(PROFILE)
+		PROFILE_ARG:=--profile=$(PROFILE)
 	endif
 endif
 
 
 # These variables set the path for Rust or system tools.
-CBINDGEN ?= cbindgen
-CARGO ?= cargo
-DOXYGEN ?= doxygen
-RUSTUP ?= rustup
-CLANG_FORMAT ?= clang-format
-DOCKER_COMPOSE ?= docker-compose
-WASM_PACK ?= wasm-pack
-VALGRIND ?= valgrind
+CBINDGEN?=cbindgen
+CARGO?=cargo
+DOXYGEN?=doxygen
+RUSTUP?=rustup
+CLANG_FORMAT?=clang-format
+DOCKER_COMPOSE?=docker-compose
+WASM_PACK?=wasm-pack
+VALGRIND?=valgrind
 
 
 # These variables set the paths for Node/NPM/JavaScript tools.
-NPM ?= npm
-ESLINT ?= ./node_modules/.bin/eslint
-PRETTIER ?= ./node_modules/.bin/prettier
-JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
+NPM?=npm
+ESLINT?=./node_modules/.bin/eslint
+PRETTIER?=./node_modules/.bin/prettier
+JAVASCRIPT_CODE_PATHS?=./tests-wasm-nodejs/test.js
 
 
 # These variables set the paths for Python tools.
-WHEEL_DIR ?= target/frontend-python/$(FS_NAMESPACE)$(PROFILE)
-MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux/$(FS_NAMESPACE)$(PROFILE)
-PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
+WHEEL_DIR?=target/frontend-python/$(FS_NAMESPACE)$(PROFILE)
+MANYLINUX_WHEEL_DIR?=target/frontend-python--manylinux/$(FS_NAMESPACE)$(PROFILE)
+PYTHON_CODE_PATHS?=./tests-python ./docs/source/conf.py
 
 
 # Windows and Unix have different paths for activating
@@ -79,60 +75,61 @@ PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
 # to use the Python path in $(PYTHON). The "python" command
 # will automatically point to the right Python.
 # TODO(jamesmishra): Handle the distinction between bash and cmd.
-VENV_PATH ?= venv
+VENV_PATH?=venv
+OS?=
 ifeq ($(OS),Windows_NT)
-	PYTHON ?= python
-	CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-	ACTIVATE_VENV_PATH ?= $(VENV_PATH)/Scripts/activate
-	ACTIVATE_VENV_CMD ?= . $(ACTIVATE_VENV_PATH)
+	PYTHON?=python
+	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_PATH)
+	ACTIVATE_VENV_PATH?=$(VENV_PATH)/Scripts/activate
+	ACTIVATE_VENV_CMD?=. $(ACTIVATE_VENV_PATH)
 else
-	PYTHON ?= python3
-	CREATE_VENV_CMD ?= $(PYTHON) -m venv $(VENV_PATH)
-	ACTIVATE_VENV_PATH ?= $(VENV_PATH)/bin/activate
-	ACTIVATE_VENV_CMD ?= . $(ACTIVATE_VENV_PATH)
+	PYTHON?=python3
+	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_PATH)
+	ACTIVATE_VENV_PATH?=$(VENV_PATH)/bin/activate
+	ACTIVATE_VENV_CMD?=. $(ACTIVATE_VENV_PATH)
 endif
 
 # These are the Rust files being tracked by Git.
-RUST_SRC_FILES ?= $(shell $(PYTHON) .listfiles.py src)
+RUST_SRC_FILES?=$(shell $(PYTHON) .listfiles.py src)
 
 # These are the documentation files tracked by Git.
-DOCS_FILES ?= $(shell $(PYTHON) .listfiles.py docs)
+DOCS_FILES?=$(shell $(PYTHON) .listfiles.py docs)
 
 # This is the shared library filename
 # (excluding the extension, see SHARED_LIB_EXT below)
 # that `cargo build` creates.
 ifeq ($(OS),Windows_NT)
-	BABYCAT_SHARED_LIB_NAME ?= babycat
+	BABYCAT_SHARED_LIB_NAME?=babycat
 else
-	BABYCAT_SHARED_LIB_NAME ?= libbabycat
+	BABYCAT_SHARED_LIB_NAME?=libbabycat
 endif
 
 
 # This is the filename for the babycat binary.
 ifeq ($(OS),Windows_NT)
-	BABYCAT_BINARY_NAME ?= babycat.exe
+	BABYCAT_BINARY_NAME?=babycat.exe
 else
-	BABYCAT_BINARY_NAME ?= babycat
+	BABYCAT_BINARY_NAME?=babycat
 endif
 
 
 # This sets the file extension for linking to shared libraries.
 # We typically use this when testing Babycat's C FFI bindings.
 ifeq ($(OS),Windows_NT)
-	SHARED_LIB_EXT ?= lib
+	SHARED_LIB_EXT?=lib
 else
 	ifeq ($(shell uname -s),Darwin)
-		SHARED_LIB_EXT ?= dylib
+		SHARED_LIB_EXT?=dylib
 	else
-		SHARED_LIB_EXT ?= so
+		SHARED_LIB_EXT?=so
 	endif
 endif
 
 
 ifdef PYTHON_TEST_FILTER
-	PYTEST_CMD ?= pytest -k $(PYTHON_TEST_FILTER)
+	PYTEST_CMD?=pytest -k $(PYTHON_TEST_FILTER)
 else
-	PYTEST_CMD ?= pytest
+	PYTEST_CMD?=pytest
 endif
 
 
