@@ -20,8 +20,8 @@ mod test_waveform_from_file {
 
     fn assert_waveform(
         result: Result<Waveform, Error>,
-        num_channels: u32,
-        num_frames: u64,
+        num_channels: u16,
+        num_frames: usize,
         frame_rate_hz: u32,
     ) {
         let waveform = result.unwrap();
@@ -29,7 +29,7 @@ mod test_waveform_from_file {
         assert_eq!(num_frames, waveform.num_frames());
         assert_eq!(frame_rate_hz, waveform.frame_rate_hz());
         assert_eq!(
-            (num_frames * num_channels as u64) as usize,
+            (num_frames * num_channels as usize) as usize,
             waveform.to_interleaved_samples().len()
         );
     }
@@ -225,7 +225,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1168776, COF_FRAME_RATE_HZ);
+        assert_waveform(result, COF_NUM_CHANNELS, 1168247, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -236,7 +236,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 507276, COF_FRAME_RATE_HZ);
+        assert_waveform(result, COF_NUM_CHANNELS, 506747, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -393,7 +393,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1245888, 22050);
+        assert_waveform(result, COF_NUM_CHANNELS, 1245624, 22050);
     }
 
     #[test]
@@ -403,7 +403,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 622944, 11025);
+        assert_waveform(result, COF_NUM_CHANNELS, 622812, 11025);
     }
 
     #[test]
@@ -413,7 +413,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 4983552, 88200);
+        assert_waveform(result, COF_NUM_CHANNELS, 4982494, 88200);
     }
 
     #[test]
@@ -423,7 +423,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 249178, 4410);
+        assert_waveform(result, COF_NUM_CHANNELS, 249125, 4410);
     }
 
     #[test]
@@ -433,7 +433,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2491720, 44099);
+        assert_waveform(result, COF_NUM_CHANNELS, 2491191, 44099);
     }
 
     #[test]
@@ -443,7 +443,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2712138, 48000);
+        assert_waveform(result, COF_NUM_CHANNELS, 2711562, 48000);
     }
 
     #[test]
@@ -453,7 +453,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 3390172, 60000);
+        assert_waveform(result, COF_NUM_CHANNELS, 3389452, 60000);
     }
 
     #[test]
@@ -463,7 +463,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 4983552, 88200);
+        assert_waveform(result, COF_NUM_CHANNELS, 4982494, 88200);
     }
 
     #[test]
@@ -473,7 +473,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 5424275, 96000);
+        assert_waveform(result, COF_NUM_CHANNELS, 5423123, 96000);
     }
 
     #[test]
@@ -483,7 +483,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 11301, 200);
+        assert_waveform(result, COF_NUM_CHANNELS, 11299, 200);
     }
 
     #[test]
@@ -493,7 +493,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 113006, 2000);
+        assert_waveform(result, COF_NUM_CHANNELS, 112982, 2000);
     }
 
     #[test]
@@ -503,7 +503,7 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 9775, 173);
+        assert_waveform(result, COF_NUM_CHANNELS, 9773, 173);
     }
 
     #[test]

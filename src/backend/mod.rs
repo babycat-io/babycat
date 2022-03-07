@@ -1,5 +1,9 @@
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+extern crate ffmpeg_next as ffmpeg;
+
 #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
 pub mod batch;
+pub mod build_info;
 mod common;
 pub mod decode;
 mod errors;

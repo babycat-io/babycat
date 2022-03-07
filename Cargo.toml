@@ -29,6 +29,14 @@ harness = false
 name = "decoding_benchmark"
 harness = false
 
+[[bench]]
+name = "decoding_log_sweep"
+harness = false
+
+[[bench]]   
+name = "decoding_batch_misc"
+harness = false
+
 
 # == Binary targets ==
 [[bin]]
@@ -46,6 +54,8 @@ crate-type = ["rlib", "cdylib", "staticlib"]
 [profile.bench]
 lto = "fat"
 
+[profile.release]
+debug = false
 
 # == Dependencies ==
 [dependencies]
@@ -80,6 +90,10 @@ rodio = { version = "0.13.1", default-features = false, optional = true }
 crossterm = { version = "0.19", optional = true }
 
 
+# ffmpeg
+ffmpeg-next = { version = "5.0.2", default-features = false, optional = true }
+
+
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
 criterion = { version = "0.3", features = ["html_reports"] }
@@ -87,13 +101,41 @@ criterion = { version = "0.3", features = ["html_reports"] }
 
 # == Features ==
 [features]
+# Default features
 default = ["frontend-rust"]
 
+
+# Additional features to compile in
 enable-filesystem = []
 enable-multithreading = ["rayon"]
 enable-libsamplerate = ["samplerate"]
 enable-audio-playback = ["rodio"]
 
+
+# Dynamically link to FFmpeg
+enable-ffmpeg = [
+    "ffmpeg-next",
+    "ffmpeg-next/codec",
+    "ffmpeg-next/device",
+    "ffmpeg-next/format",
+]
+enable-ffmpeg-link-dynamic = [
+    "enable-ffmpeg"
+]
+# Statically link to FFmpeg
+enable-ffmpeg-link-static = [
+    "enable-ffmpeg",
+    "ffmpeg-next/static",
+]
+# Build FFmpeg and statically link to it
+enable-ffmpeg-build-link-static  = [
+    "enable-ffmpeg",
+    "ffmpeg-next/static",
+    "ffmpeg-next/build"
+]
+
+
+# These "frontends" are common groupings of features for targets.
 frontend-binary = [
     "enable-filesystem",
     "enable-multithreading",
@@ -127,6 +169,7 @@ frontend-c = [
     "enable-multithreading",
     "enable-libsamplerate",
 ]
+
 
 
 # == Python package metadata ==

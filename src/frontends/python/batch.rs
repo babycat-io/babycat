@@ -13,8 +13,8 @@ use pyo3::wrap_pyfunction;
 ///
 ///     >>> import babycat
 ///     >>> filenames = [
-///     ...     "audio-for-tests/andreas-theme/track.mp3",
-///     ...     "audio-for-tests/blippy-trance/track.mp3",
+///     ...     "audio-for-tests/andreas-theme/track.flac",
+///     ...     "audio-for-tests/blippy-trance/track.wav",
 ///     ...     "does-not-exist",
 ///     ... ]
 ///     >>>
@@ -25,18 +25,18 @@ use pyo3::wrap_pyfunction;
 ///     field containing a :py:class:`Waveform`.
 ///
 ///     >>> batch[0].name
-///     'audio-for-tests/andreas-theme/track.mp3'
+///     'audio-for-tests/andreas-theme/track.flac'
 ///     >>> print(batch[0].exception)
 ///     None
 ///     >>> batch[0].waveform
-///     <babycat.Waveform: 9586944 frames, 2 channels, 44100 hz>
+///     <babycat.Waveform: 9586415 frames, 2 channels, 44100 hz>
 ///
 ///     >>> batch[1].name
-///     'audio-for-tests/blippy-trance/track.mp3'
+///     'audio-for-tests/blippy-trance/track.wav'
 ///     >>> print(batch[1].exception)
 ///     None
 ///     >>> batch[1].waveform
-///     <babycat.Waveform: 5293440 frames, 2 channels, 44100 hz>
+///     <babycat.Waveform: 5292911 frames, 2 channels, 44100 hz>
 ///
 ///     For the third file, the ``waveform`` field is ``None`` and the
 ///     ``exception`` field contains a reference to a
@@ -158,10 +158,10 @@ use pyo3::wrap_pyfunction;
 #[allow(clippy::too_many_arguments)]
 pub fn waveforms_from_files(
     filenames: Vec<String>,
-    start_time_milliseconds: u64,
-    end_time_milliseconds: u64,
+    start_time_milliseconds: usize,
+    end_time_milliseconds: usize,
     frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     convert_to_mono: bool,
     zero_pad_ending: bool,
     resample_mode: u32,
@@ -186,6 +186,63 @@ pub fn waveforms_from_files(
         .collect::<Vec<crate::frontends::python::waveform_named_result::WaveformNamedResult>>()
 }
 
+#[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+#[pyfunction(
+    filenames,
+    "*",
+    start_time_milliseconds = 0,
+    end_time_milliseconds = 0,
+    frame_rate_hz = 0,
+    num_channels = 0,
+    convert_to_mono = false,
+    zero_pad_ending = false,
+    resample_mode = 0,
+    decoding_backend = 0,
+    num_workers = 0
+)]
+#[pyo3(text_signature = "(
+    filenames,
+    start_time_milliseconds = 0,
+    end_time_milliseconds= 0,
+    frame_rate_hz = 0,
+    num_channels = 0,
+    convert_to_mono = False,
+    zero_pad_ending = False,
+    resample_mode = 0,
+    decoding_backend = 0,
+    num_workers = 0,
+)")]
+#[allow(clippy::too_many_arguments)]
+pub fn waveforms_from_files_to_numpy_arrays(
+    filenames: Vec<String>,
+    start_time_milliseconds: usize,
+    end_time_milliseconds: usize,
+    frame_rate_hz: u32,
+    num_channels: u16,
+    convert_to_mono: bool,
+    zero_pad_ending: bool,
+    resample_mode: u32,
+    decoding_backend: u32,
+    num_workers: usize,
+) -> Vec<crate::frontends::python::numpy_named_result::NumPyNamedResult> {
+    let waveform_args = crate::backend::WaveformArgs {
+        start_time_milliseconds,
+        end_time_milliseconds,
+        frame_rate_hz,
+        num_channels,
+        convert_to_mono,
+        zero_pad_ending,
+        resample_mode,
+        decoding_backend,
+    };
+    let batch_args = crate::backend::batch::BatchArgs { num_workers };
+    let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
+    crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
+        .into_iter()
+        .map(crate::frontends::python::numpy_named_result::NumPyNamedResult::from)
+        .collect::<Vec<crate::frontends::python::numpy_named_result::NumPyNamedResult>>()
+}
+
 pub fn make_batch_submodule(py: Python) -> PyResult<&PyModule> {
     let batch_submodule = PyModule::new(py, "batch")?;
 
@@ -197,5 +254,11 @@ Functions that use multithreading to manipulate multiple audio files in parallel
     )?;
 
     batch_submodule.add_function(wrap_pyfunction!(waveforms_from_files, batch_submodule)?)?;
+
+    batch_submodule.add_function(wrap_pyfunction!(
+        waveforms_from_files_to_numpy_arrays,
+        batch_submodule
+    )?)?;
+
     Ok(batch_submodule)
 }

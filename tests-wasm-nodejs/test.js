@@ -2,16 +2,16 @@ const assert = require("assert");
 const fs = require("fs");
 const path = require("path");
 const { describe, it } = require("mocha");
-const babycat = require("../target/frontend-wasm/release/nodejs/babycat.js");
+const babycat = require("../target/frontend-wasm/no-ffmpeg/release/nodejs/babycat.js");
 
 const AUDIO_FOR_TESTS_DIR = path.join(__dirname, "/../audio-for-tests/");
 const COF_FILENAME = path.join(
   AUDIO_FOR_TESTS_DIR,
-  "circus-of-freaks/track.mp3"
+  "circus-of-freaks/track.flac"
 );
 
 const COF = fs.readFileSync(COF_FILENAME);
-const COF_NUM_FRAMES = 2491776;
+const COF_NUM_FRAMES = 2491247;
 const COF_NUM_CHANNELS = 2;
 const COF_FRAME_RATE_HZ = 44100;
 
@@ -168,7 +168,7 @@ describe("Waveform.fromEncodedArray", function () {
       end_time_milliseconds: 60000,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 1168776, COF_FRAME_RATE_HZ);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 1168247, COF_FRAME_RATE_HZ);
   });
 
   it("test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_1", function () {
@@ -301,7 +301,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 22050,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 1245888, 22050);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 1245624, 22050);
   });
 
   it("test_circus_of_freaks_resample_2", function () {
@@ -309,7 +309,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 11025,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 622944, 11025);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 622812, 11025);
   });
 
   it("test_circus_of_freaks_resample_3", function () {
@@ -317,7 +317,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 88200,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 4983552, 88200);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 4982494, 88200);
   });
 
   it("test_circus_of_freaks_resample_4", function () {
@@ -325,7 +325,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 4410,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 249178, 4410);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 249125, 4410);
   });
 
   it("test_circus_of_freaks_resample_5", function () {
@@ -333,7 +333,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 44099,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 2491720, 44099);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2491191, 44099);
   });
 
   it("test_circus_of_freaks_resample_6", function () {
@@ -341,7 +341,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 48000,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 2712138, 48000);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2711562, 48000);
   });
 
   it("test_circus_of_freaks_resample_7", function () {
@@ -349,7 +349,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 60000,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 3390172, 60000);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 3389452, 60000);
   });
 
   it("test_circus_of_freaks_resample_8", function () {
@@ -357,7 +357,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 88200,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 4983552, 88200);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 4982494, 88200);
   });
 
   it("test_circus_of_freaks_resample_9", function () {
@@ -365,7 +365,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 96000,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 5424275, 96000);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 5423123, 96000);
   });
 
   it("test_circus_of_freaks_resample_10", function () {
@@ -373,7 +373,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 200,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 11301, 200);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 11299, 200);
   });
 
   it("test_circus_of_freaks_resample_11", function () {
@@ -381,7 +381,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 2000,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 113006, 2000);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 112982, 2000);
   });
 
   it("test_circus_of_freaks_resample_12", function () {
@@ -389,7 +389,7 @@ describe("Waveform.fromEncodedArray", function () {
       frame_rate_hz: 173,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
-    assertWaveform(waveform, COF_NUM_CHANNELS, 9775, 173);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 9773, 173);
   });
 
   it("test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_1", function () {
@@ -437,23 +437,23 @@ describe("Waveform.resampleByMode", function () {
   }
 
   it("test_circus_of_freaks_no_change_1", function () {
-    decodeAndAssertCOF(44100, 2491776);
+    decodeAndAssertCOF(44100, 2491247);
   });
 
   it("test_circus_of_freaks_44099", function () {
-    decodeAndAssertCOF(44099, 2491720);
+    decodeAndAssertCOF(44099, 2491191);
   });
 
   it("test_circus_of_freaks_44101", function () {
-    decodeAndAssertCOF(44101, 2491833);
+    decodeAndAssertCOF(44101, 2491304);
   });
 
   it("test_circus_of_freaks_22050", function () {
-    decodeAndAssertCOF(22050, COF_NUM_FRAMES / 2);
+    decodeAndAssertCOF(22050, Math.ceil(COF_NUM_FRAMES / 2));
   });
 
   it("test_circus_of_freaks_11025", function () {
-    decodeAndAssertCOF(11025, COF_NUM_FRAMES / 4);
+    decodeAndAssertCOF(11025, Math.ceil(COF_NUM_FRAMES / 4));
   });
 
   it("test_circus_of_freaks_88200", function () {

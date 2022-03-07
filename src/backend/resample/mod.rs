@@ -19,7 +19,7 @@ use crate::backend::waveform_args::RESAMPLE_MODE_LIBSAMPLERATE;
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     input_audio: &[f32],
     resample_mode: u32,
 ) -> Result<Vec<f32>, Error> {

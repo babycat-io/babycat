@@ -18,6 +18,6 @@ module.exports = {
   ],
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, '../../target/frontend-wasm/release/examples/decode/'),
+    path: path.resolve(__dirname, '../../target/frontend-wasm/no-ffmpeg/release/examples/decode/'),
   },
 };

@@ -5,7 +5,7 @@ fn main() {
         ..Default::default()
     };
     let waveform =
-        match Waveform::from_file("audio-for-tests/circus-of-freaks/track.mp3", waveform_args) {
+        match Waveform::from_file("audio-for-tests/circus-of-freaks/track.flac", waveform_args) {
             Ok(w) => w,
             Err(err) => {
                 println!("Decoding error: {}", err);

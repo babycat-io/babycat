@@ -24,8 +24,8 @@ mod test_waveform_resample_method {
         filename: &str,
         waveform_args: WaveformArgs,
         frame_rate_hz: u32,
-        expected_num_channels: u32,
-        expected_num_frames: u64,
+        expected_num_channels: u16,
+        expected_num_frames: usize,
         expected_frame_rate_hz: u32,
     ) {
         let waveform = Waveform::from_file(filename, waveform_args).unwrap();
@@ -86,7 +86,7 @@ mod test_waveform_resample_method {
             Default::default(),
             44099,
             COF_NUM_CHANNELS,
-            2491720,
+            2491191,
             44099,
         );
     }
@@ -99,7 +99,7 @@ mod test_waveform_resample_method {
             Default::default(),
             44101,
             COF_NUM_CHANNELS,
-            2491833,
+            2491304,
             44101,
         );
     }
@@ -112,7 +112,7 @@ mod test_waveform_resample_method {
             Default::default(),
             22050,
             COF_NUM_CHANNELS,
-            COF_NUM_FRAMES / 2,
+            (COF_NUM_FRAMES + 1) / 2,
             22050,
         );
     }
@@ -125,7 +125,7 @@ mod test_waveform_resample_method {
             Default::default(),
             11025,
             COF_NUM_CHANNELS,
-            COF_NUM_FRAMES / 4,
+            (COF_NUM_FRAMES + 3) / 4,
             11025,
         );
     }

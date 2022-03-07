@@ -14,9 +14,9 @@ pub enum Error {
     ///
     /// For example, this error is raised if you set the end timestamp to be before
     /// the start timestamp.
-    WrongTimeOffset(u64, u64),
+    WrongTimeOffset(usize, usize),
     /// Raised when you wanted to decode more channels than the audio actually had.
-    WrongNumChannels(u32, u32),
+    WrongNumChannels(u16, u16),
     /// Raised if you specified [`WaveformArgs.convert_to_mono`][crate::WaveformArgs#structfield.convert_to_mono] as `true` and [`WaveformArgs.num_channels`][crate::WaveformArgs#structfield.num_channels] as 1.
     ///
     /// Setting both parameters is redundant and contradictory. You should either use
@@ -33,6 +33,8 @@ pub enum Error {
     CannotZeroPadWithoutSpecifiedLength,
     //
     // Decoding errors
+    /// Raised when we could not decode any of the audio streams.
+    NoSuitableAudioStreams(usize),
     /// Raised when we do not recognize the decoding backend.
     UnknownDecodingBackend(u32),
     /// Raised when we were not able to detect the encoded input as decodable audio.
@@ -82,6 +84,10 @@ impl Error {
                 "CannotZeroPadWithoutSpecifiedLength".to_string()
             }
 
+            Error::NoSuitableAudioStreams(num_streams) => {
+                format!("NoSuitableAudioStreams({})", num_streams)
+            }
+
             Error::UnknownDecodingBackend(b) => format!("UnknownDecodingBackend({})", b),
 
             Error::UnknownInputEncoding => "UnknownInputEncoding".to_string(),
@@ -125,6 +131,8 @@ impl fmt::Display for Error {
             Error::WrongNumChannelsAndMono => write!(f, "You cannot set `convert_to_mono` as `true` and also set `num_channels` = 1. Pick one or the other. You either want `convert_to_mono` to average all channels as one channel... or you want to select the first channel with `num_channels`."),
 
             Error::CannotZeroPadWithoutSpecifiedLength => write!(f, "You cannot set `zero_pad_ending` without also specifying *where* the ending should be. Either set `zero_pad_ending` = `false` or specify `end_time_milliseconds` to a value above 0."),
+
+            Error::NoSuitableAudioStreams(num_streams) => write!(f, "We probed {} audio streams but could not decode any of them.", num_streams),
 
             Error::UnknownDecodingBackend(b) => write!(f, "Could not recognize the audio decoding backend `{}`.", b),
 

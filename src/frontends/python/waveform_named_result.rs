@@ -55,8 +55,7 @@ impl std::fmt::Display for WaveformNamedResult {
                     write!(
                         f,
                         "<babycat.WaveformNamedResult name={} error={}>",
-                        self.name,
-                        error.to_string()
+                        self.name, error
                     )
                 }
                 None => {

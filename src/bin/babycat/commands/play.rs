@@ -11,7 +11,7 @@ use rodio::Source;
 
 use babycat::Waveform;
 
-const NANOSECONDS_PER_SECOND: u64 = 1000000000;
+const NANOSECONDS_PER_SECOND: usize = 1000000000;
 
 const THIRTY_MILLISECONDS: std::time::Duration = std::time::Duration::from_millis(30);
 
@@ -30,13 +30,14 @@ impl From<&Waveform> for WaveformSource {
         let frame_rate_hz = item.frame_rate_hz();
         let num_channels = item.num_channels() as u16;
         let num_frames = item.num_frames() as usize;
-        let num_samples = (num_channels as u64 * item.num_frames()) as usize;
+        let num_samples = (num_channels as usize * item.num_frames()) as usize;
         let current_sample_idx: usize = 0;
-        let duration_seconds_part = item.num_frames() / (frame_rate_hz as u64);
-        let duration_nanoseconds_part = ((item.num_frames() % frame_rate_hz as u64)
+        let duration_seconds_part = item.num_frames() / (frame_rate_hz as usize);
+        let duration_nanoseconds_part = ((item.num_frames() % frame_rate_hz as usize)
             * NANOSECONDS_PER_SECOND
-            / (frame_rate_hz as u64)) as u32;
-        let duration = std::time::Duration::new(duration_seconds_part, duration_nanoseconds_part);
+            / (frame_rate_hz as usize)) as u32;
+        let duration =
+            std::time::Duration::new(duration_seconds_part as u64, duration_nanoseconds_part);
         Self {
             frame_rate_hz,
             num_channels,
@@ -229,10 +230,7 @@ fn ui_loop(filename: String) {
             MoveTo(0, 0),
             Print(format!("File: {}", filename)),
             MoveTo(0, 1),
-            Print(format!(
-                "Status: {}",
-                audio_player.play_status().to_string()
-            )),
+            Print(format!("Status: {}", audio_player.play_status())),
             MoveTo(40, 1),
             Print(format!("Volume: {}%", audio_player.volume())),
             MoveTo(0, 3),

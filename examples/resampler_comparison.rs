@@ -5,7 +5,7 @@ use babycat::resample::babycat_sinc::resample as sinc_resample;
 use babycat::resample::libsamplerate::resample as libsamplerate_resample;
 use babycat::Waveform;
 
-type Resampler = fn(u32, u32, u32, &[f32]) -> Result<Vec<f32>, babycat::Error>;
+type Resampler = fn(u32, u32, u16, &[f32]) -> Result<Vec<f32>, babycat::Error>;
 
 fn make_sine_wave(frequency: f32, frame_rate_hz: u32, duration: u32) -> Vec<f32> {
     (0..frame_rate_hz as usize * duration as usize)
@@ -29,7 +29,7 @@ fn resample_down_and_up(
     resampler: Resampler,
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     input_data: &[f32],
 ) -> Vec<f32> {
     let middle = resampler(
@@ -53,7 +53,7 @@ fn benchmark_func(
     resampler: Resampler,
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     input: &[f32],
 ) -> (f64, f64) {
     let start_time = std::time::Instant::now();
@@ -73,7 +73,7 @@ fn benchmark_all_funcs(
     test_name: &str,
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
-    num_channels: u32,
+    num_channels: u16,
     input: &[f32],
 ) {
     // libsamplerate is the "reference" sampler that we compare
@@ -152,7 +152,7 @@ fn benchmark_sine_wave() {
 /// multiple channels separately.
 fn benchmark_left_channel_tone() {
     let left_channel_tone: Vec<f32> = Waveform::from_file(
-        "audio-for-tests/left-channel-tone/track.mp3",
+        "audio-for-tests/left-channel-tone/track.flac",
         Default::default(),
     )
     .unwrap()
@@ -171,7 +171,7 @@ fn benchmark_left_channel_tone() {
 /// Benchmarks resampling the "blippy_trance" song.
 fn benchmark_blippy_trance() {
     let blippy_trance: Vec<f32> = Waveform::from_file(
-        "audio-for-tests/blippy-trance/track.mp3",
+        "audio-for-tests/blippy-trance/track.wav",
         Default::default(),
     )
     .unwrap()
@@ -190,7 +190,7 @@ fn benchmark_blippy_trance() {
 /// Benchmarks resampling the "on_hold_for_you" song.
 fn benchmark_on_hold_for_you() {
     let on_hold_for_you: Vec<f32> = Waveform::from_file(
-        "audio-for-tests/on-hold-for-you/track.mp3",
+        "audio-for-tests/on-hold-for-you/track.flac",
         Default::default(),
     )
     .unwrap()

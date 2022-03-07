@@ -42,7 +42,7 @@ pub enum SubcommandArgs {
             default_value = "0",
             help = "Trim all audio before this millisecond timestamp"
         )]
-        start_time_milliseconds: u64,
+        start_time_milliseconds: usize,
 
         #[structopt(
             long,
@@ -50,7 +50,7 @@ pub enum SubcommandArgs {
             default_value = "0",
             help = "Trim all audio after this millisecond timestamp"
         )]
-        end_time_milliseconds: u64,
+        end_time_milliseconds: usize,
 
         #[structopt(
             long,
@@ -66,7 +66,7 @@ pub enum SubcommandArgs {
             default_value = "0",
             help = "Include only the first n channels. By default, we inclue all channels in the output"
         )]
-        num_channels: u32,
+        num_channels: u16,
 
         #[structopt(
             long,

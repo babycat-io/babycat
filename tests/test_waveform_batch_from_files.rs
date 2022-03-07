@@ -17,7 +17,7 @@ mod test_waveform_batch_from_files {
             assert_eq!(COF_NUM_FRAMES, waveform.num_frames());
             assert_eq!(COF_FRAME_RATE_HZ, waveform.frame_rate_hz());
             assert_eq!(
-                (COF_NUM_FRAMES * COF_NUM_CHANNELS as u64) as usize,
+                (COF_NUM_FRAMES * COF_NUM_CHANNELS as usize) as usize,
                 waveform.to_interleaved_samples().len()
             );
         }
@@ -39,7 +39,7 @@ mod test_waveform_batch_from_files {
             assert_eq!(num_frames, waveform.num_frames());
             assert_eq!(COF_FRAME_RATE_HZ, waveform.frame_rate_hz());
             assert_eq!(
-                (num_frames * COF_NUM_CHANNELS as u64) as usize,
+                (num_frames * COF_NUM_CHANNELS as usize) as usize,
                 waveform.to_interleaved_samples().len()
             );
         }
@@ -60,7 +60,7 @@ mod test_waveform_batch_from_files {
             assert_eq!(COF_NUM_FRAMES, waveform.num_frames());
             assert_eq!(COF_FRAME_RATE_HZ, waveform.frame_rate_hz());
             assert_eq!(
-                (COF_NUM_FRAMES * COF_NUM_CHANNELS as u64) as usize,
+                (COF_NUM_FRAMES * COF_NUM_CHANNELS as usize) as usize,
                 waveform.to_interleaved_samples().len()
             );
         }
@@ -73,11 +73,26 @@ mod test_waveform_batch_from_files {
         let batch = waveforms_from_files(ALL_FILENAMES, waveform_args, batch_args);
         for (i, named_result) in batch.into_iter().enumerate() {
             let waveform = named_result.result.unwrap();
-            assert_eq!(ALL_NUM_CHANNELS[i], waveform.num_channels());
-            assert_eq!(ALL_NUM_FRAMES[i], waveform.num_frames());
-            assert_eq!(ALL_FRAME_RATE_HZ[i], waveform.frame_rate_hz());
             assert_eq!(
-                (ALL_NUM_FRAMES[i] * ALL_NUM_CHANNELS[i] as u64) as usize,
+                ALL_NUM_CHANNELS[i],
+                waveform.num_channels(),
+                "filename: {}",
+                &named_result.name
+            );
+            assert_eq!(
+                ALL_NUM_FRAMES[i],
+                waveform.num_frames(),
+                "filename: {}",
+                &named_result.name
+            );
+            assert_eq!(
+                ALL_FRAME_RATE_HZ[i],
+                waveform.frame_rate_hz(),
+                "filename: {}",
+                &named_result.name
+            );
+            assert_eq!(
+                (ALL_NUM_FRAMES[i] * ALL_NUM_CHANNELS[i] as usize) as usize,
                 waveform.to_interleaved_samples().len()
             );
         }

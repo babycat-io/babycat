@@ -1,6 +1,9 @@
 # helps us write and run tests
 pytest==7.0.1
 
+# helps us write and run benchmarks
+pytest-benchmark==3.4.1
+
 # black formats python source code
 black==22.1.0
 

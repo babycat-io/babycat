@@ -61,8 +61,8 @@ impl Default for BatchArgs {
 /// use babycat::batch::{BatchArgs, waveforms_from_files};
 ///
 /// let filenames = &[
-///     "audio-for-tests/andreas-theme/track.mp3",
-///     "audio-for-tests/blippy-trance/track.mp3",
+///     "audio-for-tests/andreas-theme/track.flac",
+///     "audio-for-tests/blippy-trance/track.wav",
 ///     "does-not-exist",
 /// ];
 /// let decode_args = Default::default();
@@ -82,14 +82,14 @@ impl Default for BatchArgs {
 /// assert_eq!(
 ///     display_result(&batch[0]),
 ///      "
-/// Success: audio-for-tests/andreas-theme/track.mp3:
-/// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}",
+/// Success: audio-for-tests/andreas-theme/track.flac:
+/// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586415}",
 /// );
 /// assert_eq!(
 ///     display_result(&batch[1]),
 ///      "
-/// Success: audio-for-tests/blippy-trance/track.mp3:
-/// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5293440}",
+/// Success: audio-for-tests/blippy-trance/track.wav:
+/// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5292911}",
 /// );
 /// assert_eq!(
 ///     display_result(&batch[2]),
