@@ -3,10 +3,10 @@ use std::path::Path;
 
 use ffmpeg::decoder::Audio as AudioDecoder;
 use ffmpeg::format::context::Input;
-use ffmpeg::util::format::sample::Sample as FFmpegSample;
-use ffmpeg::Stream;
 use ffmpeg::util::error::Error as FFmpegError;
 use ffmpeg::util::error::ENOENT;
+use ffmpeg::util::format::sample::Sample as FFmpegSample;
+use ffmpeg::Stream;
 
 use crate::backend::decode::ffmpeg::ffmpeg_init;
 
@@ -17,18 +17,13 @@ use crate::backend::errors::Error;
 #[inline(always)]
 fn new_input_for_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Input, Error> {
     let filename_ref = filename.as_ref();
-    ffmpeg::format::input(&filename_ref).map_err(
-        |err| match err {
-            FFmpegError::Other {errno }=> match errno {
-                ENOENT => Error::FileNotFound(
-                    Box::leak(
-                        filename_ref.to_str().unwrap().to_owned().into_boxed_str(),
-                    )),
-                    _ => Error::UnknownDecodeError
-                },
-            _ => Error::UnknownDecodeError
-        }
-    )
+    ffmpeg::format::input(&filename_ref).map_err(|err| match err {
+        // File not found error. Audio filename was not found on the local filesystem.
+        FFmpegError::Other { errno: ENOENT } => Error::FileNotFound(Box::leak(
+            filename_ref.to_str().unwrap().to_owned().into_boxed_str(),
+        )),
+        _ => Error::UnknownDecodeError,
+    })
 }
 
 #[inline(always)]
