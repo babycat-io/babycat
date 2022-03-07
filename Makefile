@@ -635,6 +635,10 @@ doctest: doctest-rust doctest-python
 # bench =============================================================
 # ===================================================================
 
+bench-rust-decoding-batch-misc: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_batch_misc
+.PHONY: bench-rust-decoding-batch-misc
+
 ## bench-rust-decoding-log-sweep
 bench-rust-decoding-log-sweep: .b/init-rust
 	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_log_sweep

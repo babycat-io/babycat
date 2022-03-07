@@ -33,6 +33,10 @@ harness = false
 name = "decoding_log_sweep"
 harness = false
 
+[[bench]]   
+name = "decoding_batch_misc"
+harness = false
+
 
 # == Binary targets ==
 [[bin]]
@@ -50,6 +54,8 @@ crate-type = ["rlib", "cdylib", "staticlib"]
 [profile.bench]
 lto = "fat"
 
+[profile.release]
+debug = false
 
 # == Dependencies ==
 [dependencies]

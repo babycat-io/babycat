@@ -77,6 +77,7 @@ pub struct FFmpegDecoder {
 }
 
 impl FFmpegDecoder {
+    #[allow(clippy::new_ret_no_self)]
     fn new(
         input: Input,
         decoder: AudioDecoder,

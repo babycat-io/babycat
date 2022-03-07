@@ -625,3 +625,9 @@ impl Waveform {
         &self.interleaved_samples
     }
 }
+
+impl From<Waveform> for Vec<f32> {
+    fn from(waveform: Waveform) -> Vec<f32> {
+        waveform.interleaved_samples
+    }
+}
