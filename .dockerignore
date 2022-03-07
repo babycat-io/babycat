@@ -1,8 +1,9 @@
+audio-for-tests
 docs/_build
 node_modules
 package-lock.json
 vendor
-.b
+.b/*
 target
 Cargo.lock
 venv
