@@ -57,7 +57,7 @@ jobs:
       run: make build-python
 
     - name: Publish Windows and macOS Python wheels to PyPI
-      run: twine upload --non-interactive target/frontend-python/*.whl
+      run: twine upload --non-interactive target/frontend-python/no-ffmpeg/release/*.whl
       if: matrix.os != 'ubuntu-20.04'
       env:
         TWINE_USERNAME: __token__
@@ -68,7 +68,7 @@ jobs:
       run: make build-python-manylinux
 
     - name: Publish the manylinux Python wheel to PyPI
-      run: twine upload --non-interactive target/frontend-python--manylinux/*.whl
+      run: twine upload --non-interactive target/frontend-python--manylinux/no-ffmpeg/release/*.whl
       if: matrix.os == 'ubuntu-20.04'
       env:
         TWINE_USERNAME: __token__

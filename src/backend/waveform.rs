@@ -218,7 +218,7 @@ impl Waveform {
     /// ```
     /// use babycat::Waveform;
     ///
-    /// let encoded_bytes: Vec<u8> = std::fs::read("audio-for-tests/andreas-theme/track.mp3").unwrap();
+    /// let encoded_bytes: Vec<u8> = std::fs::read("audio-for-tests/andreas-theme/track.flac").unwrap();
     ///
     /// let waveform_args = Default::default();
     ///
@@ -228,7 +228,7 @@ impl Waveform {
     /// ).unwrap();
     /// assert_eq!(
     ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586944}"
+    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586415}"
     /// );
     /// ```
     ///
@@ -283,13 +283,13 @@ impl Waveform {
     /// use babycat::{WaveformArgs, Waveform};
     ///
     /// let waveform = Waveform::from_file(
-    ///    "audio-for-tests/circus-of-freaks/track.mp3",
+    ///    "audio-for-tests/circus-of-freaks/track.flac",
     ///     Default::default(),
     /// ).unwrap();
     ///
     /// assert_eq!(
     ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
+    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491247}"
     /// );
     /// ```
     ///
@@ -303,7 +303,7 @@ impl Waveform {
     ///     ..Default::default()
     /// };
     /// let waveform = Waveform::from_file(
-    ///    "audio-for-tests/circus-of-freaks/track.mp3",
+    ///    "audio-for-tests/circus-of-freaks/track.flac",
     ///     waveform_args,
     /// ).unwrap();
     ///
@@ -431,24 +431,24 @@ impl Waveform {
     /// use babycat::Waveform;
     ///
     /// let waveform = Waveform::from_file(
-    ///     "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     "audio-for-tests/circus-of-freaks/track.flac",
     ///     Default::default()
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", waveform),
-    ///    "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
+    ///    "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491247}"
     /// );
     ///
     /// let upsampled = waveform.resample(96000).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled),
-    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5424275}"
+    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5423123}"
     /// );
     ///
     /// let downsampled = waveform.resample(8252).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", downsampled),
-    ///    "Waveform { frame_rate_hz: 8252, num_channels: 2, num_frames: 466262}"
+    ///    "Waveform { frame_rate_hz: 8252, num_channels: 2, num_frames: 466163}"
     /// );
     /// ```
     pub fn resample(&self, frame_rate_hz: u32) -> Result<Self, Error> {
@@ -466,12 +466,12 @@ impl Waveform {
     /// use babycat::Waveform;
     ///
     /// let waveform = Waveform::from_file(
-    ///     "audio-for-tests/circus-of-freaks/track.mp3",
+    ///     "audio-for-tests/circus-of-freaks/track.flac",
     ///     Default::default()
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", waveform),
-    ///    "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491776}"
+    ///    "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491247}"
     /// );
     ///
     /// // Here we upsample our audio to 96khz with the libsamplerate resampler.
@@ -481,7 +481,7 @@ impl Waveform {
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled_libsamplerate),
-    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5424275}"
+    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5423123}"
     /// );
     ///
     /// // And we upsample our audio again with Babycat's Lanczos resampler.
@@ -491,7 +491,7 @@ impl Waveform {
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled_lanczos),
-    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5424275}"
+    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5423123}"
     /// );
     /// ```
     pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> Result<Self, Error> {

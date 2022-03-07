@@ -73,9 +73,24 @@ mod test_waveform_batch_from_files {
         let batch = waveforms_from_files(ALL_FILENAMES, waveform_args, batch_args);
         for (i, named_result) in batch.into_iter().enumerate() {
             let waveform = named_result.result.unwrap();
-            assert_eq!(ALL_NUM_CHANNELS[i], waveform.num_channels());
-            assert_eq!(ALL_NUM_FRAMES[i], waveform.num_frames());
-            assert_eq!(ALL_FRAME_RATE_HZ[i], waveform.frame_rate_hz());
+            assert_eq!(
+                ALL_NUM_CHANNELS[i],
+                waveform.num_channels(),
+                "filename: {}",
+                &named_result.name
+            );
+            assert_eq!(
+                ALL_NUM_FRAMES[i],
+                waveform.num_frames(),
+                "filename: {}",
+                &named_result.name
+            );
+            assert_eq!(
+                ALL_FRAME_RATE_HZ[i],
+                waveform.frame_rate_hz(),
+                "filename: {}",
+                &named_result.name
+            );
             assert_eq!(
                 (ALL_NUM_FRAMES[i] * ALL_NUM_CHANNELS[i] as usize) as usize,
                 waveform.to_interleaved_samples().len()

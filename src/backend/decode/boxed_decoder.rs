@@ -1,7 +1,10 @@
-use std::convert::AsRef;
 use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
+
+#[cfg(feature = "enable-filesystem")]
+use std::convert::AsRef;
+#[cfg(feature = "enable-filesystem")]
 use std::path::Path;
 
 use crate::backend::decode::decoder::Decoder;

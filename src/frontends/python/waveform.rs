@@ -300,11 +300,11 @@ impl Waveform {
     ///     **Decode from bytes while auto-detecting the format as MP3.**
     ///
     ///     >>> from babycat import Waveform
-    ///     >>> with open("audio-for-tests/andreas-theme/track.mp3", "rb") as fh:
+    ///     >>> with open("audio-for-tests/andreas-theme/track.flac", "rb") as fh:
     ///     ...     the_bytes = fh.read()
     ///     >>> waveform = Waveform.from_encoded_bytes(the_bytes)
     ///     >>> waveform
-    ///     <babycat.Waveform: 9586944 frames, 2 channels, 44100 hz>
+    ///     <babycat.Waveform: 9586415 frames, 2 channels, 44100 hz>
     ///
     /// Example:
     ///     **Decode from bytes with a file extension hint.**
@@ -547,24 +547,24 @@ impl Waveform {
     ///
     ///     >>> from babycat import Waveform
     ///     >>> waveform = Waveform.from_file(
-    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/andreas-theme/track.flac",
     ///     ... )
     ///     >>> waveform
-    ///     <babycat.Waveform: 9586944 frames, 2 channels, 44100 hz>
+    ///     <babycat.Waveform: 9586415 frames, 2 channels, 44100 hz>
     ///     >>> waveform.num_frames
-    ///     9586944
+    ///     9586415
     ///     >>> waveform.num_channels
     ///     2
     ///     >>> waveform.frame_rate_hz
     ///     44100
     ///     >>> waveform.to_numpy().shape
-    ///     (9586944, 2)
+    ///     (9586415, 2)
     ///
     /// Example:
     ///     **Decode the first 30 seconds of the audio file.**
     ///
     ///     >>> waveform = Waveform.from_file(
-    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/andreas-theme/track.flac",
     ///     ...     end_time_milliseconds=30_000,
     ///     ... )
     ///     >>> waveform
@@ -574,17 +574,17 @@ impl Waveform {
     ///     **Decode the entire audio file and resampling up to 48,000hz.**
     ///
     ///     >>> waveform = Waveform.from_file(
-    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/andreas-theme/track.flac",
     ///     ...     frame_rate_hz=48000,
     ///     ... )
     ///     >>> waveform
-    ///     <babycat.Waveform: 10434769 frames, 2 channels, 48000 hz>
+    ///     <babycat.Waveform: 10434194 frames, 2 channels, 48000 hz>
     ///
     /// Example:
     ///     **Decode the first 30 seconds and resample up to 48,000hz.**
     ///
     ///     >>> waveform = Waveform.from_file(
-    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/andreas-theme/track.flac",
     ///     ...     end_time_milliseconds=30_000,
     ///     ...     frame_rate_hz=48000,
     ///     ... )
@@ -993,10 +993,10 @@ impl Waveform {
     ///
     ///     >>> from babycat import Waveform
     ///     >>> waveform = Waveform.from_file(
-    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/andreas-theme/track.flac",
     ///     ... )
     ///     >>> waveform
-    ///     <babycat.Waveform: 9586944 frames, 2 channels, 44100 hz>
+    ///     <babycat.Waveform: 9586415 frames, 2 channels, 44100 hz>
     ///     >>> arr = waveform.to_wav_buffer()
     ///     >>> type(arr)
     ///     >>> len(arr)
@@ -1024,10 +1024,10 @@ impl Waveform {
     ///
     ///     >>> from babycat import Waveform
     ///     >>> waveform = Waveform.from_file(
-    ///     ...     "audio-for-tests/andreas-theme/track.mp3",
+    ///     ...     "audio-for-tests/andreas-theme/track.flac",
     ///     ... )
     ///     >>> waveform
-    ///     <babycat.Waveform: 9586944 frames, 2 channels, 44100 hz>
+    ///     <babycat.Waveform: 9586415 frames, 2 channels, 44100 hz>
     ///     >>> waveform.to_wav_file("track.wav")
     ///
     /// Args:

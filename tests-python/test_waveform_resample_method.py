@@ -3,6 +3,8 @@ Tests that all of the resamplers produce waveforms of the same dimension.
 
 These tests mirror the ones in ``../tests/test_waveform_resample_method.rs``.
 """
+from math import ceil
+
 from fixtures import *
 
 import babycat
@@ -57,7 +59,7 @@ def test_circus_of_freaks_44099():
         waveform_args={},
         frame_rate_hz=44099,
         expected_num_channels=COF_NUM_CHANNELS,
-        expected_num_frames=2491720,
+        expected_num_frames=2491191,
         expected_frame_rate_hz=44099,
     )
 
@@ -68,7 +70,7 @@ def test_circus_of_freaks_44101():
         waveform_args={},
         frame_rate_hz=44101,
         expected_num_channels=COF_NUM_CHANNELS,
-        expected_num_frames=2491833,
+        expected_num_frames=2491304,
         expected_frame_rate_hz=44101,
     )
 
@@ -79,7 +81,7 @@ def test_circus_of_freaks_22050():
         waveform_args={},
         frame_rate_hz=22050,
         expected_num_channels=COF_NUM_CHANNELS,
-        expected_num_frames=COF_NUM_FRAMES // 2,
+        expected_num_frames=ceil(COF_NUM_FRAMES / 2),
         expected_frame_rate_hz=22050,
     )
 
@@ -90,7 +92,7 @@ def test_circus_of_freaks_11025():
         waveform_args={},
         frame_rate_hz=11025,
         expected_num_channels=COF_NUM_CHANNELS,
-        expected_num_frames=COF_NUM_FRAMES // 4,
+        expected_num_frames=ceil(COF_NUM_FRAMES / 4),
         expected_frame_rate_hz=11025,
     )
 

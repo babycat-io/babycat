@@ -13,7 +13,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("andreas-theme", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/andreas-theme/track.mp3",
+                "./audio-for-tests/andreas-theme/track.flac",
                 Default::default(),
             )
             .unwrap()
@@ -23,7 +23,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("blippy-trance", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/blippy-trance/track.mp3",
+                "./audio-for-tests/blippy-trance/track.wav",
                 Default::default(),
             )
             .unwrap()
@@ -33,7 +33,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("circus-of-freaks", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/circus-of-freaks/track.mp3",
+                "./audio-for-tests/circus-of-freaks/track.flac",
                 Default::default(),
             )
             .unwrap()
@@ -43,7 +43,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("left-channel-tone", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/left-channel-tone/track.mp3",
+                "./audio-for-tests/left-channel-tone/track.flac",
                 Default::default(),
             )
             .unwrap()
@@ -53,7 +53,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("mono-dtmf-tones", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/mono-dtmf-tones/track.mp3",
+                "./audio-for-tests/mono-dtmf-tones/track.flac",
                 Default::default(),
             )
             .unwrap()
@@ -63,7 +63,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("on-hold-for-you", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/on-hold-for-you/track.mp3",
+                "./audio-for-tests/on-hold-for-you/track.flac",
                 Default::default(),
             )
             .unwrap()
@@ -73,7 +73,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("tone-missing-sounds", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/tone-missing-sounds/track.mp3",
+                "./audio-for-tests/tone-missing-sounds/track.flac",
                 Default::default(),
             )
             .unwrap()
@@ -83,7 +83,7 @@ fn decoding_benchmark(c: &mut Criterion) {
     group.bench_function("voxel-revolution", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
-                "./audio-for-tests/voxel-revolution/track.mp3",
+                "./audio-for-tests/voxel-revolution/track.flac",
                 Default::default(),
             )
             .unwrap()

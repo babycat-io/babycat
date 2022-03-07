@@ -1,7 +1,10 @@
-use std::convert::AsRef;
 use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
+
+#[cfg(feature = "enable-filesystem")]
+use std::convert::AsRef;
+#[cfg(feature = "enable-filesystem")]
 use std::path::Path;
 
 use symphonia::core::formats::FormatOptions;
@@ -32,8 +35,15 @@ impl SymphoniaDecoder {
         mime_type: &str,
     ) -> Result<Box<dyn Decoder>, Error> {
         // Set up defaults for the decoder.
-        let format_opts: FormatOptions = Default::default();
         let metadata_opts: MetadataOptions = Default::default();
+
+        // We enable "gapless playback" in Symphonia so it will not give
+        // us the useless/empty frames at the beginning/end of
+        // an MP3 stream.
+        let format_opts: FormatOptions = FormatOptions {
+            enable_gapless: true,
+            ..Default::default()
+        };
 
         // Provide file extension and mime type hints to speed up
         // guessing which audio format the input is.

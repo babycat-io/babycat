@@ -3,44 +3,44 @@ Test fixtures.
 
 These fxitures mirror the ones in ``../tests/fixtures.rs``
 """
-AT_FILENAME = "./audio-for-tests/andreas-theme/track.mp3"
+AT_FILENAME = "./audio-for-tests/andreas-theme/track.flac"
 AT_NUM_CHANNELS = 2
-AT_NUM_FRAMES = 9586944
+AT_NUM_FRAMES = 9586415
 AT_FRAME_RATE_HZ = 44100
 
-BT_FILENAME = "./audio-for-tests/blippy-trance/track.mp3"
+BT_FILENAME = "./audio-for-tests/blippy-trance/track.wav"
 BT_NUM_CHANNELS = 2
-BT_NUM_FRAMES = 5293440
+BT_NUM_FRAMES = 5292911
 BT_FRAME_RATE_HZ = 44100
 
-COF_FILENAME = "./audio-for-tests/circus-of-freaks/track.mp3"
+COF_FILENAME = "./audio-for-tests/circus-of-freaks/track.flac"
 COF_NUM_CHANNELS = 2
-COF_NUM_FRAMES = 2491776
+COF_NUM_FRAMES = 2491247
 COF_FRAME_RATE_HZ = 44100
 
-LCT_FILENAME = "./audio-for-tests/left-channel-tone/track.mp3"
+LCT_FILENAME = "./audio-for-tests/left-channel-tone/track.flac"
 LCT_NUM_CHANNELS = 2
-LCT_NUM_FRAMES = 1324800
+LCT_NUM_FRAMES = 1323000
 LCT_FRAME_RATE_HZ = 44100
 
-MONO_DTMF_FILENAME = "./audio-for-tests/mono-dtmf-tones/track.mp3"
+MONO_DTMF_FILENAME = "./audio-for-tests/mono-dtmf-tones/track.flac"
 MONO_DTMF_NUM_CHANNELS = 1
-MONO_DTMF_NUM_FRAMES = 442368
+MONO_DTMF_NUM_FRAMES = 441000
 MONO_DTMF_FRAME_RATE_HZ = 44100
 
-OHFY_FILENAME = "./audio-for-tests/on-hold-for-you/track.mp3"
+OHFY_FILENAME = "./audio-for-tests/on-hold-for-you/track.flac"
 OHFY_NUM_CHANNELS = 2
-OHFY_NUM_FRAMES = 9620352
+OHFY_NUM_FRAMES = 9619823
 OHFY_FRAME_RATE_HZ = 44100
 
-TMS_FILENAME = "./audio-for-tests/tone-missing-sounds/track.mp3"
+TMS_FILENAME = "./audio-for-tests/tone-missing-sounds/track.flac"
 TMS_NUM_CHANNELS = 1
-TMS_NUM_FRAMES = 1324800
+TMS_NUM_FRAMES = 1323000
 TMS_FRAME_RATE_HZ = 44100
 
-VR_FILENAME = "./audio-for-tests/voxel-revolution/track.mp3"
+VR_FILENAME = "./audio-for-tests/voxel-revolution/track.flac"
 VR_NUM_CHANNELS = 2
-VR_NUM_FRAMES = 5728896
+VR_NUM_FRAMES = 5728367
 VR_FRAME_RATE_HZ = 44100
 
 ALL_FILENAMES = [

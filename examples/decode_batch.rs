@@ -1,13 +1,13 @@
 fn main() {
     let filenames = &[
-        "./audio-for-tests/andreas-theme/track.mp3",
-        "./audio-for-tests/blippy-trance/track.mp3",
-        "./audio-for-tests/circus-of-freaks/track.mp3",
-        "./audio-for-tests/left-channel-tone/track.mp3",
-        "./audio-for-tests/mono-dtmf-tones/track.mp3",
-        "./audio-for-tests/on-hold-for-you/track.mp3",
-        "./audio-for-tests/tone-missing-sounds/track.mp3",
-        "./audio-for-tests/voxel-revolution/track.mp3",
+        "./audio-for-tests/andreas-theme/track.flac",
+        "./audio-for-tests/blippy-trance/track.wav",
+        "./audio-for-tests/circus-of-freaks/track.flac",
+        "./audio-for-tests/left-channel-tone/track.flac",
+        "./audio-for-tests/mono-dtmf-tones/track.flac",
+        "./audio-for-tests/on-hold-for-you/track.flac",
+        "./audio-for-tests/tone-missing-sounds/track.flac",
+        "./audio-for-tests/voxel-revolution/track.flac",
     ];
     let batch =
         babycat::batch::waveforms_from_files(filenames, Default::default(), Default::default());

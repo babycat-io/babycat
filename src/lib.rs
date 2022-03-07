@@ -59,9 +59,9 @@
 //!
 //! // These are test files in the Babycat Git repository.
 //! let filenames = &[
-//!    "audio-for-tests/andreas-theme/track.mp3",
-//!    "audio-for-tests/blippy-trance/track.mp3",
-//!    "audio-for-tests/voxel-revolution/track.mp3",
+//!    "audio-for-tests/andreas-theme/track.flac",
+//!    "audio-for-tests/blippy-trance/track.wav",
+//!    "audio-for-tests/voxel-revolution/track.flac",
 //! ];
 //!
 //! // Perform the following transformations on EACH track.

@@ -152,7 +152,7 @@ fn benchmark_sine_wave() {
 /// multiple channels separately.
 fn benchmark_left_channel_tone() {
     let left_channel_tone: Vec<f32> = Waveform::from_file(
-        "audio-for-tests/left-channel-tone/track.mp3",
+        "audio-for-tests/left-channel-tone/track.flac",
         Default::default(),
     )
     .unwrap()
@@ -171,7 +171,7 @@ fn benchmark_left_channel_tone() {
 /// Benchmarks resampling the "blippy_trance" song.
 fn benchmark_blippy_trance() {
     let blippy_trance: Vec<f32> = Waveform::from_file(
-        "audio-for-tests/blippy-trance/track.mp3",
+        "audio-for-tests/blippy-trance/track.wav",
         Default::default(),
     )
     .unwrap()
@@ -190,7 +190,7 @@ fn benchmark_blippy_trance() {
 /// Benchmarks resampling the "on_hold_for_you" song.
 fn benchmark_on_hold_for_you() {
     let on_hold_for_you: Vec<f32> = Waveform::from_file(
-        "audio-for-tests/on-hold-for-you/track.mp3",
+        "audio-for-tests/on-hold-for-you/track.flac",
         Default::default(),
     )
     .unwrap()

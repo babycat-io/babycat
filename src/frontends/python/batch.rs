@@ -13,8 +13,8 @@ use pyo3::wrap_pyfunction;
 ///
 ///     >>> import babycat
 ///     >>> filenames = [
-///     ...     "audio-for-tests/andreas-theme/track.mp3",
-///     ...     "audio-for-tests/blippy-trance/track.mp3",
+///     ...     "audio-for-tests/andreas-theme/track.flac",
+///     ...     "audio-for-tests/blippy-trance/track.wav",
 ///     ...     "does-not-exist",
 ///     ... ]
 ///     >>>
@@ -25,18 +25,18 @@ use pyo3::wrap_pyfunction;
 ///     field containing a :py:class:`Waveform`.
 ///
 ///     >>> batch[0].name
-///     'audio-for-tests/andreas-theme/track.mp3'
+///     'audio-for-tests/andreas-theme/track.flac'
 ///     >>> print(batch[0].exception)
 ///     None
 ///     >>> batch[0].waveform
-///     <babycat.Waveform: 9586944 frames, 2 channels, 44100 hz>
+///     <babycat.Waveform: 9586415 frames, 2 channels, 44100 hz>
 ///
 ///     >>> batch[1].name
-///     'audio-for-tests/blippy-trance/track.mp3'
+///     'audio-for-tests/blippy-trance/track.wav'
 ///     >>> print(batch[1].exception)
 ///     None
 ///     >>> batch[1].waveform
-///     <babycat.Waveform: 5293440 frames, 2 channels, 44100 hz>
+///     <babycat.Waveform: 5292911 frames, 2 channels, 44100 hz>
 ///
 ///     For the third file, the ``waveform`` field is ``None`` and the
 ///     ``exception`` field contains a reference to a
