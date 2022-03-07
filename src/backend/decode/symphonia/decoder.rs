@@ -10,12 +10,8 @@ use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-use crate::backend::common::get_est_num_frames;
 use crate::backend::decode::decoder::Decoder;
-use crate::backend::decode::decoder_iter::DecoderIter;
-use crate::backend::decode_args::DecodeArgs;
 use crate::backend::errors::Error;
-use crate::backend::waveform_args::WaveformArgs;
 use crate::backend::waveform_args::DEFAULT_FILE_EXTENSION;
 use crate::backend::waveform_args::DEFAULT_MIME_TYPE;
 
@@ -23,16 +19,14 @@ use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
 
 /// An audio decoder from Philip Deljanov's [`symphonia`] audio decoding library.
 pub struct SymphoniaDecoder {
-    args: DecodeArgs,
     reader: Box<dyn FormatReader>,
     frame_rate: u32,
     channels: u16,
-    est_num_frames: usize,
+    est_num_frames: Option<usize>,
 }
 
 impl SymphoniaDecoder {
     pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
-        waveform_args: WaveformArgs,
         encoded_stream: R,
         file_extension: &str,
         mime_type: &str,
@@ -84,17 +78,12 @@ impl SymphoniaDecoder {
         let frame_rate = default_track.codec_params.sample_rate.unwrap();
         let channels = default_track.codec_params.channels.unwrap().count() as u16;
 
-        let args = DecodeArgs::new(waveform_args, frame_rate, channels)?;
-
-        let est_num_frames = match default_track.codec_params.n_frames {
-            Some(n_frames) => {
-                get_est_num_frames(n_frames as usize, args.start_frame_idx, args.end_frame_idx)
-            }
-            None => get_est_num_frames(usize::MAX, args.start_frame_idx, args.end_frame_idx),
-        };
+        let est_num_frames: Option<usize> = default_track
+            .codec_params
+            .n_frames
+            .map(|n_frames| n_frames as usize);
 
         Ok(Box::new(Self {
-            args,
             reader,
             frame_rate,
             channels,
@@ -103,10 +92,7 @@ impl SymphoniaDecoder {
     }
 
     #[cfg(feature = "enable-filesystem")]
-    pub fn from_file<F: Clone + AsRef<Path>>(
-        waveform_args: WaveformArgs,
-        filename: F,
-    ) -> Result<Box<dyn Decoder>, Error> {
+    pub fn from_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Box<dyn Decoder>, Error> {
         let filename_ref = filename.as_ref();
         let file = match std::fs::File::open(filename_ref) {
             Ok(f) => f,
@@ -136,14 +122,14 @@ impl SymphoniaDecoder {
             None => DEFAULT_FILE_EXTENSION,
         };
 
-        Self::from_encoded_stream_with_hint(waveform_args, file, file_extension, DEFAULT_MIME_TYPE)
+        Self::from_encoded_stream_with_hint(file, file_extension, DEFAULT_MIME_TYPE)
     }
 }
 
 impl Decoder for SymphoniaDecoder {
     #[inline(always)]
-    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
-        let decode_iter = SymphoniaDecoderIter::new(self.args, &mut self.reader)?;
+    fn begin(&mut self) -> Result<Box<dyn Iterator<Item = f32> + '_>, Error> {
+        let decode_iter = SymphoniaDecoderIter::new(&mut self.reader)?;
         Ok(Box::new(decode_iter))
     }
     #[inline(always)]
@@ -158,11 +144,6 @@ impl Decoder for SymphoniaDecoder {
 
     #[inline(always)]
     fn num_frames_estimate(&self) -> Option<usize> {
-        Some(self.est_num_frames)
-    }
-
-    #[inline(always)]
-    fn num_samples_estimate(&self) -> Option<usize> {
-        Some(self.est_num_frames * self.channels as usize)
+        self.est_num_frames
     }
 }

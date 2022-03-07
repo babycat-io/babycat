@@ -29,6 +29,10 @@ harness = false
 name = "decoding_benchmark"
 harness = false
 
+[[bench]]
+name = "decoding_log_sweep"
+harness = false
+
 
 # == Binary targets ==
 [[bin]]
@@ -102,17 +106,27 @@ enable-libsamplerate = ["samplerate"]
 enable-audio-playback = ["rodio"]
 
 
-# Add FFmpeg
+# Dynamically link to FFmpeg
 enable-ffmpeg = [
     "ffmpeg-next",
     "ffmpeg-next/codec",
     "ffmpeg-next/device",
     "ffmpeg-next/format",
 ]
+enable-ffmpeg-link-dynamic = [
+    "enable-ffmpeg"
+]
 # Statically link to FFmpeg
-enable-ffmpeg-static = ["enable-ffmpeg", "ffmpeg-next/static"]
+enable-ffmpeg-link-static = [
+    "enable-ffmpeg",
+    "ffmpeg-next/static",
+]
 # Build FFmpeg and statically link to it
-enable-ffmpeg-build  = ["enable-ffmpeg", "enable-ffmpeg-static", "ffmpeg-next/build"]
+enable-ffmpeg-build-link-static  = [
+    "enable-ffmpeg",
+    "ffmpeg-next/static",
+    "ffmpeg-next/build"
+]
 
 
 # These "frontends" are common groupings of features for targets.

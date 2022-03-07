@@ -9,8 +9,6 @@ use crate::backend::waveform_args::DEFAULT_START_TIME_MILLISECONDS;
 pub struct DecodeArgs {
     pub start_frame_idx: usize,
     pub end_frame_idx: usize,
-    pub start_sample_idx: usize,
-    pub end_sample_idx: usize,
     pub num_channels: u16,
     pub convert_to_mono: bool,
 }
@@ -74,14 +72,10 @@ impl DecodeArgs {
             args.start_time_milliseconds * (original_frame_rate_hz as usize) / 1000;
         let end_frame_idx: usize =
             args.end_time_milliseconds * (original_frame_rate_hz as usize) / 1000;
-        let start_sample_idx: usize = start_frame_idx * (num_channels as usize);
-        let end_sample_idx: usize = end_frame_idx * (num_channels as usize);
 
         Ok(Self {
             start_frame_idx,
             end_frame_idx,
-            start_sample_idx,
-            end_sample_idx,
             num_channels,
             convert_to_mono: args.convert_to_mono,
         })

@@ -12,8 +12,6 @@ A Python submodule to hold constants representing different decoding backends.
 
 Babycat comes with different backends for demuxing/decoding audio
 files into waveforms.
-
-Currently, the only supported backend is :py:attr:`DECODING_BACKEND_SYMPHONIA`.
 ",
     )?;
     decoding_backend_submodule.setattr(
@@ -23,6 +21,11 @@ Currently, the only supported backend is :py:attr:`DECODING_BACKEND_SYMPHONIA`.
     decoding_backend_submodule.setattr(
         "DECODING_BACKEND_SYMPHONIA",
         crate::backend::DECODING_BACKEND_SYMPHONIA,
+    )?;
+
+    decoding_backend_submodule.setattr(
+        "DECODING_BACKEND_FFMPEG",
+        crate::backend::DECODING_BACKEND_FFMPEG,
     )?;
 
     Ok(decoding_backend_submodule)

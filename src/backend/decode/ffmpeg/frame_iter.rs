@@ -5,34 +5,28 @@ use ffmpeg::util::format::sample::Type::Packed;
 use ffmpeg::util::format::sample::Type::Planar;
 
 use crate::backend::decode::ffmpeg::sample::Sample;
-use crate::backend::decode_args::DecodeArgs;
 
 pub struct FrameIter {
     frame: Frame,
-    args: DecodeArgs,
     format: FFmpegSample,
     num_channels: usize,
     num_frames: usize,
-    select_first_channels: usize,
     channel_idx: usize,
     frame_idx: usize,
 }
 
 impl FrameIter {
-    pub fn new(decoder: &mut AudioDecoder, args: DecodeArgs) -> Option<Self> {
+    pub fn new(decoder: &mut AudioDecoder) -> Option<Self> {
         let mut frame = Frame::empty();
         decoder.receive_frame(&mut frame).ok()?;
         let num_channels = frame.channels() as usize;
-        let select_first_channels: usize = args.num_channels as usize;
         let num_frames: usize = frame.samples();
         let format = frame.format();
         Some(Self {
             frame,
-            args,
             format,
             num_channels,
             num_frames,
-            select_first_channels,
             channel_idx: 0,
             frame_idx: 0,
         })
@@ -71,10 +65,14 @@ impl FrameIter {
             _ => panic!("NO"),
         }
     }
+}
+
+impl Iterator for FrameIter {
+    type Item = f32;
 
     #[inline(always)]
-    fn next_multichannel(&mut self) -> Option<f32> {
-        if self.channel_idx >= self.select_first_channels {
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.channel_idx >= self.num_channels {
             self.channel_idx = 0;
             self.frame_idx += 1;
         }
@@ -84,29 +82,5 @@ impl FrameIter {
         let retval = self.get_sample();
         self.channel_idx += 1;
         Some(retval)
-    }
-
-    #[inline(always)]
-    fn next_mono(&mut self) -> Option<f32> {
-        let mut psum: f32 = 0.0_f32;
-        for _i in 0..self.select_first_channels {
-            match self.next_multichannel() {
-                None => return None,
-                Some(val) => psum += val,
-            }
-        }
-        Some(psum / self.select_first_channels as f32)
-    }
-}
-
-impl Iterator for FrameIter {
-    type Item = f32;
-
-    #[inline(always)]
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.args.convert_to_mono {
-            return self.next_mono();
-        }
-        self.next_multichannel()
     }
 }

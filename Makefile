@@ -1,3 +1,54 @@
+FEATURES ?=
+
+FS_NAMESPACE ?=
+
+
+# You can enable Babycat's FFmpeg integration with these command line variables.
+#
+# To compile a copy of FFmpeg and statically link to it:
+#	ENABLE_FFMPEG_BUILD_LINK_STATIC=1 make build-rust
+#
+# To statically link to an existing copy of FFmpeg on your system:
+#	ENABLE_FFMPEG_LINK_STATIC=1 make build-rust
+#
+# To dynamically link to FFmpeg on your end user's system:
+#	ENABLE_FFMPEG_LINK_DYNAMIC=1 make build-rust
+#
+# You can replace "build-rust" with any other Makefile command.
+ifdef ENABLE_FFMPEG_BUILD_LINK_STATIC
+	FEATURES += enable-ffmpeg-build-link-static,
+	FS_NAMESPACE += ffmpeg-build-link-static/
+else
+	ifdef ENABLE_FFMPEG_LINK_STATIC
+		FEATURES += enable-ffmpeg-link-static,
+		FS_NAMESPACE += ffmpeg-link-static/
+	else
+		ifdef ENABLE_FFMPEG_LINK_DYNAMIC
+			FEATURES += enable-ffmpeg-link-dynamic,
+			FS_NAMESPACE += ffmpeg-link-dynamic/
+		else
+			FS_NAMESPACE += no-ffmpeg/
+		endif
+	endif
+endif
+
+
+# This is the Cargo/Rust build profile.
+# You can specify a different value on the command line.
+# To make a build with the "debug" profile, run the shell command:
+#		PROFILE=debug make build-rust
+PROFILE ?= release
+ifeq ($(PROFILE),release)
+	PROFILE_ARG := --release
+else
+	ifeq ($(PROFILE),debug)
+		PROFILE_ARG :=
+	else
+		PROFILE_ARG := --profile=$(PROFILE)
+	endif
+endif
+
+
 # These variables set the path for Rust or system tools.
 CBINDGEN ?= cbindgen
 CARGO ?= cargo
@@ -17,8 +68,8 @@ JAVASCRIPT_CODE_PATHS ?= ./tests-wasm-nodejs/test.js
 
 
 # These variables set the paths for Python tools.
-WHEEL_DIR ?= target/frontend-python
-MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux
+WHEEL_DIR ?= target/frontend-python/$(FS_NAMESPACE)$(PROFILE)
+MANYLINUX_WHEEL_DIR ?= target/frontend-python--manylinux/$(FS_NAMESPACE)$(PROFILE)
 PYTHON_CODE_PATHS ?= ./tests-python ./docs/source/conf.py
 
 
@@ -160,6 +211,15 @@ $(VENV_PATH)/.ti:
 # Wrapper command for setting up the Python virtualenv
 init-python: $(VENV_PATH)/.ti
 .PHONY: init-python
+
+# Install Python packages required to build Babycat's source into a Python extension wheel.
+$(VENV_PATH)/.requirements-build.txt.ti: $(VENV_PATH)/.ti
+	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements-build.txt
+	@touch $(VENV_PATH)/.requirements-build.txt.ti
+
+
+init-python-requirements-build: $(VENV_PATH)/.requirements-build.txt.ti
+.PHONY: init-python-requirements-build
 
 # Install packages required to use Babycat.
 $(VENV_PATH)/.requirements.txt.ti: $(VENV_PATH)/.ti
@@ -345,7 +405,7 @@ lint-python: init-python-requirements-dev
 
 ## lint-rust
 lint-rust: .b/init-rustup-clippy .b/init-rust
-	@CARGO_TARGET_DIR=target/all-features $(CARGO) clippy --release --all-features
+	@CARGO_TARGET_DIR=target/all-features $(CARGO) clippy $(PROFILE_ARG) --all-features
 .PHONY: lint-rust
 
 ## lint
@@ -359,51 +419,52 @@ lint: lint-python lint-rust
 # ===================================================================
 
 ## build-rust
-target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --no-default-features --features=frontend-rust
-	@touch target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-build-rust: target/frontend-rust/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust $(RUST_SRC_FILES)
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --no-default-features --features=frontend-rust,$(FEATURES)
+	@touch target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+build-rust: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 .PHONY: build-rust
 
 ## build-c
-target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-c $(CARGO) build --release --no-default-features --features=frontend-c
-	@touch target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
-build-c: target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust $(RUST_SRC_FILES)
+	CARGO_TARGET_DIR=target/frontend-c/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --no-default-features --features=frontend-c,$(FEATURES)
+	@touch target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
+build-c: target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 .PHONY: build-c
 
 ## build-python
-$(WHEEL_DIR)/*.whl: .b/init-rust $(RUST_SRC_FILES)
-	$(PYTHON) -m pip wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
+$(WHEEL_DIR)/*.whl: .b/init-rust $(VENV_PATH)/.requirements-build.txt.ti $(RUST_SRC_FILES)
+	$(ACTIVATE_VENV_CMD) && maturin build --no-sdist --manifest-path=Cargo.toml --out=$(WHEEL_DIR) --cargo-extra-args="$(PROFILE_ARG) --no-default-features --features=frontend-python,$(FEATURES)"
+#$(PYTHON) -m pip wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
 	@touch $(WHEEL_DIR)/*.whl
 .b/build-python: $(WHEEL_DIR)/*.whl
 	@touch .b/build-python
 build-python: .b/build-python
 .PHONY: build-python
 
-target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust .b/init-rustup-wasm32-unknown-unknown $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-wasm $(CARGO) build --release --no-default-features --features=frontend-wasm
-	@touch target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
+target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust .b/init-rustup-wasm32-unknown-unknown $(RUST_SRC_FILES)
+	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --no-default-features --features=frontend-wasm,$(FEATURES)
+	@touch target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
 
 ## build-wasm-bundler
-target/frontend-wasm/release/bundler/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=bundler --out-dir=./target/frontend-wasm/release/bundler -- --no-default-features --features=frontend-wasm
-	cp .npmrc-example ./target/frontend-wasm/release/bundler/.npmrc
-build-wasm-bundler: target/frontend-wasm/release/bundler/babycat_bg.wasm
+target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(WASM_PACK) build $(PROFILE_ARG) --target=bundler --out-dir=./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler -- --no-default-features --features=frontend-wasm,$(FEATURES)
+	cp .npmrc-example ./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/.npmrc
+build-wasm-bundler: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm
 .PHONY: build-wasm-bundler
 
 ## build-wasm-nodejs
-target/frontend-wasm/release/nodejs/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=nodejs --out-dir=./target/frontend-wasm/release/nodejs -- --no-default-features --features=frontend-wasm
-	cp .npmrc-example ./target/frontend-wasm/release/nodejs/.npmrc
-build-wasm-nodejs: target/frontend-wasm/release/nodejs/babycat_bg.wasm
+target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(WASM_PACK) build $(PROFILE_ARG) --target=nodejs --out-dir=./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs -- --no-default-features --features=frontend-wasm,$(FEATURES)
+	cp .npmrc-example ./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/.npmrc
+build-wasm-nodejs: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/babycat_bg.wasm
 .PHONY: build-wasm-nodejs
 
 ## build-wasm-web
-target/frontend-wasm/release/web/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	CARGO_TARGET_DIR=target/frontend-wasm $(WASM_PACK) build --release --target=web --out-dir=./target/frontend-wasm/release/web -- --no-default-features --features=frontend-wasm
-	cp .npmrc-example ./target/frontend-wasm/release/nodejs/.npmrc
-build-wasm-web: target/frontend-wasm/release/web/babycat_bg.wasm
+target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/web/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(WASM_PACK) build $(PROFILE_ARG) --target=web --out-dir=./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/web -- --no-default-features --features=frontend-wasm,$(FEATURES)
+	cp .npmrc-example ./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/.npmrc
+build-wasm-web: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/web/babycat_bg.wasm
 .PHONY: build-wasm-web
 
 ## build
@@ -430,10 +491,10 @@ build-python-manylinux: $(MANYLINUX_WHEEL_DIR)/*.whl
 # app depends on dynamically linking to ALSA libraries on Ubuntu.
 # We don't want to make `make build` fail if the user does not have
 # those libraries.
-target/frontend-binary/release/$(BABYCAT_BINARY_NAME): .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-binary $(CARGO) build --release --no-default-features --features=frontend-binary --bin=babycat
-	@touch target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
-build-binary: target/frontend-binary/release/$(BABYCAT_BINARY_NAME)
+target/frontend-binary/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_BINARY_NAME): .b/init-rust $(RUST_SRC_FILES)
+	CARGO_TARGET_DIR=target/frontend-binary/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --no-default-features --features=frontend-binary,$(FEATURES) --bin=babycat
+	@touch target/frontend-binary/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_BINARY_NAME)
+build-binary: target/frontend-binary/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_BINARY_NAME)
 .PHONY: build-binary
 
 
@@ -455,7 +516,7 @@ docs-sphinx: .b/docs-sphinx
 # This is the command we use to build docs on Netlify.
 # The Netlify build image has Python 3.8 installed,
 # but does not come with the virtualenv extension.
-.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/release/bundler/babycat_bg.wasm babycat.h .b/build-python $(DOCS_FILES)
+.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm babycat.h .b/build-python $(DOCS_FILES)
 # Clean any previous builds.
 	rm -rf docs/build
 	mkdir docs/build
@@ -474,7 +535,7 @@ docs-sphinx-netlify: .b/docs-sphinx-netlify
 
 ## docs-rustdoc
 .b/docs-rustdoc: .b/init-rust $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) doc --release --no-default-features --features=frontend-rust --no-deps
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) doc $(PROFILE_ARG) --no-default-features --features=frontend-rust,$(FEATURES) --no-deps
 	@touch .b/docs-rustdoc
 docs-rustdoc: .b/docs-rustdoc
 .PHONY: docs-rustdoc
@@ -512,8 +573,8 @@ install-python-wheel-manylinux: .b/install-python-wheel-manylinux
 # ===================================================================
 
 ## test-c
-target/test_c: babycat.h tests-c/test.c target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	$(CC) -g -Wall -Werror=unused-function -o target/test_c tests-c/test.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+target/test_c: babycat.h tests-c/test.c target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	$(CC) -g -Wall -Werror=unused-function -o target/test_c tests-c/test.c target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
 test-c: target/test_c
 	./target/test_c
 .PHONY: test-c
@@ -535,11 +596,11 @@ test-python-manylinux: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-w
 
 ## test-rust
 test-rust: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --no-default-features --features=frontend-rust
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) test $(PROFILE_ARG) --no-default-features --features=frontend-rust,$(FEATURES)
 .PHONY: test-rust
 
 ## test-wasm-nodejs
-test-wasm-nodejs: .b/init-javascript-tests target/frontend-wasm/release/nodejs/babycat_bg.wasm
+test-wasm-nodejs: .b/init-javascript-tests target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/babycat_bg.wasm
 	cd tests-wasm-nodejs && $(NPM) run test
 .PHONY: test-wasm-nodejs
 
@@ -561,7 +622,7 @@ doctest-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
 
 ## doctest-rust
 doctest-rust: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) test --release --doc
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) test $(PROFILE_ARG) --doc
 .PHONY: doctest-rust
 
 ## doctest
@@ -574,24 +635,29 @@ doctest: doctest-rust doctest-python
 # bench =============================================================
 # ===================================================================
 
+## bench-rust-decoding-log-sweep
+bench-rust-decoding-log-sweep: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_log_sweep
+.PHONY: bench-rust-decoding-log-sweep
+
 ## bench-rust-decoding
 bench-rust-decoding: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=decoding_benchmark
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_benchmark
 .PHONY: bench-rust-decoding
 
 ## bench-rust-resample-bc-lanczos
 bench-rust-resample-bc-lanczos: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_babycat_lanczos
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=resample_babycat_lanczos
 .PHONY: bench-rust-resample-bc-lanczos
 
 ## bench-rust-resample-bc-sinc
 bench-rust-resample-bc-sinc: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_babycat_sinc
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=resample_babycat_sinc
 .PHONY: bench-rust-resample-bc-sinc
 
 ## bench-rust-resample-libsamplerate
 bench-rust-resample-libsamplerate: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) bench --bench=resample_libsamplerate
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=resample_libsamplerate
 .PHONY: bench-rust-resample-libsamplerate
 
 ## bench-rust-resample
@@ -613,36 +679,36 @@ bench: bench-rust
 # ===================================================================
 
 ## build-ex-resampler-comparison
-target/frontend-rust/release/examples/resampler_comparison: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --example resampler_comparison
-	@touch target/frontend-rust/release/examples/resampler_comparison
-build-ex-resampler-comparison: target/frontend-rust/release/examples/resampler_comparison
+target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --example resampler_comparison
+	@touch target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison
+build-ex-resampler-comparison: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison
 .PHONY: build-ex-resampler-comparison
 
 ## build-ex-decode-rust
-target/frontend-rust/release/examples/decode: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust $(CARGO) build --release --example decode
-	@touch target/frontend-rust/release/examples/decode
-build-ex-decode-rust: target/frontend-rust/release/examples/decode
+target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --example decode
+	@touch target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
+build-ex-decode-rust: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
 .PHONY: build-ex-decode-rust
 
 ## build-ex-decode-c
-target/frontend-c/release/examples/decode: babycat.h target/frontend-c/release/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	$(CC) -Wall -o target/frontend-c/release/examples/decode examples-c/decode.c target/frontend-c/release/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
-	@touch target/frontend-c/release/examples/decode
-build-ex-decode-c: target/frontend-c/release/examples/decode
+target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode: babycat.h target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	$(CC) -Wall -o target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode examples-c/decode.c target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+	@touch target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
+build-ex-decode-c: target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
 .PHONY: build-ex-decode-c
 
 ## build-ex-decode-wasm
-target/frontend-wasm/release/examples/decode/index.bundle.js: target/frontend-wasm/release/bundler/babycat_bg.wasm
-	mkdir -p target/frontend-wasm/release/examples/decode
+target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm
+	mkdir -p target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
 	cd examples-wasm/decode/ && $(NPM) rebuild && $(NPM) install && ./node_modules/.bin/webpack
-	@touch target/frontend-wasm/release/examples/decode/index.bundle.js
-build-ex-decode-wasm: target/frontend-wasm/release/examples/decode/index.bundle.js
+	@touch target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js
+build-ex-decode-wasm: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js
 .PHONY: build-ex-decode-wasm
 
 ## build-ex
-build-ex: target/frontend-rust/release/examples/resampler_comparison target/frontend-rust/release/examples/decode target/frontend-c/release/examples/decode target/frontend-wasm/release/examples/decode/index.bundle.js
+build-ex: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js
 .PHONY: build-ex
 
 
@@ -651,18 +717,18 @@ build-ex: target/frontend-rust/release/examples/resampler_comparison target/fron
 # ===================================================================
 
 ## run-ex-resampler-comparison
-run-ex-resampler-comparison: target/frontend-rust/release/examples/resampler_comparison
-	target/frontend-rust/release/examples/resampler_comparison
+run-ex-resampler-comparison: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison
+	target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison
 .PHONY: run-ex-resampler-comparison
 
 ## run-ex-decode-rust
-run-ex-decode-rust: target/frontend-rust/release/examples/decode
-	target/frontend-rust/release/examples/decode
+run-ex-decode-rust: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
+	target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
 .PHONY: run-ex-decode-rust
 
 ## run-ex-decode-c
-run-ex-decode-c: target/frontend-c/release/examples/decode
-	target/frontend-c/release/examples/decode
+run-ex-decode-c: target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
+	target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
 .PHONY: run-ex-decode-c
 
 ## run-ex-decode-python

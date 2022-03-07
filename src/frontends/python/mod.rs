@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 pub mod batch;
+pub mod build_info;
 pub mod decoding_backend;
 pub mod exceptions;
 pub mod resample_mode;
@@ -12,6 +13,10 @@ pub mod waveform_named_result;
 /// Module docstring second line
 #[pymodule]
 pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
+    // Configure the batch submodule.
+    let build_info_submodule = build_info::make_build_info_submodule(py)?;
+    m.add_submodule(build_info_submodule)?;
+
     // Configure the batch submodule.
     let batch_submodule = batch::make_batch_submodule(py)?;
     m.add_submodule(batch_submodule)?;

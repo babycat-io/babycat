@@ -5,14 +5,11 @@ fn decoding_benchmark(c: &mut Criterion) {
 
     group.significance_level(0.01);
 
-    let symphonia_args =
-        babycat::WaveformArgs::default().set_decoding_backend(babycat::DECODING_BACKEND_SYMPHONIA);
-
     group.bench_function("andreas-theme", |b| {
         b.iter(|| {
             babycat::Waveform::from_file(
                 "./audio-for-tests/andreas-theme/track.mp3",
-                symphonia_args,
+                Default::default(),
             )
             .unwrap()
         })
@@ -22,7 +19,7 @@ fn decoding_benchmark(c: &mut Criterion) {
         b.iter(|| {
             babycat::Waveform::from_file(
                 "./audio-for-tests/blippy-trance/track.mp3",
-                symphonia_args,
+                Default::default(),
             )
             .unwrap()
         })
@@ -32,7 +29,7 @@ fn decoding_benchmark(c: &mut Criterion) {
         b.iter(|| {
             babycat::Waveform::from_file(
                 "./audio-for-tests/circus-of-freaks/track.mp3",
-                symphonia_args,
+                Default::default(),
             )
             .unwrap()
         })
@@ -42,7 +39,7 @@ fn decoding_benchmark(c: &mut Criterion) {
         b.iter(|| {
             babycat::Waveform::from_file(
                 "./audio-for-tests/mono-dtmf-tones/track.mp3",
-                symphonia_args,
+                Default::default(),
             )
             .unwrap()
         })
@@ -52,7 +49,7 @@ fn decoding_benchmark(c: &mut Criterion) {
         b.iter(|| {
             babycat::Waveform::from_file(
                 "./audio-for-tests/voxel-revolution/track.mp3",
-                symphonia_args,
+                Default::default(),
             )
             .unwrap()
         })
