@@ -66,7 +66,7 @@ JAVASCRIPT_CODE_PATHS?=./tests-wasm-nodejs/test.js
 # These variables set the paths for Python tools.
 WHEEL_DIR?=target/frontend-python/$(FS_NAMESPACE)$(PROFILE)
 MANYLINUX_WHEEL_DIR?=target/frontend-python--manylinux/$(FS_NAMESPACE)$(PROFILE)
-PYTHON_CODE_PATHS?=./tests-python ./docs/source/conf.py
+PYTHON_CODE_PATHS?=./tests-python ./benches-python ./docs/source/conf.py
 
 
 # Windows and Unix have different paths for activating
@@ -210,7 +210,7 @@ init-python: $(VENV_PATH)/.ti
 .PHONY: init-python
 
 # Install Python packages required to build Babycat's source into a Python extension wheel.
-$(VENV_PATH)/.requirements-build.txt.ti: $(VENV_PATH)/.ti
+$(VENV_PATH)/.requirements-build.txt.ti: $(VENV_PATH)/.ti requirements-build.txt
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements-build.txt
 	@touch $(VENV_PATH)/.requirements-build.txt.ti
 
@@ -219,7 +219,7 @@ init-python-requirements-build: $(VENV_PATH)/.requirements-build.txt.ti
 .PHONY: init-python-requirements-build
 
 # Install packages required to use Babycat.
-$(VENV_PATH)/.requirements.txt.ti: $(VENV_PATH)/.ti
+$(VENV_PATH)/.requirements.txt.ti: $(VENV_PATH)/.ti requirements.txt
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements.txt
 	@touch $(VENV_PATH)/.requirements.txt.ti
 
@@ -227,7 +227,7 @@ init-python-requirements: $(VENV_PATH)/.requirements.txt.ti
 .PHONY: init-python-requirements
 
 # Install packages required to lint and test Babycat's source code.
-$(VENV_PATH)/.requirements-dev.txt.ti: $(VENV_PATH)/.ti
+$(VENV_PATH)/.requirements-dev.txt.ti: $(VENV_PATH)/.ti requirements-dev.txt
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements-dev.txt
 	@touch $(VENV_PATH)/.requirements-dev.txt.ti
 
@@ -235,7 +235,7 @@ init-python-requirements-dev: $(VENV_PATH)/.requirements-dev.txt.ti
 .PHONY: init-python-requirements-dev
 
 # Install packages required to build Babycat's documentation.
-$(VENV_PATH)/.requirements-docs.txt.ti: $(VENV_PATH)/.ti
+$(VENV_PATH)/.requirements-docs.txt.ti: $(VENV_PATH)/.ti requirements-docs.txt
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --requirement requirements-docs.txt
 	@touch $(VENV_PATH)/.requirements-docs.txt.ti
 
@@ -432,36 +432,33 @@ build-c: target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME)
 ## build-python
 $(WHEEL_DIR)/*.whl: .b/init-rust $(VENV_PATH)/.requirements-build.txt.ti $(RUST_SRC_FILES)
 	$(ACTIVATE_VENV_CMD) && maturin build --no-sdist --manifest-path=Cargo.toml --out=$(WHEEL_DIR) --cargo-extra-args="$(PROFILE_ARG) --no-default-features --features=frontend-python,$(FEATURES)"
-#$(PYTHON) -m pip wheel --no-cache-dir --no-deps --wheel-dir=$(WHEEL_DIR) .
 	@touch $(WHEEL_DIR)/*.whl
-.b/build-python: $(WHEEL_DIR)/*.whl
-	@touch .b/build-python
-build-python: .b/build-python
+build-python: $(WHEEL_DIR)/*.whl
 .PHONY: build-python
 
-target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust .b/init-rustup-wasm32-unknown-unknown $(RUST_SRC_FILES)
-	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(CARGO) build $(PROFILE_ARG) --no-default-features --features=frontend-wasm,$(FEATURES)
-	@touch target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
+target/frontend-wasm/no-ffmpeg/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT): .b/init-rust .b/init-rustup-wasm32-unknown-unknown $(RUST_SRC_FILES)
+	CARGO_TARGET_DIR=target/frontend-wasm/no-ffmpeg $(CARGO) build $(PROFILE_ARG) --no-default-features --features=frontend-wasm,$(FEATURES)
+	@touch target/frontend-wasm/no-ffmpeg/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).${SHARED_LIB_EXT}
 
 ## build-wasm-bundler
-target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(WASM_PACK) build $(PROFILE_ARG) --target=bundler --out-dir=./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler -- --no-default-features --features=frontend-wasm,$(FEATURES)
-	cp .npmrc-example ./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/.npmrc
-build-wasm-bundler: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm
+target/frontend-wasm/no-ffmpeg/$(PROFILE)/bundler/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/no-ffmpeg/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	CARGO_TARGET_DIR=target/frontend-wasm/no-ffmpeg $(WASM_PACK) build $(PROFILE_ARG) --target=bundler --out-dir=./target/frontend-wasm/no-ffmpeg/$(PROFILE)/bundler -- --no-default-features --features=frontend-wasm,$(FEATURES)
+	cp .npmrc-example ./target/frontend-wasm/no-ffmpeg/$(PROFILE)/bundler/.npmrc
+build-wasm-bundler: target/frontend-wasm/no-ffmpeg/$(PROFILE)/bundler/babycat_bg.wasm
 .PHONY: build-wasm-bundler
 
 ## build-wasm-nodejs
-target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(WASM_PACK) build $(PROFILE_ARG) --target=nodejs --out-dir=./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs -- --no-default-features --features=frontend-wasm,$(FEATURES)
-	cp .npmrc-example ./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/.npmrc
-build-wasm-nodejs: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/babycat_bg.wasm
+target/frontend-wasm/no-ffmpeg/$(PROFILE)/nodejs/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/no-ffmpeg/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	CARGO_TARGET_DIR=target/frontend-wasm/no-ffmpeg $(WASM_PACK) build $(PROFILE_ARG) --target=nodejs --out-dir=./target/frontend-wasm/no-ffmpeg/$(PROFILE)/nodejs -- --no-default-features --features=frontend-wasm,$(FEATURES)
+	cp .npmrc-example ./target/frontend-wasm/no-ffmpeg/$(PROFILE)/nodejs/.npmrc
+build-wasm-nodejs: target/frontend-wasm/no-ffmpeg/$(PROFILE)/nodejs/babycat_bg.wasm
 .PHONY: build-wasm-nodejs
 
 ## build-wasm-web
-target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/web/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
-	CARGO_TARGET_DIR=target/frontend-wasm/$(FS_NAMESPACE) $(WASM_PACK) build $(PROFILE_ARG) --target=web --out-dir=./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/web -- --no-default-features --features=frontend-wasm,$(FEATURES)
-	cp .npmrc-example ./target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/.npmrc
-build-wasm-web: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/web/babycat_bg.wasm
+target/frontend-wasm/no-ffmpeg/$(PROFILE)/web/babycat_bg.wasm: .b/init-cargo-wasm-pack .npmrc-example target/frontend-wasm/no-ffmpeg/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+	CARGO_TARGET_DIR=target/frontend-wasm/no-ffmpeg $(WASM_PACK) build $(PROFILE_ARG) --target=web --out-dir=./target/frontend-wasm/no-ffmpeg/$(PROFILE)/web -- --no-default-features --features=frontend-wasm,$(FEATURES)
+	cp .npmrc-example ./target/frontend-wasm/no-ffmpeg/$(PROFILE)/nodejs/.npmrc
+build-wasm-web: target/frontend-wasm/no-ffmpeg/$(PROFILE)/web/babycat_bg.wasm
 .PHONY: build-wasm-web
 
 ## build
@@ -513,7 +510,7 @@ docs-sphinx: .b/docs-sphinx
 # This is the command we use to build docs on Netlify.
 # The Netlify build image has Python 3.8 installed,
 # but does not come with the virtualenv extension.
-.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm babycat.h .b/build-python $(DOCS_FILES)
+.b/docs-sphinx-netlify: .b/init-javascript-tools target/frontend-wasm/no-ffmpeg/$(PROFILE)/bundler/babycat_bg.wasm babycat.h build-python $(DOCS_FILES)
 # Clean any previous builds.
 	rm -rf docs/build
 	mkdir docs/build
@@ -550,7 +547,7 @@ docs: .b/docs-sphinx .b/docs-rustdoc
 # ===================================================================
 
 ## install-python-wheel
-.b/install-python-wheel: .b/build-python $(VENV_PATH)/.requirements.txt.ti
+.b/install-python-wheel: $(WHEEL_DIR)/*.whl $(VENV_PATH)/.requirements.txt.ti
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --no-deps --force-reinstall $(WHEEL_DIR)/*.whl
 	@touch .b/install-python-wheel
 install-python-wheel: .b/install-python-wheel
@@ -597,7 +594,7 @@ test-rust: .b/init-rust
 .PHONY: test-rust
 
 ## test-wasm-nodejs
-test-wasm-nodejs: .b/init-javascript-tests target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/nodejs/babycat_bg.wasm
+test-wasm-nodejs: .b/init-javascript-tests target/frontend-wasm/no-ffmpeg/$(PROFILE)/nodejs/babycat_bg.wasm
 	cd tests-wasm-nodejs && $(NPM) run test
 .PHONY: test-wasm-nodejs
 
@@ -631,6 +628,10 @@ doctest: doctest-rust doctest-python
 # ===================================================================
 # bench =============================================================
 # ===================================================================
+
+bench-python-decoding-batch-misc: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
+	$(ACTIVATE_VENV_CMD) && pytest benches-python/decoding_batch_misc.py
+.PHONY: bench-python-decoding-batch-misc
 
 bench-rust-decoding-batch-misc: .b/init-rust
 	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_batch_misc
@@ -701,15 +702,15 @@ build-ex-decode-c: target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
 .PHONY: build-ex-decode-c
 
 ## build-ex-decode-wasm
-target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/bundler/babycat_bg.wasm
-	mkdir -p target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode
+target/frontend-wasm/no-ffmpeg/$(PROFILE)/examples/decode/index.bundle.js: target/frontend-wasm/no-ffmpeg/$(PROFILE)/bundler/babycat_bg.wasm
+	mkdir -p target/frontend-wasm/no-ffmpeg/$(PROFILE)/examples/decode
 	cd examples-wasm/decode/ && $(NPM) rebuild && $(NPM) install && ./node_modules/.bin/webpack
-	@touch target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js
-build-ex-decode-wasm: target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js
+	@touch target/frontend-wasm/no-ffmpeg/$(PROFILE)/examples/decode/index.bundle.js
+build-ex-decode-wasm: target/frontend-wasm/no-ffmpeg/$(PROFILE)/examples/decode/index.bundle.js
 .PHONY: build-ex-decode-wasm
 
 ## build-ex
-build-ex: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode target/frontend-wasm/$(FS_NAMESPACE)/$(PROFILE)/examples/decode/index.bundle.js
+build-ex: target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/resampler_comparison target/frontend-rust/$(FS_NAMESPACE)/$(PROFILE)/examples/decode target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/examples/decode target/frontend-wasm/no-ffmpeg/$(PROFILE)/examples/decode/index.bundle.js
 .PHONY: build-ex
 
 
