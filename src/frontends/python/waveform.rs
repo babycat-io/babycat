@@ -509,7 +509,7 @@ impl Waveform {
         mime_type = \"\",
     )")]
     #[allow(clippy::too_many_arguments)]
-    pub fn from_encoded_bytes_to_numpy(
+    pub fn from_encoded_bytes_into_numpy(
         encoded_bytes: Vec<u8>,
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,

@@ -4,6 +4,7 @@ pub mod batch;
 pub mod build_info;
 pub mod decoding_backend;
 pub mod exceptions;
+pub mod numpy_named_result;
 pub mod resample_mode;
 pub mod waveform;
 pub mod waveform_named_result;
@@ -39,6 +40,8 @@ pub fn babycat(py: Python, m: &PyModule) -> PyResult<()> {
     // Configure the WaveformNamedResult class, which we
     // use to wrap error messages when decoding.
     m.add_class::<waveform_named_result::WaveformNamedResult>()?;
+
+    m.add_class::<numpy_named_result::NumPyNamedResult>()?;
 
     // End of the module
     Ok(())
