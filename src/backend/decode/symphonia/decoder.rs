@@ -1,10 +1,11 @@
+use std::convert::AsRef;
 use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
+use std::path::Path;
 
-use symphonia::core::codecs::CodecParameters;
 use symphonia::core::formats::FormatOptions;
-use symphonia::core::formats::FormatReader;
+use symphonia::core::formats::{FormatReader, Track};
 use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
@@ -24,14 +25,13 @@ use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
 pub struct SymphoniaDecoder {
     args: DecodeArgs,
     reader: Box<dyn FormatReader>,
-    codec_params: CodecParameters,
     frame_rate: u32,
     channels: u16,
     est_num_frames: usize,
 }
 
 impl SymphoniaDecoder {
-    pub fn new<R: 'static + Read + Send + Sync>(
+    pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
         waveform_args: WaveformArgs,
         encoded_stream: R,
         file_extension: &str,
@@ -74,16 +74,19 @@ impl SymphoniaDecoder {
                 )))
             }
         };
-        let mut reader = probed.format;
-        let codec_params = reader.default_track().unwrap().codec_params;
+        let reader = probed.format;
+        let default_track: &Track = match reader.default_track() {
+            None => return Err(Error::NoSuitableAudioStreams(reader.tracks().len())),
+            Some(dt) => dt,
+        };
 
         // Examine the actual shape of this audio file.
-        let frame_rate = codec_params.sample_rate.unwrap();
-        let channels = codec_params.channels.unwrap().count() as u16;
+        let frame_rate = default_track.codec_params.sample_rate.unwrap();
+        let channels = default_track.codec_params.channels.unwrap().count() as u16;
 
         let args = DecodeArgs::new(waveform_args, frame_rate, channels)?;
 
-        let est_num_frames = match codec_params.n_frames {
+        let est_num_frames = match default_track.codec_params.n_frames {
             Some(n_frames) => {
                 get_est_num_frames(n_frames as usize, args.start_frame_idx, args.end_frame_idx)
             }
@@ -93,33 +96,24 @@ impl SymphoniaDecoder {
         Ok(Box::new(Self {
             args,
             reader,
-            codec_params,
             frame_rate,
             channels,
             est_num_frames,
         }))
     }
-    pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
-        waveform_args: WaveformArgs,
-        encoded_stream: R,
-        file_extension: &str,
-        mime_type: &str,
-    ) -> Result<Box<dyn Decoder>, Error> {
-        Self::new(waveform_args, encoded_stream, file_extension, mime_type)
-    }
 
     #[cfg(feature = "enable-filesystem")]
-    pub fn from_file(
-        filename: &str,
+    pub fn from_file<F: Clone + AsRef<Path>>(
         waveform_args: WaveformArgs,
+        filename: F,
     ) -> Result<Box<dyn Decoder>, Error> {
-        let pathname = std::path::Path::new(filename);
-        let file = match std::fs::File::open(pathname) {
+        let filename_ref = filename.as_ref();
+        let file = match std::fs::File::open(filename_ref) {
             Ok(f) => f,
             Err(err) => match err.kind() {
                 std::io::ErrorKind::NotFound => {
                     return Err(Error::FileNotFound(Box::leak(
-                        filename.to_owned().into_boxed_str(),
+                        filename_ref.to_str().unwrap().to_owned().into_boxed_str(),
                     )));
                 }
                 _ => {
@@ -130,11 +124,11 @@ impl SymphoniaDecoder {
         if let Ok(metadata) = file.metadata() {
             if metadata.is_dir() {
                 return Err(Error::FilenameIsADirectory(Box::leak(
-                    filename.to_owned().into_boxed_str(),
+                    filename_ref.to_str().unwrap().to_owned().into_boxed_str(),
                 )));
             }
         }
-        let file_extension = match pathname.extension() {
+        let file_extension = match filename.as_ref().extension() {
             Some(os_str) => match os_str.to_str() {
                 Some(str) => str,
                 None => DEFAULT_FILE_EXTENSION,
@@ -148,11 +142,9 @@ impl SymphoniaDecoder {
 
 impl Decoder for SymphoniaDecoder {
     #[inline(always)]
-    fn begin(mut self) -> Result<Box<dyn DecoderIter>, Error> {
-        match SymphoniaDecoderIter::new(self.args, &mut self.reader, &self.codec_params) {
-            Ok(decoder) => Ok(Box::new(decoder)),
-            Err(error) => Err(error),
-        }
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
+        let decode_iter = SymphoniaDecoderIter::new(self.args, &mut self.reader)?;
+        Ok(Box::new(decode_iter))
     }
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {

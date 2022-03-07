@@ -27,9 +27,10 @@
 //! assert_eq!(interleaved_samples.len(), 2491776 * 2);
 //! ```
 //!
-mod decoder;
-mod decoder_iter;
-mod symphonia;
+pub mod boxed_decoder;
+pub mod decoder;
+pub mod decoder_iter;
+pub mod symphonia;
 
 pub use crate::backend::decode::decoder::Decoder;
 pub use crate::backend::decode::decoder_iter::DecoderIter;
@@ -37,8 +38,14 @@ pub use crate::backend::decode::symphonia::decoder::SymphoniaDecoder;
 pub use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
 
 #[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
-mod ffmpeg;
+pub mod ffmpeg;
 #[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
 pub use crate::backend::decode::ffmpeg::decoder::FFmpegDecoder;
 #[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
 pub use crate::backend::decode::ffmpeg::decoder_iter::FFmpegDecoderIter;
+
+pub use crate::backend::decode::boxed_decoder::from_encoded_bytes;
+pub use crate::backend::decode::boxed_decoder::from_encoded_bytes_with_hint;
+pub use crate::backend::decode::boxed_decoder::from_encoded_stream;
+pub use crate::backend::decode::boxed_decoder::from_encoded_stream_with_hint;
+pub use crate::backend::decode::boxed_decoder::from_file;

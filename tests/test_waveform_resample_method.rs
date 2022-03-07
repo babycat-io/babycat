@@ -24,8 +24,8 @@ mod test_waveform_resample_method {
         filename: &str,
         waveform_args: WaveformArgs,
         frame_rate_hz: u32,
-        expected_num_channels: u32,
-        expected_num_frames: u64,
+        expected_num_channels: u16,
+        expected_num_frames: usize,
         expected_frame_rate_hz: u32,
     ) {
         let waveform = Waveform::from_file(filename, waveform_args).unwrap();

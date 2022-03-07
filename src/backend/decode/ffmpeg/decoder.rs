@@ -83,11 +83,11 @@ pub struct FFmpegDecoder {
 
 impl FFmpegDecoder {
     fn new(
+        waveform_args: WaveformArgs,
         input: Input,
         decoder: AudioDecoder,
         stream_index: usize,
         original_est_num_frames: usize,
-        waveform_args: WaveformArgs,
     ) -> Result<Box<dyn Decoder>, Error> {
         match decoder.format() {
             FFmpegSample::None | FFmpegSample::U8(_) | FFmpegSample::I64(_) => {
@@ -110,8 +110,8 @@ impl FFmpegDecoder {
         }))
     }
     pub fn from_file<F: Clone + AsRef<Path>>(
-        filename: F,
         waveform_args: WaveformArgs,
+        filename: F,
     ) -> Result<Box<dyn Decoder>, Error> {
         ffmpeg_init();
         let input = new_input_for_file(filename)?;
@@ -119,18 +119,18 @@ impl FFmpegDecoder {
         let original_est_num_frames = estimate_num_frames(&stream, &decoder);
         let stream_index = stream.index();
         Self::new(
+            waveform_args,
             input,
             decoder,
             stream_index,
             original_est_num_frames,
-            waveform_args,
         )
     }
 }
 
 impl Decoder for FFmpegDecoder {
     #[inline(always)]
-    fn begin(self) -> Result<Box<dyn DecoderIter>, Error> {
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
         Ok(Box::new(FFmpegDecoderIter::new(
             &mut self.input,
             &mut self.decoder,

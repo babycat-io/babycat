@@ -17,6 +17,7 @@ create_exception!(babycat, WrongNumChannelsAndMono, WrongNumChannels);
 create_exception!(babycat, CannotZeroPadWithoutSpecifiedLength, BabycatError);
 //
 // Decoding errors
+create_exception!(babycat, NoSuitableAudioStreams, BabycatError);
 create_exception!(babycat, UnknownDecodingBackend, BabycatError);
 create_exception!(babycat, UnknownInputEncoding, BabycatError);
 create_exception!(babycat, UnknownDecodeError, BabycatError);
@@ -47,6 +48,8 @@ impl std::convert::From<Error> for PyErr {
             }
 
             Error::UnknownDecodingBackend(..) => UnknownDecodingBackend::new_err(err.to_string()),
+
+            Error::NoSuitableAudioStreams(..) => NoSuitableAudioStreams::new_err(err.to_string()),
 
             Error::UnknownInputEncoding => UnknownInputEncoding::new_err(err.to_string()),
 

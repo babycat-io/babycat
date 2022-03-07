@@ -1,43 +1,43 @@
 #![allow(dead_code)]
 
 pub const AT_FILENAME: &str = "./audio-for-tests/andreas-theme/track.mp3";
-pub const AT_NUM_CHANNELS: u32 = 2;
-pub const AT_NUM_FRAMES: u64 = 9586944;
+pub const AT_NUM_CHANNELS: u16 = 2;
+pub const AT_NUM_FRAMES: usize = 9586944;
 pub const AT_FRAME_RATE_HZ: u32 = 44100;
 
 pub const BT_FILENAME: &str = "./audio-for-tests/blippy-trance/track.mp3";
-pub const BT_NUM_CHANNELS: u32 = 2;
-pub const BT_NUM_FRAMES: u64 = 5293440;
+pub const BT_NUM_CHANNELS: u16 = 2;
+pub const BT_NUM_FRAMES: usize = 5293440;
 pub const BT_FRAME_RATE_HZ: u32 = 44100;
 
 pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.mp3";
-pub const COF_NUM_CHANNELS: u32 = 2;
-pub const COF_NUM_FRAMES: u64 = 2491776;
+pub const COF_NUM_CHANNELS: u16 = 2;
+pub const COF_NUM_FRAMES: usize = 2491776;
 pub const COF_FRAME_RATE_HZ: u32 = 44100;
 
 pub const LCT_FILENAME: &str = "./audio-for-tests/left-channel-tone/track.mp3";
-pub const LCT_NUM_CHANNELS: u32 = 2;
-pub const LCT_NUM_FRAMES: u64 = 1324800;
+pub const LCT_NUM_CHANNELS: u16 = 2;
+pub const LCT_NUM_FRAMES: usize = 1324800;
 pub const LCT_FRAME_RATE_HZ: u32 = 44100;
 
 pub const MONO_DTMF_FILENAME: &str = "./audio-for-tests/mono-dtmf-tones/track.mp3";
-pub const MONO_DTMF_NUM_CHANNELS: u32 = 1;
-pub const MONO_DTMF_NUM_FRAMES: u64 = 442368;
+pub const MONO_DTMF_NUM_CHANNELS: u16 = 1;
+pub const MONO_DTMF_NUM_FRAMES: usize = 442368;
 pub const MONO_DTMF_FRAME_RATE_HZ: u32 = 44100;
 
 pub const OHFY_FILENAME: &str = "./audio-for-tests/on-hold-for-you/track.mp3";
-pub const OHFY_NUM_CHANNELS: u32 = 2;
-pub const OHFY_NUM_FRAMES: u64 = 9620352;
+pub const OHFY_NUM_CHANNELS: u16 = 2;
+pub const OHFY_NUM_FRAMES: usize = 9620352;
 pub const OHFY_FRAME_RATE_HZ: u32 = 44100;
 
 pub const TMS_FILENAME: &str = "./audio-for-tests/tone-missing-sounds/track.mp3";
-pub const TMS_NUM_CHANNELS: u32 = 1;
-pub const TMS_NUM_FRAMES: u64 = 1324800;
+pub const TMS_NUM_CHANNELS: u16 = 1;
+pub const TMS_NUM_FRAMES: usize = 1324800;
 pub const TMS_FRAME_RATE_HZ: u32 = 44100;
 
 pub const VR_FILENAME: &str = "./audio-for-tests/voxel-revolution/track.mp3";
-pub const VR_NUM_CHANNELS: u32 = 2;
-pub const VR_NUM_FRAMES: u64 = 5728896;
+pub const VR_NUM_CHANNELS: u16 = 2;
+pub const VR_NUM_FRAMES: usize = 5728896;
 pub const VR_FRAME_RATE_HZ: u32 = 44100;
 
 pub const ALL_FILENAMES: &[&str] = &[
@@ -51,7 +51,7 @@ pub const ALL_FILENAMES: &[&str] = &[
     VR_FILENAME,
 ];
 
-pub const ALL_NUM_CHANNELS: &[u32] = &[
+pub const ALL_NUM_CHANNELS: &[u16] = &[
     AT_NUM_CHANNELS,
     BT_NUM_CHANNELS,
     COF_NUM_CHANNELS,
@@ -62,7 +62,7 @@ pub const ALL_NUM_CHANNELS: &[u32] = &[
     VR_NUM_CHANNELS,
 ];
 
-pub const ALL_NUM_FRAMES: &[u64] = &[
+pub const ALL_NUM_FRAMES: &[usize] = &[
     AT_NUM_FRAMES,
     BT_NUM_FRAMES,
     COF_NUM_FRAMES,

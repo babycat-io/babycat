@@ -20,8 +20,8 @@ mod test_waveform_from_file {
 
     fn assert_waveform(
         result: Result<Waveform, Error>,
-        num_channels: u32,
-        num_frames: u64,
+        num_channels: u16,
+        num_frames: usize,
         frame_rate_hz: u32,
     ) {
         let waveform = result.unwrap();
@@ -29,7 +29,7 @@ mod test_waveform_from_file {
         assert_eq!(num_frames, waveform.num_frames());
         assert_eq!(frame_rate_hz, waveform.frame_rate_hz());
         assert_eq!(
-            (num_frames * num_channels as u64) as usize,
+            (num_frames * num_channels as usize) as usize,
             waveform.to_interleaved_samples().len()
         );
     }

@@ -6,10 +6,17 @@ use std::marker::Sync;
 use serde::{Deserialize, Serialize};
 
 use crate::backend::common::milliseconds_to_frames;
-use crate::backend::decode::SymphoniaDecoder;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::waveform_args::*;
+
+use crate::backend::decode::decoder::Decoder;
+use crate::backend::decode::decoder_iter::DecoderIter;
+use crate::backend::decode::from_encoded_bytes;
+use crate::backend::decode::from_encoded_bytes_with_hint;
+use crate::backend::decode::from_encoded_stream;
+use crate::backend::decode::from_encoded_stream_with_hint;
+use crate::backend::decode::from_file;
 
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -35,7 +42,6 @@ impl fmt::Debug for Waveform {
 }
 
 impl Waveform {
-    ///
     pub fn from_interleaved_samples(
         frame_rate_hz: u32,
         num_channels: u16,
@@ -43,6 +49,18 @@ impl Waveform {
     ) -> Self {
         Self::new(frame_rate_hz, num_channels, interleaved_samples.to_owned())
     }
+
+    pub fn from_decoder(
+        _waveform_args: WaveformArgs,
+        mut decoder: Box<dyn Decoder>,
+    ) -> Result<Self, Error> {
+        let frame_rate_hz = decoder.frame_rate_hz();
+        let num_channels = decoder.num_channels();
+        let decoder_iter: Box<dyn DecoderIter> = decoder.begin()?;
+        let interleaved_samples: Vec<f32> = decoder_iter.collect();
+        Ok(Self::new(frame_rate_hz, num_channels, interleaved_samples))
+    }
+
     /// Decodes audio stored in an in-memory byte array.
     ///
     /// # Arguments
@@ -71,12 +89,8 @@ impl Waveform {
         encoded_bytes: &[u8],
         waveform_args: WaveformArgs,
     ) -> Result<Self, Error> {
-        Self::from_encoded_bytes_with_hint(
-            encoded_bytes,
-            waveform_args,
-            DEFAULT_FILE_EXTENSION,
-            DEFAULT_MIME_TYPE,
-        )
+        let decoder = from_encoded_bytes(waveform_args, encoded_bytes)?;
+        Self::from_decoder(waveform_args, decoder)
     }
 
     /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
@@ -95,17 +109,12 @@ impl Waveform {
         file_extension: &str,
         mime_type: &str,
     ) -> Result<Self, Error> {
-        let owned = encoded_bytes.to_owned();
-        let encoded_stream = std::io::Cursor::new(owned);
-        Self::from_encoded_stream_with_hint(
-            encoded_stream,
-            waveform_args,
-            file_extension,
-            mime_type,
-        )
+        let decoder =
+            from_encoded_bytes_with_hint(waveform_args, encoded_bytes, file_extension, mime_type)?;
+        Self::from_decoder(waveform_args, decoder)
     }
 
-    /// Decodes audio stored in a local file.
+    /// Decodes audio stored in a locaselect_first_channelsl file.
     ///
     /// # Arguments
     /// - `filename`: A filename of an encoded audio file on the local filesystem.
@@ -154,36 +163,8 @@ impl Waveform {
     /// ```
     #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, waveform_args: WaveformArgs) -> Result<Self, Error> {
-        let pathname = std::path::Path::new(filename);
-        let file = match std::fs::File::open(pathname) {
-            Ok(f) => f,
-            Err(err) => match err.kind() {
-                std::io::ErrorKind::NotFound => {
-                    return Err(Error::FileNotFound(Box::leak(
-                        filename.to_owned().into_boxed_str(),
-                    )));
-                }
-                _ => {
-                    return Err(Error::UnknownIOError);
-                }
-            },
-        };
-        if let Ok(metadata) = file.metadata() {
-            if metadata.is_dir() {
-                return Err(Error::FilenameIsADirectory(Box::leak(
-                    filename.to_owned().into_boxed_str(),
-                )));
-            }
-        }
-        let file_extension = match pathname.extension() {
-            Some(os_str) => match os_str.to_str() {
-                Some(str) => str,
-                None => DEFAULT_FILE_EXTENSION,
-            },
-            None => DEFAULT_FILE_EXTENSION,
-        };
-
-        Self::from_encoded_stream_with_hint(file, waveform_args, file_extension, DEFAULT_MIME_TYPE)
+        let decoder = from_file(waveform_args, filename)?;
+        Self::from_decoder(waveform_args, decoder)
     }
 
     /// Decodes audio from an input stream.
@@ -200,12 +181,8 @@ impl Waveform {
         encoded_stream: R,
         waveform_args: WaveformArgs,
     ) -> Result<Self, Error> {
-        Self::from_encoded_stream_with_hint(
-            encoded_stream,
-            waveform_args,
-            DEFAULT_FILE_EXTENSION,
-            DEFAULT_MIME_TYPE,
-        )
+        let decoder = from_encoded_stream(waveform_args, encoded_stream)?;
+        Self::from_decoder(waveform_args, decoder)
     }
 
     /// Decodes audio from an input stream, using a user-specified decoding hint.
@@ -224,191 +201,13 @@ impl Waveform {
         file_extension: &str,
         mime_type: &str,
     ) -> Result<Self, Error> {
-        // If the user has provided an end timestamp that is BEFORE
-        // our start timestamp, then we raise an error.
-        if waveform_args.start_time_milliseconds != DEFAULT_START_TIME_MILLISECONDS
-            && waveform_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
-            && waveform_args.start_time_milliseconds >= waveform_args.end_time_milliseconds
-        {
-            return Err(Error::WrongTimeOffset(
-                waveform_args.start_time_milliseconds,
-                waveform_args.end_time_milliseconds,
-            ));
-        }
-
-        // If the user has not specified how long the output audio should be,
-        // then we would not know how to zero-pad after it.
-        if waveform_args.zero_pad_ending
-            && waveform_args.end_time_milliseconds == DEFAULT_END_TIME_MILLISECONDS
-        {
-            return Err(Error::CannotZeroPadWithoutSpecifiedLength);
-        }
-
-        // We do not allow the user to specify that they want to extract
-        // one channels AND to convert the waveform to mono.
-        // Converting the waveform to mono only makes sense when
-        // we are working with more than one channel.
-        if waveform_args.num_channels == 1 && waveform_args.convert_to_mono {
-            return Err(Error::WrongNumChannelsAndMono);
-        }
-
-        // Initialize our audio decoding backend.
-        let mut decoder = match waveform_args.decoding_backend {
-            DEFAULT_DECODING_BACKEND | DECODING_BACKEND_SYMPHONIA => {
-                SymphoniaDecoder::new(encoded_stream, file_extension, mime_type)?
-            }
-            _ => {
-                return Err(Error::UnknownDecodingBackend(
-                    waveform_args.decoding_backend,
-                ))
-            }
-        };
-
-        // Examine the actual shape of this audio file.
-        let original_frame_rate_hz = decoder.frame_rate_hz();
-        let original_num_channels = decoder.num_channels();
-
-        // If the user provided a negative frame rate, throw an error.
-        // We waited this long to throw an error because we also want to
-        // tell them what the REAL frame rate is for this audio track.
-        if waveform_args.frame_rate_hz != DEFAULT_FRAME_RATE_HZ && waveform_args.frame_rate_hz < 1 {
-            return Err(Error::WrongFrameRate(
-                original_frame_rate_hz,
-                waveform_args.frame_rate_hz,
-            ));
-        }
-
-        // This is the first n channels that we want to read from.
-        // If the user wants to convert the output to mono, we do that after
-        // reading from the first n channels.
-        // If waveform_args.num_channels was unspecified, then we read from
-        // all of the channels.
-        let selected_num_channels = {
-            if waveform_args.num_channels == DEFAULT_NUM_CHANNELS {
-                original_num_channels
-            } else if waveform_args.num_channels < 1 {
-                return Err(Error::WrongNumChannels(
-                    waveform_args.num_channels,
-                    original_num_channels,
-                ));
-            } else if original_num_channels >= waveform_args.num_channels {
-                waveform_args.num_channels
-            } else {
-                return Err(Error::WrongNumChannels(
-                    waveform_args.num_channels,
-                    original_num_channels,
-                ));
-            }
-        };
-
-        // Compute the exact start and end sample indexes for us to begin
-        // and end decoding.
-        let start_time_frames: usize =
-            waveform_args.start_time_milliseconds * original_frame_rate_hz as usize / 1000;
-        let end_time_frames: usize =
-            waveform_args.end_time_milliseconds * original_frame_rate_hz as usize / 1000;
-
-        let start_time_samples = start_time_frames * original_num_channels as usize;
-        let end_time_samples = end_time_frames * original_num_channels as usize;
-
-        // Decode all packets, ignoring decode errors.
-        let mut buffer: Vec<f32> = Vec::new();
-        let mut current_sample_idx: usize = 0;
-
-        let mut decoder_iter = decoder.begin()?;
-
-        'frame_loop: loop {
-            // If the current sample is before our start offset,
-            // then ignore it.
-            if current_sample_idx < start_time_samples {
-                let _ = decoder_iter.next();
-                current_sample_idx += 1;
-                continue;
-            }
-            // If we have a defined end offset and we are past it,
-            // then stop the decoding loop entirely.
-            if waveform_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
-                && current_sample_idx >= end_time_samples
-            {
-                break;
-            }
-
-            if waveform_args.convert_to_mono {
-                let mut current_sample_sum = 0.0_f32;
-                for channel_idx in 0..original_num_channels {
-                    match decoder_iter.next() {
-                        None => break 'frame_loop,
-                        Some(next_sample_result) => {
-                            current_sample_idx += 1;
-                            let next_sample = next_sample_result?;
-                            if channel_idx < selected_num_channels {
-                                current_sample_sum += next_sample;
-                            }
-                        }
-                    }
-                }
-                current_sample_sum /= selected_num_channels as f32;
-                buffer.push(current_sample_sum);
-            } else {
-                for channel_idx in 0..original_num_channels {
-                    match decoder_iter.next() {
-                        None => break 'frame_loop,
-                        Some(next_sample_result) => {
-                            current_sample_idx += 1;
-                            if channel_idx < selected_num_channels {
-                                let next_sample = next_sample_result?;
-                                buffer.push(next_sample);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        let num_channels = if waveform_args.convert_to_mono {
-            1
-        } else {
-            selected_num_channels
-        };
-
-        // Zero-pad the output audio vector if our start/end interval
-        // is longer than the actual audio we decoded.
-        if waveform_args.zero_pad_ending
-            && waveform_args.end_time_milliseconds != DEFAULT_END_TIME_MILLISECONDS
-        {
-            let expected_buffer_len = (end_time_frames - start_time_frames) * num_channels as usize;
-            let buffer_padding = expected_buffer_len - buffer.len();
-            if buffer_padding > 0 {
-                buffer.extend(vec![0.0_f32; buffer_padding]);
-            }
-        }
-
-        #[allow(unused_mut)]
-        let mut final_frame_rate_hz = original_frame_rate_hz;
-        // If we want the audio to be at a different frame rate,
-        // then resample it.
-        if waveform_args.frame_rate_hz != DEFAULT_FRAME_RATE_HZ
-            && waveform_args.frame_rate_hz != original_frame_rate_hz
-        {
-            final_frame_rate_hz = waveform_args.frame_rate_hz;
-            buffer = match resample(
-                original_frame_rate_hz,
-                final_frame_rate_hz,
-                num_channels,
-                &buffer,
-                waveform_args.resample_mode,
-            ) {
-                Ok(resampled) => resampled,
-                Err(err) => return Err(err),
-            }
-        }
-
-        let num_frames = buffer.len() / num_channels as usize;
-        Ok(Waveform {
-            frame_rate_hz: final_frame_rate_hz,
-            num_channels,
-            num_frames,
-            interleaved_samples: buffer,
-        })
+        let decoder = from_encoded_stream_with_hint(
+            waveform_args,
+            encoded_stream,
+            file_extension,
+            mime_type,
+        )?;
+        Self::from_decoder(waveform_args, decoder)
     }
 
     /// Creates a silent waveform measured in frames.

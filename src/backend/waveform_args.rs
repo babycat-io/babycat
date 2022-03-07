@@ -34,6 +34,8 @@ pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 /// Sets the decoding backend as [`SymphoniaDecoder`](crate::decode::SymphoniaDecoder).
 pub const DECODING_BACKEND_SYMPHONIA: u32 = 1;
 
+pub const DECODING_BACKEND_FFMPEG: u32 = 2;
+
 /// Specifies what transformations to apply to the audio during the decoding
 /// process.
 ///

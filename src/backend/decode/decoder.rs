@@ -3,7 +3,7 @@ use crate::backend::errors::Error;
 
 /// Methods common to all audio decoders.
 pub trait Decoder {
-    fn begin(self) -> Result<Box<dyn DecoderIter>, Error>;
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error>;
 
     fn frame_rate_hz(&self) -> u32;
 
