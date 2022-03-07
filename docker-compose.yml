@@ -62,6 +62,23 @@ services:
         source: "."
         target: /io
 
+  # A container used to build a manylinux wheel for Babycat's
+  # Python frontend--with FFmpeg enabled.
+  babycat-python-ffmpeg-manylinux:
+    build:
+      network: host
+      context: .
+      dockerfile: ./docker/babycat-python-ffmpeg-manylinux/Dockerfile
+    image: babycat/babycat-python-ffmpeg-manylinux
+    init: true
+    network_mode: host
+    entrypoint: bash
+    working_dir: /io
+    volumes:
+      - type: bind
+        source: "."
+        target: /io
+
   # A local copy of the Netlify build image.
   # Used to test the `make docs-netlify` build command.
   netlify:
