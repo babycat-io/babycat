@@ -19,6 +19,8 @@ jobs:
   test-rust-ffmpeg:
     runs-on: "ubuntu-20.04"
 
+    steps:
+
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
