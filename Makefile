@@ -590,7 +590,7 @@ test-python-manylinux: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-w
 
 ## test-rust
 test-rust: .b/init-rust
-	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) test --no-fail-fast $(PROFILE_ARG) --no-default-features --features=frontend-rust,$(FEATURES)
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) test --no-fail-fast $(PROFILE_ARG) --no-default-features --features=frontend-rust,$(FEATURES) $(CARGO_TEST_FILTER)
 .PHONY: test-rust
 
 ## test-wasm-nodejs
