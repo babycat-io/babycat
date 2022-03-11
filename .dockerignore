@@ -10,6 +10,7 @@ babycat.h
 **/Cargo.lock
 CODE_OF_CONDUCT.md
 makefile-help.md
+docker
 docs/_build
 **/node_modules
 **/package-lock.json

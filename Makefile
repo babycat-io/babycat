@@ -54,6 +54,8 @@ CLANG_FORMAT?=clang-format
 DOCKER_COMPOSE?=docker-compose
 WASM_PACK?=wasm-pack
 VALGRIND?=valgrind
+MATURIN?=maturin
+PYTEST?=pytest
 
 
 # These variables set the paths for Node/NPM/JavaScript tools.
@@ -75,19 +77,32 @@ PYTHON_CODE_PATHS?=./tests-python ./benches-python ./docs/source/conf.py
 # to use the Python path in $(PYTHON). The "python" command
 # will automatically point to the right Python.
 # TODO(jamesmishra): Handle the distinction between bash and cmd.
-VENV_PATH?=venv
 OS?=
 ifeq ($(OS),Windows_NT)
 	PYTHON?=python
-	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_PATH)
-	ACTIVATE_VENV_PATH?=$(VENV_PATH)/Scripts/activate
-	ACTIVATE_VENV_CMD?=. $(ACTIVATE_VENV_PATH)
 else
 	PYTHON?=python3
-	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_PATH)
-	ACTIVATE_VENV_PATH?=$(VENV_PATH)/bin/activate
-	ACTIVATE_VENV_CMD?=. $(ACTIVATE_VENV_PATH)
 endif
+
+VENV_PATH?=venv
+
+ifdef DISABLE_VENV
+	CREATE_VENV_CMD?=true
+	ACTIVATE_VENV_PATH?=true
+	ACTIVATE_VENV_CMD?=true
+else
+	ifeq ($(OS),Windows_NT)
+		CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_PATH)
+		ACTIVATE_VENV_PATH?=$(VENV_PATH)/Scripts/activate
+		ACTIVATE_VENV_CMD?=. $(ACTIVATE_VENV_PATH)
+	else
+		CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_PATH)
+		ACTIVATE_VENV_PATH?=$(VENV_PATH)/bin/activate
+		ACTIVATE_VENV_CMD?=. $(ACTIVATE_VENV_PATH)
+	endif
+endif
+
+
 
 # These are the Rust files being tracked by Git.
 RUST_SRC_FILES?=$(shell $(PYTHON) .listfiles.py src)
@@ -127,9 +142,9 @@ endif
 
 
 ifdef PYTHON_TEST_FILTER
-	PYTEST_CMD?=pytest -k $(PYTHON_TEST_FILTER)
+	PYTEST_CMD?=$(PYTEST) -k $(PYTHON_TEST_FILTER)
 else
-	PYTEST_CMD?=pytest
+	PYTEST_CMD?=$(PYTEST)
 endif
 
 
@@ -203,6 +218,7 @@ vendor: vendor-rust
 $(VENV_PATH)/.ti:
 	$(CREATE_VENV_CMD)
 	$(ACTIVATE_VENV_CMD) && $(PYTHON) -m pip install --upgrade pip
+	@mkdir -p $(VENV_PATH)
 	@touch $(VENV_PATH)/.ti
 
 # Wrapper command for setting up the Python virtualenv
@@ -430,8 +446,8 @@ build-c: target/frontend-c/$(FS_NAMESPACE)/$(PROFILE)/$(BABYCAT_SHARED_LIB_NAME)
 .PHONY: build-c
 
 ## build-python
-$(WHEEL_DIR)/*.whl: .b/init-rust $(VENV_PATH)/.requirements-build.txt.ti $(RUST_SRC_FILES)
-	$(ACTIVATE_VENV_CMD) && maturin build --no-sdist --manifest-path=Cargo.toml --out=$(WHEEL_DIR) --cargo-extra-args="$(PROFILE_ARG) --no-default-features --features=frontend-python,$(FEATURES)"
+$(WHEEL_DIR)/*.whl: .b/init-rust $(VENV_PATH)/.requirements-build.txt.ti Cargo.toml $(RUST_SRC_FILES)
+	$(ACTIVATE_VENV_CMD) && $(MATURIN) build --no-sdist --manifest-path=Cargo.toml --out=$(WHEEL_DIR) --cargo-extra-args="$(PROFILE_ARG) --no-default-features --features=frontend-python,$(FEATURES)"
 	@touch $(WHEEL_DIR)/*.whl
 build-python: $(WHEEL_DIR)/*.whl
 .PHONY: build-python
@@ -478,6 +494,12 @@ $(MANYLINUX_WHEEL_DIR)/*.whl: .b/docker-build-pip $(RUST_SRC_FILES)
 	$(DOCKER_COMPOSE) run --rm --user=$$(id -u):$$(id -g) pip wheel --no-cache-dir --no-deps --wheel-dir=$(MANYLINUX_WHEEL_DIR) .
 build-python-manylinux: $(MANYLINUX_WHEEL_DIR)/*.whl
 .PHONY: build-python-manylinux
+
+## build-python-ffmpeg-manylinux
+.b/build-python-ffmpeg-manylinux: docker-compose.yml docker/babycat-python-ffmpeg-manylinux/Dockerfile
+	$(DOCKER_COMPOSE) build babycat-python-ffmpeg-manylinux
+build-python-ffmpeg-manylinux: .b/build-python-ffmpeg-manylinux
+.PHONY: build-python-ffmpeg-manylinux
 
 ## build-binary
 # For now, we are going to purposely exclude `build-binary` from running
@@ -579,7 +601,7 @@ test-c-valgrind: target/test_c
 .PHONY: test-c-valgrind
 
 ## test-python
-test-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
+test-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel $(VENV_PATH)/.requirements-build.txt.ti
 	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
 .PHONY: test-python
 
@@ -587,6 +609,11 @@ test-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
 test-python-manylinux: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel-manylinux
 	$(ACTIVATE_VENV_CMD) && $(PYTEST_CMD)
 .PHONY: test-python-manylinux
+
+## test-babycat-python-ffmpeg-manylinux
+test-python-ffmpeg-manylinux: .b/build-python-ffmpeg-manylinux
+	$(DOCKER_COMPOSE) run --rm --user=$$(id -u):$$(id -g) --entrypoint=pytest babycat-python-ffmpeg-manylinux
+.PHONY: test-python-ffmpeg-manylinux
 
 ## test-rust
 test-rust: .b/init-rust
@@ -611,7 +638,7 @@ test: test-rust test-python test-wasm-nodejs test-c
 
 ## doctest-python
 doctest-python: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
-	$(ACTIVATE_VENV_CMD) && pytest tests-python/test_doctests.py
+	$(ACTIVATE_VENV_CMD) && $(PYTEST) tests-python/test_doctests.py
 .PHONY: doctest-python
 
 ## doctest-rust
@@ -630,7 +657,7 @@ doctest: doctest-rust doctest-python
 # ===================================================================
 
 bench-python-decoding-batch-misc: $(VENV_PATH)/.requirements-dev.txt.ti .b/install-python-wheel
-	$(ACTIVATE_VENV_CMD) && pytest benches-python/decoding_batch_misc.py
+	$(ACTIVATE_VENV_CMD) && $(PYTEST) benches-python/decoding_batch_misc.py
 .PHONY: bench-python-decoding-batch-misc
 
 bench-rust-decoding-batch-misc: .b/init-rust
