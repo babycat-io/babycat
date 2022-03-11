@@ -10,7 +10,7 @@ fn decoding_batch_misc(c: &mut Criterion) {
         .sample_size(10)
         .measurement_time(Duration::from_secs(90));
 
-    let batch_1_filenames = &[
+    let filenames = &[
         "./audio-for-tests/andreas-theme/track.flac",
         "./audio-for-tests/blippy-trance/track.wav",
         "./audio-for-tests/circus-of-freaks/track.flac",
@@ -21,13 +21,41 @@ fn decoding_batch_misc(c: &mut Criterion) {
         "./audio-for-tests/voxel-revolution/track.flac",
     ];
 
-    group.bench_function("batch_1", |b| {
+    group.bench_function("all_defaults", |b| {
         b.iter(|| {
             let batch = babycat::batch::waveforms_from_files(
-                batch_1_filenames,
+                filenames,
                 Default::default(),
                 Default::default(),
             );
+            for named_result in batch {
+                let _waveform = named_result.result.unwrap();
+            }
+        })
+    });
+
+    group.bench_function("single_worker", |b| {
+        b.iter(|| {
+            let batch_args = babycat::batch::BatchArgs {
+                num_workers: 1,
+                ..Default::default()
+            };
+            let batch =
+                babycat::batch::waveforms_from_files(filenames, Default::default(), batch_args);
+            for named_result in batch {
+                let _waveform = named_result.result.unwrap();
+            }
+        })
+    });
+
+    group.bench_function("convert_to_mono", |b| {
+        b.iter(|| {
+            let waveform_args = babycat::WaveformArgs {
+                convert_to_mono: true,
+                ..Default::default()
+            };
+            let batch =
+                babycat::batch::waveforms_from_files(filenames, waveform_args, Default::default());
             for named_result in batch {
                 let _waveform = named_result.result.unwrap();
             }
