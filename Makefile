@@ -633,6 +633,10 @@ bench-python-decoding-batch-misc: $(VENV_PATH)/.requirements-dev.txt.ti .b/insta
 	$(ACTIVATE_VENV_CMD) && pytest benches-python/decoding_batch_misc.py
 .PHONY: bench-python-decoding-batch-misc
 
+bench-rust-decoding-bulk-batch: .b/init-rust
+	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_bulk_batch
+.PHONY: bench-rust-decoding-bulk-batch
+
 bench-rust-decoding-batch-misc: .b/init-rust
 	CARGO_TARGET_DIR=target/frontend-rust/$(FS_NAMESPACE) $(CARGO) bench --no-default-features --features=frontend-rust,$(FEATURES) --bench=decoding_batch_misc
 .PHONY: bench-rust-decoding-batch-misc

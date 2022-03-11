@@ -37,6 +37,9 @@ harness = false
 name = "decoding_batch_misc"
 harness = false
 
+[[bench]]   
+name = "decoding_bulk_batch"
+harness = false
 
 # == Binary targets ==
 [[bin]]

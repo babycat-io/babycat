@@ -9,9 +9,11 @@ fn main() {
         "./audio-for-tests/tone-missing-sounds/track.flac",
         "./audio-for-tests/voxel-revolution/track.flac",
     ];
-    let batch =
+    for _i in 0..10 {
+        let batch =
         babycat::batch::waveforms_from_files(filenames, Default::default(), Default::default());
-    for named_result in batch {
-        let _waveform = named_result.result.unwrap();
+        for named_result in batch {
+            let _waveform = named_result.result.unwrap();
+        }
     }
 }

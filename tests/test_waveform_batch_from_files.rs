@@ -2,7 +2,7 @@ mod fixtures;
 
 mod test_waveform_batch_from_files {
     use crate::fixtures::*;
-    use babycat::batch::{waveforms_from_files, BatchArgs};
+    use babycat::batch::{waveforms_from_files, PoolArgs};
     use babycat::WaveformArgs;
 
     #[test]
@@ -49,7 +49,7 @@ mod test_waveform_batch_from_files {
     fn test_all_same_file_single_threaded_1() {
         let filenames = &[COF_FILENAME, COF_FILENAME, COF_FILENAME];
         let waveform_args = Default::default();
-        let batch_args = BatchArgs {
+        let batch_args = PoolArgs {
             num_workers: 1,
             ..Default::default()
         };

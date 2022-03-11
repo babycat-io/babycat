@@ -1,41 +1,11 @@
-//! Functions that use multithreading to manipulate multiple audio files in parallel.
-//!
-//! This submodule is only available if the Cargo feature
-//! `enable-multithreading` is enabled. Functions that read audio from
-//! the filesystem also need the Cargo feature `enable-filesystem`
-//! to be enabled. Both of these feature are disabled in Babycat's
-//! WebAssembly frontend.
 use rayon::prelude::*;
-use serde::{Deserialize, Serialize};
 
-use crate::backend::Waveform;
-use crate::backend::WaveformArgs;
-use crate::backend::WaveformNamedResult;
-
-/// The default number of threads to use for multithreaded operations.
-/// By default, we will initialize as many threads as *logical*
-/// CPU cores on your machine.
-pub const DEFAULT_NUM_WORKERS: u32 = 0;
-
-/// Configures multithreading in Babycat.
-#[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct BatchArgs {
-    /// The maximum number of threads to initialize when doing multithreaded work.
-    ///
-    /// Babycat uses Rayon for multithreading, which
-    /// [by default](https://github.com/rayon-rs/rayon/blob/master/FAQ.md)
-    /// will initialize as many threads as *logical* CPU cores on your machine.
-    pub num_workers: usize,
-}
-
-impl Default for BatchArgs {
-    fn default() -> Self {
-        BatchArgs {
-            num_workers: DEFAULT_NUM_WORKERS as usize,
-        }
-    }
-}
+use crate::backend::{
+    PoolArgs,
+    Waveform,
+    WaveformArgs,
+    WaveformNamedResult,
+};
 
 /// Decodes a list of audio files in parallel.
 ///
@@ -58,7 +28,7 @@ impl Default for BatchArgs {
 /// [`Error::FileNotFound`][crate::Error::FileNotFound] error when processing the third file.
 /// ```
 /// use babycat::{Error, WaveformArgs, WaveformNamedResult};
-/// use babycat::batch::{BatchArgs, waveforms_from_files};
+/// use babycat::batch::{PoolArgs, waveforms_from_files};
 ///
 /// let filenames = &[
 ///     "audio-for-tests/andreas-theme/track.flac",
@@ -98,25 +68,49 @@ impl Default for BatchArgs {
 /// Cannot find the given filename does-not-exist.",
 /// );
 /// ```
-#[allow(dead_code)] // Silence dead code warning because we do not use this function in the C frontend.
-pub fn waveforms_from_files(
-    filenames: &[&str],
-    waveform_args: WaveformArgs,
-    batch_args: BatchArgs,
-) -> Vec<WaveformNamedResult> {
-    let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
-        .num_threads(batch_args.num_workers)
+pub struct Pool {
+    args: PoolArgs,
+    pool: rayon::ThreadPool,
+}
+
+
+impl std::fmt::Debug for Pool {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Pool {{ args: {:?} }}", self.args)
+    }
+}
+
+impl Pool {
+    #[inline(always)]
+    pub fn new(args: PoolArgs) -> Self {
+        let pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
+        .num_threads(args.num_workers)
         .build()
         .unwrap();
+        Self {
+            pool
+        }
+    }
 
-    let waveforms: Vec<WaveformNamedResult> = thread_pool.install(|| {
-        filenames
-            .par_iter()
-            .map(|filename| WaveformNamedResult {
-                name: (*filename).to_string(),
-                result: Waveform::from_file(filename, waveform_args),
-            })
-            .collect()
-    });
-    waveforms
+    #[inline(always)]
+    pub fn new_default() -> Self {
+        Self::new(Default::default())
+    }
+
+    pub fn waveforms_from_files(
+        &self,
+        filenames: &[&str],
+        waveform_args: WaveformArgs,
+    ) -> Vec<WaveformNamedResult> {
+        let waveforms: Vec<WaveformNamedResult> = self.pool.install(|| {
+            filenames
+                .par_iter()
+                .map(|filename| WaveformNamedResult {
+                    name: (*filename).to_string(),
+                    result: Waveform::from_file(filename, waveform_args),
+                })
+                .collect()
+        });
+        waveforms
+    }
 }

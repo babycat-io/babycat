@@ -36,7 +36,7 @@ fn decoding_batch_misc(c: &mut Criterion) {
 
     group.bench_function("single_worker", |b| {
         b.iter(|| {
-            let batch_args = babycat::batch::BatchArgs {
+            let batch_args = babycat::batch::PoolArgs {
                 num_workers: 1,
                 ..Default::default()
             };
