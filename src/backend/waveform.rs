@@ -631,3 +631,69 @@ impl From<Waveform> for Vec<f32> {
         waveform.interleaved_samples
     }
 }
+
+/// These are unit tests for functionality that is currently specific to
+/// the FFmpeg backend.
+#[cfg(all(test, feature = "enable-ffmpeg"))]
+mod test_waveform_from_file_ffmpeg {
+    const TTCT_FILENAME_OGG: &str = "./audio-for-tests/32-channel-tone/track.ogg";
+    const TTCT_FILENAME_WAV: &str = "./audio-for-tests/32-channel-tone/track.wav";
+    const TTCT_NUM_CHANNELS: u16 = 32;
+    const TTCT_NUM_FRAMES: usize = 88200;
+    const TTCT_FRAME_RATE_HZ: u32 = 44100;
+
+    use crate::Error;
+    use crate::Waveform;
+    use crate::WaveformArgs;
+    use crate::DECODING_BACKEND_FFMPEG;
+
+    #[track_caller]
+    #[inline(always)]
+    fn assert_waveform(
+        result: Result<Waveform, Error>,
+        num_channels: u16,
+        num_frames: usize,
+        frame_rate_hz: u32,
+    ) {
+        let waveform = result.unwrap();
+        assert_eq!(num_channels, waveform.num_channels());
+        assert_eq!(num_frames, waveform.num_frames());
+        assert_eq!(frame_rate_hz, waveform.frame_rate_hz());
+        assert_eq!(
+            (num_frames * num_channels as usize) as usize,
+            waveform.to_interleaved_samples().len()
+        );
+    }
+
+    /// Try decoding a 32-channel OGG file.
+    #[test]
+    fn test_32_channel_tone_ogg_default_1() {
+        let waveform_args = WaveformArgs {
+            decoding_backend: DECODING_BACKEND_FFMPEG,
+            ..Default::default()
+        };
+        let result = Waveform::from_file(TTCT_FILENAME_OGG, waveform_args);
+        assert_waveform(
+            result,
+            TTCT_NUM_CHANNELS,
+            TTCT_NUM_FRAMES,
+            TTCT_FRAME_RATE_HZ,
+        );
+    }
+
+    /// Try decoding a 32 channel WAV file.
+    #[test]
+    fn test_32_channel_tone_wav_default_1() {
+        let waveform_args = WaveformArgs {
+            decoding_backend: DECODING_BACKEND_FFMPEG,
+            ..Default::default()
+        };
+        let result = Waveform::from_file(TTCT_FILENAME_WAV, waveform_args);
+        assert_waveform(
+            result,
+            TTCT_NUM_CHANNELS,
+            TTCT_NUM_FRAMES,
+            TTCT_FRAME_RATE_HZ,
+        );
+    }
+}

@@ -36,6 +36,8 @@ impl FrameIter {
     fn get_sample_packed<T: Sample>(&self) -> f32 {
         let sample_idx: usize = self.frame_idx * self.num_channels + self.channel_idx;
         unsafe {
+            // When audio is in a "packed" format, FFmpeg stores
+            // each sample interleaved in the first data plane.
             let plane_ptr: *const T = (*self.frame.as_ptr()).data[0] as *const T;
             let sample: T = *plane_ptr.add(sample_idx);
             sample.as_f32_sample()
@@ -45,7 +47,15 @@ impl FrameIter {
     #[inline(always)]
     fn get_sample_planar<T: Sample>(&self) -> f32 {
         unsafe {
-            let plane_ptr: *const T = (*self.frame.as_ptr()).data[self.channel_idx] as *const T;
+            // When audio is stored in a "planar" format, FFmpeg
+            // stores the first eight planes in the `.data` attribute.
+            // If there are more than 8 planes, all of them are
+            // available in the `.extended_data` attribute.
+            // If there are not more than 8 planes, then
+            // `.extended_data` just points to `.data`.
+            let extended_data_ptr: *const *const T =
+                (*self.frame.as_ptr()).extended_data as *const *const T;
+            let plane_ptr: *const T = *extended_data_ptr.add(self.channel_idx);
             let sample: T = *plane_ptr.add(self.frame_idx);
             sample.as_f32_sample()
         }
