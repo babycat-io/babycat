@@ -7,6 +7,9 @@ pub mod ffmpeg;
 #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
 pub mod batch;
 
+#[doc(hidden)]
+pub mod resample;
+
 mod batch_args;
 pub mod build_info;
 mod common;
@@ -14,7 +17,6 @@ pub mod constants;
 pub mod decoder;
 mod decoder_iter;
 mod errors;
-pub mod resample;
 mod sample;
 mod signal;
 pub mod symphonia;
