@@ -31,7 +31,6 @@ pub struct FFmpegDecoderIter<'a> {
     packet: Option<Packet>,
     frame: Option<FrameIter>,
     sent_eof: bool,
-    current_sample: usize,
 }
 
 impl<'a> FFmpegDecoderIter<'a> {
@@ -56,7 +55,6 @@ impl<'a> FFmpegDecoderIter<'a> {
             packet,
             frame,
             sent_eof: false,
-            current_sample: 0,
         }
     }
 }
@@ -98,10 +96,7 @@ impl<'a> Iterator for FFmpegDecoderIter<'a> {
                             self.frame = FrameIter::new(self.decoder);
                             continue;
                         }
-                        Some(sample) => {
-                            self.current_sample += 1;
-                            return Some(sample);
-                        }
+                        Some(sample) => return Some(sample),
                     },
                 }
             }
@@ -117,10 +112,7 @@ impl<'a> Iterator for FFmpegDecoderIter<'a> {
                         self.frame = FrameIter::new(self.decoder);
                         continue;
                     }
-                    Some(sample) => {
-                        self.current_sample += 1;
-                        return Some(sample);
-                    }
+                    Some(sample) => return Some(sample),
                 },
             }
         }
