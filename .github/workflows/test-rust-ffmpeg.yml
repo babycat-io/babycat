@@ -21,6 +21,12 @@ jobs:
 
     steps:
 
+    # We need yasm for buildling/linting FFmpeg.
+    - name: Install yasm for building FFmpeg
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends yasm
+
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
