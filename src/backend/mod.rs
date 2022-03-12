@@ -10,16 +10,17 @@ pub mod batch;
 #[doc(hidden)]
 pub mod resample;
 
-mod batch_args;
 pub mod build_info;
-mod common;
 pub mod constants;
 pub mod decoder;
+pub mod symphonia;
+
+mod batch_args;
+mod common;
 mod decoder_iter;
 mod errors;
 mod sample;
 mod signal;
-pub mod symphonia;
 mod waveform;
 mod waveform_args;
 mod waveform_named_result;
