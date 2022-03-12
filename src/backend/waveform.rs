@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::fmt;
 use std::io::Read;
 use std::marker::Send;
@@ -13,10 +12,12 @@ use crate::backend::signal::Signal;
 use crate::backend::waveform_args::*;
 
 use crate::backend::decode::decoder::Decoder;
+use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::decode::from_encoded_bytes;
 use crate::backend::decode::from_encoded_bytes_with_hint;
 use crate::backend::decode::from_encoded_stream;
 use crate::backend::decode::from_encoded_stream_with_hint;
+
 #[cfg(feature = "enable-filesystem")]
 use crate::backend::decode::from_file;
 
@@ -96,7 +97,6 @@ impl Waveform {
         } else {
             args.num_channels
         };
-        let last_selected_channel: usize = selected_num_channels as usize - 1;
 
         let output_num_channels: u16 = if args.convert_to_mono {
             1
@@ -130,44 +130,21 @@ impl Waveform {
         } else {
             expected_buffer_len_from_decoder
         };
-        let mut interleaved_samples: Vec<f32> = Vec::with_capacity(interleaved_samples_capacity);
-        let decode_iter = decoder.begin()?;
-        if args.convert_to_mono {
-            let mut psum: f32 = 0.0_f32;
-            for (sample_idx, sample) in decode_iter.enumerate() {
-                if end_sample_idx != 0 && sample_idx >= end_sample_idx {
-                    break;
-                }
-                if sample_idx < start_sample_idx {
-                    continue;
-                }
-                let channel_idx: usize = sample_idx % (original_num_channels as usize);
-                match channel_idx.cmp(&last_selected_channel) {
-                    Ordering::Less => {
-                        psum += sample;
-                    }
-                    Ordering::Equal => {
-                        psum += sample;
-                        interleaved_samples.push(psum / selected_num_channels as f32);
-                        psum = 0.0_f32;
-                    }
-                    Ordering::Greater => continue,
-                }
-            }
+        let take_samples = if end_sample_idx > start_sample_idx {
+            end_sample_idx - start_sample_idx
         } else {
-            for (sample_idx, sample) in decode_iter.enumerate() {
-                if end_sample_idx != 0 && sample_idx >= end_sample_idx {
-                    break;
-                }
-                if sample_idx < start_sample_idx {
-                    continue;
-                }
-                let channel_idx: usize = sample_idx % original_num_channels as usize;
-                match channel_idx.cmp(&last_selected_channel) {
-                    Ordering::Less | Ordering::Equal => interleaved_samples.push(sample),
-                    Ordering::Greater => continue,
-                }
-            }
+            0
+        };
+        let mut interleaved_samples: Vec<f32> = Vec::with_capacity(interleaved_samples_capacity);
+
+        let decoder_iter = decoder.begin()?;
+        let bounded_decoder_iter = decoder_iter
+            .skip_samples(start_sample_idx)
+            .take_samples(take_samples)
+            .select_first_channels(selected_num_channels)
+            .convert_to_mono(args.convert_to_mono);
+        for sample in bounded_decoder_iter {
+            interleaved_samples.push(sample);
         }
 
         // Zero-pad the output audio vector if our start/end interval
