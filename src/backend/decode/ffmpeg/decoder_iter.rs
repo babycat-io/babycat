@@ -25,10 +25,13 @@ fn next_packet<'a>(
 }
 
 #[inline(always)]
-fn next_decoded_frame(decoder: &mut AudioDecoder) -> Option<Frame> {
+fn next_decoded_frame_and_len(decoder: &mut AudioDecoder) -> (Option<Frame>, usize) {
     let mut frame = Frame::empty();
-    decoder.receive_frame(&mut frame).ok()?;
-    Some(frame)
+    if decoder.receive_frame(&mut frame).is_err() {
+        return (None, 0);
+    }
+    let frame_len: usize = frame.samples();
+    (Some(frame), frame_len)
 }
 
 #[inline(always)]
@@ -74,6 +77,7 @@ pub struct FFmpegDecoderIter<'a, T: Sample, const PACKED: bool> {
     est_num_frames: Option<usize>,
     packet: Option<Packet>,
     frame: Option<Frame>,
+    frame_len: usize,
     frame_idx: usize,
     channel_idx: usize,
     sent_eof: bool,
@@ -91,7 +95,7 @@ impl<'a, T: Sample, const PACKED: bool> FFmpegDecoderIter<'a, T, PACKED> {
     ) -> Self {
         let mut packet_iter = input.packets();
         let packet = next_packet(&mut packet_iter, decoder, stream_index);
-        let frame = next_decoded_frame(decoder);
+        let (frame, frame_len) = next_decoded_frame_and_len(decoder);
         Self {
             decoder,
             packet_iter,
@@ -102,6 +106,7 @@ impl<'a, T: Sample, const PACKED: bool> FFmpegDecoderIter<'a, T, PACKED> {
             est_num_frames,
             packet,
             frame,
+            frame_len,
             frame_idx: 0,
             channel_idx: 0,
             sent_eof: false,
@@ -147,7 +152,9 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PA
                     }
                     self.packet =
                         next_packet(&mut self.packet_iter, self.decoder, self.stream_index);
-                    self.frame = next_decoded_frame(self.decoder);
+                    let (f, fl) = next_decoded_frame_and_len(self.decoder);
+                    self.frame = f;
+                    self.frame_len = fl;
                     self.channel_idx = 0;
                     self.frame_idx = 0;
                     continue;
@@ -157,9 +164,10 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PA
                         self.channel_idx = 0;
                         self.frame_idx += 1;
                     }
-                    let num_frames_in_frame = frame.samples();
-                    if self.frame_idx >= num_frames_in_frame {
-                        self.frame = next_decoded_frame(self.decoder);
+                    if self.frame_idx >= self.frame_len {
+                        let (f, fl) = next_decoded_frame_and_len(self.decoder);
+                        self.frame = f;
+                        self.frame_len = fl;
                         continue;
                     }
                     let sample: f32 = if PACKED {
