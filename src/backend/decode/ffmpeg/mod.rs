@@ -10,5 +10,4 @@ pub fn ffmpeg_init() {
 
 pub mod decoder;
 pub mod decoder_iter;
-pub mod frame_iter;
 pub mod sample;
