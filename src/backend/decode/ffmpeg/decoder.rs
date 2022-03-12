@@ -6,6 +6,8 @@ use ffmpeg::format::context::Input;
 use ffmpeg::util::error::Error as FFmpegError;
 use ffmpeg::util::error::ENOENT;
 use ffmpeg::util::format::sample::Sample as FFmpegSample;
+use ffmpeg::util::format::sample::Type::Packed;
+use ffmpeg::util::format::sample::Type::Planar;
 use ffmpeg::Stream;
 
 use crate::backend::decode::ffmpeg::ffmpeg_init;
@@ -127,14 +129,74 @@ impl FFmpegDecoder {
 impl Decoder for FFmpegDecoder {
     #[inline(always)]
     fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
-        Ok(Box::new(FFmpegDecoderIter::new(
-            &mut self.input,
-            &mut self.decoder,
-            self.stream_index,
-            self.frame_rate_hz,
-            self.num_channels,
-            self.est_num_frames,
-        )))
+        let format = self.decoder.format();
+        match format {
+            FFmpegSample::I16(Packed) => Ok(Box::new(FFmpegDecoderIter::<i16, true>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::I16(Planar) => Ok(Box::new(FFmpegDecoderIter::<i16, false>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::I32(Packed) => Ok(Box::new(FFmpegDecoderIter::<i32, true>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::I32(Planar) => Ok(Box::new(FFmpegDecoderIter::<i32, false>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::F32(Packed) => Ok(Box::new(FFmpegDecoderIter::<f32, true>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::F32(Planar) => Ok(Box::new(FFmpegDecoderIter::<f32, false>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::F64(Packed) => Ok(Box::new(FFmpegDecoderIter::<f64, true>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            FFmpegSample::F64(Planar) => Ok(Box::new(FFmpegDecoderIter::<f64, false>::new(
+                &mut self.input,
+                &mut self.decoder,
+                self.stream_index,
+                self.frame_rate_hz,
+                self.num_channels,
+                self.est_num_frames,
+            ))),
+            _ => panic!("NO"),
+        }
     }
 }
 
