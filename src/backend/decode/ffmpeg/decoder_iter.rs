@@ -140,16 +140,14 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PA
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            if self.packet.is_none() && !self.sent_eof {
-                let _ = self.decoder.send_eof();
-                self.sent_eof = true;
-                continue;
-            }
-            match &mut self.frame {
-                None => {
-                    if self.sent_eof {
-                        return None;
-                    }
+            match (&mut self.packet, &mut self.frame, self.sent_eof) {
+                (None, None, true) => return None,
+                (None, _, false) => {
+                    let _ = self.decoder.send_eof();
+                    self.sent_eof = true;
+                    continue;
+                }
+                (Some(_packet), None, _) => {
                     self.packet =
                         next_packet(&mut self.packet_iter, self.decoder, self.stream_index);
                     let (f, fl) = next_decoded_frame_and_len(self.decoder);
@@ -159,29 +157,35 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PA
                     self.frame_idx = 0;
                     continue;
                 }
-                Some(frame) => {
-                    if self.channel_idx >= self.num_channels_usize {
-                        self.channel_idx = 0;
-                        self.frame_idx += 1;
+                (_, Some(frame), _) => {
+                    if self.frame_idx < self.frame_len {
+                        let sample: Option<f32> = if PACKED {
+                            Some(get_sample_packed::<T>(
+                                frame,
+                                self.num_channels_usize,
+                                self.frame_idx,
+                                self.channel_idx,
+                            ))
+                        } else {
+                            Some(get_sample_planar::<T>(
+                                frame,
+                                self.frame_idx,
+                                self.channel_idx,
+                            ))
+                        };
+                        self.channel_idx += 1;
+                        if self.channel_idx >= self.num_channels_usize {
+                            self.channel_idx = 0;
+                            self.frame_idx += 1;
+                        }
+                        return sample;
                     }
-                    if self.frame_idx >= self.frame_len {
-                        let (f, fl) = next_decoded_frame_and_len(self.decoder);
-                        self.frame = f;
-                        self.frame_len = fl;
-                        continue;
-                    }
-                    let sample: f32 = if PACKED {
-                        get_sample_packed::<T>(
-                            frame,
-                            self.num_channels_usize,
-                            self.frame_idx,
-                            self.channel_idx,
-                        )
-                    } else {
-                        get_sample_planar::<T>(frame, self.frame_idx, self.channel_idx)
-                    };
-                    self.channel_idx += 1;
-                    return Some(sample);
+                    let (f, fl) = next_decoded_frame_and_len(self.decoder);
+                    self.frame = f;
+                    self.frame_len = fl;
+                    self.channel_idx = 0;
+                    self.frame_idx = 0;
+                    continue;
                 }
             }
         }
