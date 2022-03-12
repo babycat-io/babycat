@@ -8,12 +8,14 @@ mod common;
 pub mod decode;
 mod errors;
 pub mod resample;
+mod signal;
 mod waveform;
 mod waveform_args;
 mod waveform_named_result;
 mod waveform_result;
 
 pub use errors::*;
+pub use signal::Signal;
 pub use waveform::*;
 pub use waveform_args::*;
 pub use waveform_named_result::WaveformNamedResult;

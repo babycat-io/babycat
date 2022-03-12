@@ -5,23 +5,31 @@ use symphonia::core::formats::{FormatReader, Track};
 
 use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::errors::Error;
+use crate::backend::signal::Signal;
 
 pub struct SymphoniaDecoderIter<'a> {
     decoder: Box<dyn SymphoniaDecoderTrait>,
     reader: &'a mut Box<dyn FormatReader>,
+    frame_rate_hz: u32,
+    num_channels: u16,
+    est_num_frames: Option<usize>,
     current_packet_audio_buffer: Option<SampleBuffer<f32>>,
     current_packet_sample_idx: usize,
     error: Result<(), Error>,
 }
 
 impl<'a> SymphoniaDecoderIter<'a> {
-    pub fn new(reader: &'a mut Box<dyn FormatReader>) -> Result<Self, Error> {
+    pub fn new(
+        reader: &'a mut Box<dyn FormatReader>,
+        frame_rate_hz: u32,
+        num_channels: u16,
+        est_num_frames: Option<usize>,
+    ) -> Result<Self, Error> {
         let decoder_opts: DecoderOptions = DecoderOptions { verify: false };
         let default_track: &Track = match reader.default_track() {
             None => return Err(Error::NoSuitableAudioStreams(reader.tracks().len())),
             Some(dt) => dt,
         };
-        let _num_channels: usize = default_track.codec_params.channels.unwrap().count();
         let decoder = match symphonia::default::get_codecs()
             .make(&default_track.codec_params, &decoder_opts)
         {
@@ -39,6 +47,9 @@ impl<'a> SymphoniaDecoderIter<'a> {
         let mut new_self = Self {
             decoder,
             reader,
+            frame_rate_hz,
+            num_channels,
+            est_num_frames,
             current_packet_audio_buffer: None,
             current_packet_sample_idx: 0,
             error: Ok(()),
@@ -75,6 +86,23 @@ impl<'a> SymphoniaDecoderIter<'a> {
 }
 
 impl<'a> DecoderIter for SymphoniaDecoderIter<'a> {}
+
+impl<'a> Signal for SymphoniaDecoderIter<'a> {
+    #[inline(always)]
+    fn frame_rate_hz(&self) -> u32 {
+        self.frame_rate_hz
+    }
+
+    #[inline(always)]
+    fn num_channels(&self) -> u16 {
+        self.num_channels
+    }
+
+    #[inline(always)]
+    fn num_frames_estimate(&self) -> Option<usize> {
+        self.est_num_frames
+    }
+}
 
 impl<'a> Iterator for SymphoniaDecoderIter<'a> {
     type Item = f32;

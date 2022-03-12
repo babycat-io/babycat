@@ -16,6 +16,7 @@ use symphonia::core::probe::Hint;
 use crate::backend::decode::decoder::Decoder;
 use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::errors::Error;
+use crate::backend::signal::Signal;
 use crate::backend::waveform_args::DEFAULT_FILE_EXTENSION;
 use crate::backend::waveform_args::DEFAULT_MIME_TYPE;
 
@@ -24,8 +25,8 @@ use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
 /// An audio decoder from Philip Deljanov's [`symphonia`] audio decoding library.
 pub struct SymphoniaDecoder {
     reader: Box<dyn FormatReader>,
-    frame_rate: u32,
-    channels: u16,
+    frame_rate_hz: u32,
+    num_channels: u16,
     est_num_frames: Option<usize>,
 }
 
@@ -86,8 +87,8 @@ impl SymphoniaDecoder {
         };
 
         // Examine the actual shape of this audio file.
-        let frame_rate = default_track.codec_params.sample_rate.unwrap();
-        let channels = default_track.codec_params.channels.unwrap().count() as u16;
+        let frame_rate_hz = default_track.codec_params.sample_rate.unwrap();
+        let num_channels = default_track.codec_params.channels.unwrap().count() as u16;
 
         let est_num_frames: Option<usize> = default_track
             .codec_params
@@ -96,8 +97,8 @@ impl SymphoniaDecoder {
 
         Ok(Box::new(Self {
             reader,
-            frame_rate,
-            channels,
+            frame_rate_hz,
+            num_channels,
             est_num_frames,
         }))
     }
@@ -140,17 +141,25 @@ impl SymphoniaDecoder {
 impl Decoder for SymphoniaDecoder {
     #[inline(always)]
     fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
-        let decode_iter = SymphoniaDecoderIter::new(&mut self.reader)?;
+        let decode_iter = SymphoniaDecoderIter::new(
+            &mut self.reader,
+            self.frame_rate_hz,
+            self.num_channels,
+            self.est_num_frames,
+        )?;
         Ok(Box::new(decode_iter))
     }
+}
+
+impl Signal for SymphoniaDecoder {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
-        self.frame_rate
+        self.frame_rate_hz
     }
 
     #[inline(always)]
     fn num_channels(&self) -> u16 {
-        self.channels
+        self.num_channels
     }
 
     #[inline(always)]
