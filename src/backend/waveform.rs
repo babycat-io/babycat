@@ -9,6 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::backend::common::milliseconds_to_frames;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
+use crate::backend::signal::Signal;
 use crate::backend::waveform_args::*;
 
 use crate::backend::decode::decoder::Decoder;
@@ -35,9 +36,7 @@ impl fmt::Debug for Waveform {
         write!(
             f,
             "Waveform {{ frame_rate_hz: {}, num_channels: {}, num_frames: {}}}",
-            self.frame_rate_hz(),
-            self.num_channels(),
-            self.num_frames()
+            self.frame_rate_hz, self.num_channels, self.num_frames
         )
     }
 }
@@ -605,16 +604,6 @@ impl Waveform {
         }
     }
 
-    /// Returns the frame rate of the `Waveform`.
-    pub fn frame_rate_hz(&self) -> u32 {
-        self.frame_rate_hz
-    }
-
-    /// Returns the number of channels in the `Waveform`.
-    pub fn num_channels(&self) -> u16 {
-        self.num_channels
-    }
-
     /// Returns the total number of decoded frames in the `Waveform`.
     pub fn num_frames(&self) -> usize {
         self.num_frames
@@ -623,6 +612,22 @@ impl Waveform {
     /// Returns the waveform as a slice of channel-interleaved `f32` samples.
     pub fn to_interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
+    }
+}
+
+impl Signal for Waveform {
+    /// Returns the frame rate of the `Waveform`.
+    fn frame_rate_hz(&self) -> u32 {
+        self.frame_rate_hz
+    }
+
+    /// Returns the number of channels in the `Waveform`.
+    fn num_channels(&self) -> u16 {
+        self.num_channels
+    }
+
+    fn num_frames_estimate(&self) -> Option<usize> {
+        Some(self.num_frames)
     }
 }
 
@@ -643,6 +648,7 @@ mod test_waveform_from_file_ffmpeg {
     const TTCT_FRAME_RATE_HZ: u32 = 44100;
 
     use crate::Error;
+    use crate::Signal;
     use crate::Waveform;
     use crate::WaveformArgs;
     use crate::DECODING_BACKEND_FFMPEG;

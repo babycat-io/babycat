@@ -4,6 +4,7 @@
 
 mod test_waveform_different_encodings {
     use babycat::batch::waveforms_from_files;
+    use babycat::Signal;
     // I am not certain why the same audio file encoded as MP3, WAV, or FLAC
     // ends up with significantly different numbers of samples.
     // The values for num_frames() in unit tests like these might have to change

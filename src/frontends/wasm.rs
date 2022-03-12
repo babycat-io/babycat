@@ -4,6 +4,8 @@ use js_sys::Float32Array;
 use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;
 
+use crate::backend::Signal;
+
 fn throw_js_error<E: std::fmt::Display>(err: E) -> JsValue {
     let err_string: String = err.to_string();
     js_sys::Error::new(&err_string).into()
