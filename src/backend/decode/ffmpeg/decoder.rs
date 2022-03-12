@@ -11,6 +11,7 @@ use ffmpeg::Stream;
 use crate::backend::decode::ffmpeg::ffmpeg_init;
 
 use crate::backend::decode::decoder::Decoder;
+use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::decode::ffmpeg::decoder_iter::FFmpegDecoderIter;
 use crate::backend::errors::Error;
 
@@ -118,7 +119,7 @@ impl FFmpegDecoder {
 
 impl Decoder for FFmpegDecoder {
     #[inline(always)]
-    fn begin(&mut self) -> Result<Box<dyn Iterator<Item = f32> + '_>, Error> {
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
         Ok(Box::new(FFmpegDecoderIter::new(
             &mut self.input,
             &mut self.decoder,

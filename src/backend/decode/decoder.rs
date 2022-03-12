@@ -1,8 +1,9 @@
+use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::errors::Error;
 
 /// Methods common to all audio decoders.
 pub trait Decoder {
-    fn begin(&mut self) -> Result<Box<dyn Iterator<Item = f32> + '_>, Error>;
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error>;
 
     fn frame_rate_hz(&self) -> u32;
 
