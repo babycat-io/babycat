@@ -6,20 +6,20 @@ use std::marker::Sync;
 use serde::{Deserialize, Serialize};
 
 use crate::backend::common::milliseconds_to_frames;
+use crate::backend::constants::*;
+use crate::backend::decoder::from_encoded_bytes;
+use crate::backend::decoder::from_encoded_bytes_with_hint;
+use crate::backend::decoder::from_encoded_stream;
+use crate::backend::decoder::from_encoded_stream_with_hint;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::signal::Signal;
-use crate::backend::waveform_args::*;
-
-use crate::backend::decode::decoder::Decoder;
-use crate::backend::decode::decoder_iter::DecoderIter;
-use crate::backend::decode::from_encoded_bytes;
-use crate::backend::decode::from_encoded_bytes_with_hint;
-use crate::backend::decode::from_encoded_stream;
-use crate::backend::decode::from_encoded_stream_with_hint;
+use crate::backend::Decoder;
+use crate::backend::DecoderIter;
+use crate::backend::WaveformArgs;
 
 #[cfg(feature = "enable-filesystem")]
-use crate::backend::decode::from_file;
+use crate::backend::decoder::from_file;
 
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
@@ -453,7 +453,7 @@ impl Waveform {
     /// // Here we upsample our audio to 96khz with the libsamplerate resampler.
     /// let upsampled_libsamplerate = waveform.resample_by_mode(
     ///     96000,
-    ///     babycat::RESAMPLE_MODE_LIBSAMPLERATE
+    ///     babycat::constants::RESAMPLE_MODE_LIBSAMPLERATE
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled_libsamplerate),
@@ -463,7 +463,7 @@ impl Waveform {
     /// // And we upsample our audio again with Babycat's Lanczos resampler.
     /// let upsampled_lanczos = waveform.resample_by_mode(
     ///     96000,
-    ///     babycat::RESAMPLE_MODE_BABYCAT_LANCZOS
+    ///     babycat::constants::RESAMPLE_MODE_BABYCAT_LANCZOS
     /// ).unwrap();
     /// assert_eq!(
     ///    format!("{:?}", upsampled_lanczos),
@@ -624,11 +624,11 @@ mod test_waveform_from_file_ffmpeg {
     const TTCT_NUM_FRAMES: usize = 88200;
     const TTCT_FRAME_RATE_HZ: u32 = 44100;
 
+    use crate::constants::DECODING_BACKEND_FFMPEG;
     use crate::Error;
     use crate::Signal;
     use crate::Waveform;
     use crate::WaveformArgs;
-    use crate::DECODING_BACKEND_FFMPEG;
 
     #[track_caller]
     #[inline(always)]

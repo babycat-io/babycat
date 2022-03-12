@@ -1,9 +1,6 @@
-use ffmpeg::util::frame::audio::Sample as FFmpegSampleTrait;
 use std::fmt::{Debug, Display};
 
-pub trait Sample:
-    Copy + Debug + Display + Sized + PartialOrd + PartialEq + FFmpegSampleTrait
-{
+pub trait Sample: Copy + Debug + Display + Sized + PartialOrd + PartialEq {
     fn as_f32_sample(self) -> f32;
 }
 

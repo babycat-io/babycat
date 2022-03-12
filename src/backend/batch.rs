@@ -6,36 +6,11 @@
 //! to be enabled. Both of these feature are disabled in Babycat's
 //! WebAssembly frontend.
 use rayon::prelude::*;
-use serde::{Deserialize, Serialize};
 
+use crate::backend::BatchArgs;
 use crate::backend::Waveform;
 use crate::backend::WaveformArgs;
 use crate::backend::WaveformNamedResult;
-
-/// The default number of threads to use for multithreaded operations.
-/// By default, we will initialize as many threads as *logical*
-/// CPU cores on your machine.
-pub const DEFAULT_NUM_WORKERS: u32 = 0;
-
-/// Configures multithreading in Babycat.
-#[repr(C)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct BatchArgs {
-    /// The maximum number of threads to initialize when doing multithreaded work.
-    ///
-    /// Babycat uses Rayon for multithreading, which
-    /// [by default](https://github.com/rayon-rs/rayon/blob/master/FAQ.md)
-    /// will initialize as many threads as *logical* CPU cores on your machine.
-    pub num_workers: usize,
-}
-
-impl Default for BatchArgs {
-    fn default() -> Self {
-        BatchArgs {
-            num_workers: DEFAULT_NUM_WORKERS as usize,
-        }
-    }
-}
 
 /// Decodes a list of audio files in parallel.
 ///
@@ -57,8 +32,8 @@ impl Default for BatchArgs {
 /// The first two files are successfully processed, and we catch a
 /// [`Error::FileNotFound`][crate::Error::FileNotFound] error when processing the third file.
 /// ```
-/// use babycat::{Error, WaveformArgs, WaveformNamedResult};
-/// use babycat::batch::{BatchArgs, waveforms_from_files};
+/// use babycat::{BatchArgs, Error, WaveformArgs, WaveformNamedResult};
+/// use babycat::batch::waveforms_from_files;
 ///
 /// let filenames = &[
 ///     "audio-for-tests/andreas-theme/track.flac",

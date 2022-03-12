@@ -1,14 +1,14 @@
 use std::marker::PhantomData;
 
-use ffmpeg::codec::packet::packet::Packet;
-use ffmpeg::decoder::Audio as AudioDecoder;
-use ffmpeg::format::context::input::PacketIter;
-use ffmpeg::format::context::Input;
-use ffmpeg::frame::Audio as Frame;
+use ffmpeg_next::codec::packet::packet::Packet;
+use ffmpeg_next::decoder::Audio as AudioDecoder;
+use ffmpeg_next::format::context::input::PacketIter;
+use ffmpeg_next::format::context::Input;
+use ffmpeg_next::frame::Audio as Frame;
 
-use crate::backend::decode::decoder_iter::DecoderIter;
-use crate::backend::decode::ffmpeg::sample::Sample;
-use crate::backend::signal::Signal;
+use crate::backend::DecoderIter;
+use crate::backend::Sample;
+use crate::backend::Signal;
 
 #[inline(always)]
 fn next_packet<'a>(
@@ -218,7 +218,7 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PA
 
 #[cfg(all(test, feature = "enable-ffmpeg"))]
 mod test_ffmpeg_decoder_iter {
-    use crate::decode::FFmpegDecoder;
+    use crate::backend::ffmpeg::FFmpegDecoder;
 
     pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.flac";
     pub const COF_NUM_CHANNELS: u16 = 2;

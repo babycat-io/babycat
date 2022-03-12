@@ -5,16 +5,20 @@
 //! the audio into a [`Waveform`][crate::Waveform]
 //! and then use the [`Waveform.resample()`][crate::Waveform#method.resample] method.
 
+#[doc(hidden)]
 pub mod babycat_lanczos;
+#[doc(hidden)]
 pub mod babycat_sinc;
+#[doc(hidden)]
 pub mod common;
+#[doc(hidden)]
 pub mod libsamplerate;
 
+use crate::backend::constants::DEFAULT_RESAMPLE_MODE;
+use crate::backend::constants::RESAMPLE_MODE_BABYCAT_LANCZOS;
+use crate::backend::constants::RESAMPLE_MODE_BABYCAT_SINC;
+use crate::backend::constants::RESAMPLE_MODE_LIBSAMPLERATE;
 use crate::backend::errors::Error;
-use crate::backend::waveform_args::DEFAULT_RESAMPLE_MODE;
-use crate::backend::waveform_args::RESAMPLE_MODE_BABYCAT_LANCZOS;
-use crate::backend::waveform_args::RESAMPLE_MODE_BABYCAT_SINC;
-use crate::backend::waveform_args::RESAMPLE_MODE_LIBSAMPLERATE;
 
 pub fn resample(
     input_frame_rate_hz: u32,

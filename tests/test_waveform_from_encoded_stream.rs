@@ -1,10 +1,12 @@
 mod fixtures;
 
 mod test_waveform_from_encoded_stream {
-    use crate::fixtures::*;
+    use std::io::Cursor;
+
     use babycat::Signal;
     use babycat::Waveform;
-    use std::io::Cursor;
+
+    use crate::fixtures::*;
 
     #[test]
     fn test_circus_of_freaks_default_1() {

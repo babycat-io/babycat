@@ -2,7 +2,8 @@ mod fixtures;
 
 mod test_waveform_batch_from_files {
     use crate::fixtures::*;
-    use babycat::batch::{waveforms_from_files, BatchArgs};
+    use babycat::batch::waveforms_from_files;
+    use babycat::BatchArgs;
     use babycat::Signal;
     use babycat::WaveformArgs;
 

@@ -1,20 +1,45 @@
-use std::io::Read;
-use std::marker::Send;
-use std::marker::Sync;
-
 #[cfg(feature = "enable-filesystem")]
 use std::convert::AsRef;
 #[cfg(feature = "enable-filesystem")]
 use std::path::Path;
 
-use crate::backend::decode::decoder::Decoder;
+use std::io::Read;
+use std::marker::Send;
+use std::marker::Sync;
 
+use crate::backend::constants::*;
 use crate::backend::errors::Error;
-use crate::backend::waveform_args::DECODING_BACKEND_FFMPEG;
-use crate::backend::waveform_args::DECODING_BACKEND_SYMPHONIA;
-use crate::backend::waveform_args::DEFAULT_DECODING_BACKEND;
-use crate::backend::waveform_args::DEFAULT_FILE_EXTENSION;
-use crate::backend::waveform_args::DEFAULT_MIME_TYPE;
+use crate::backend::signal::Signal;
+use crate::backend::DecoderIter;
+
+/// Methods common to all audio decoders.
+pub trait Decoder: Signal {
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error>;
+}
+
+impl Decoder for Box<dyn Decoder> {
+    #[inline(always)]
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
+        (&mut **self).begin()
+    }
+}
+
+impl Signal for Box<dyn Decoder> {
+    #[inline(always)]
+    fn frame_rate_hz(&self) -> u32 {
+        (&**self).frame_rate_hz()
+    }
+
+    #[inline(always)]
+    fn num_channels(&self) -> u16 {
+        (&**self).num_channels()
+    }
+
+    #[inline(always)]
+    fn num_frames_estimate(&self) -> Option<usize> {
+        (&**self).num_frames_estimate()
+    }
+}
 
 pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
     decoding_backend: u32,
@@ -24,7 +49,7 @@ pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
 ) -> Result<Box<dyn Decoder>, Error> {
     match decoding_backend {
         DEFAULT_DECODING_BACKEND | DECODING_BACKEND_SYMPHONIA => {
-            crate::backend::decode::symphonia::decoder::SymphoniaDecoder::from_encoded_stream_with_hint(
+            crate::backend::symphonia::SymphoniaDecoder::from_encoded_stream_with_hint(
                 encoded_stream,
                 file_extension,
                 mime_type,
@@ -78,20 +103,20 @@ pub fn from_file<F: Clone + AsRef<Path>>(
         DEFAULT_DECODING_BACKEND => {
             #[cfg(feature = "enable-ffmpeg")]
             {
-                crate::backend::decode::ffmpeg::decoder::FFmpegDecoder::from_file(filename)
+                crate::backend::ffmpeg::FFmpegDecoder::from_file(filename)
             }
             #[cfg(not(feature = "enable-ffmpeg"))]
             {
-                crate::backend::decode::symphonia::decoder::SymphoniaDecoder::from_file(filename)
+                crate::backend::symphonia::SymphoniaDecoder::from_file(filename)
             }
         }
         DECODING_BACKEND_SYMPHONIA => {
-            crate::backend::decode::symphonia::decoder::SymphoniaDecoder::from_file(filename)
+            crate::backend::symphonia::SymphoniaDecoder::from_file(filename)
         }
         DECODING_BACKEND_FFMPEG => {
             #[cfg(feature = "enable-ffmpeg")]
             {
-                crate::backend::decode::ffmpeg::decoder::FFmpegDecoder::from_file(filename)
+                crate::backend::ffmpeg::FFmpegDecoder::from_file(filename)
             }
             #[cfg(not(feature = "enable-ffmpeg"))]
             {

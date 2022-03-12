@@ -1,5 +1,10 @@
 use pyo3::prelude::*;
 
+use crate::backend::constants::{
+    DEFAULT_RESAMPLE_MODE, RESAMPLE_MODE_BABYCAT_LANCZOS, RESAMPLE_MODE_BABYCAT_SINC,
+    RESAMPLE_MODE_LIBSAMPLERATE,
+};
+
 /// Creates the `babycat.resample_mode` submodule, which is used to
 /// store constants pointing to resampler backends.
 pub fn make_resample_mode_submodule(py: Python) -> PyResult<&PyModule> {
@@ -58,22 +63,13 @@ Example:
 
 ",
     )?;
-    resample_mode_submodule.setattr(
-        "DEFAULT_RESAMPLE_MODE",
-        crate::backend::DEFAULT_RESAMPLE_MODE,
-    )?;
-    resample_mode_submodule.setattr(
-        "RESAMPLE_MODE_LIBSAMPLERATE",
-        crate::backend::RESAMPLE_MODE_LIBSAMPLERATE,
-    )?;
+    resample_mode_submodule.setattr("DEFAULT_RESAMPLE_MODE", DEFAULT_RESAMPLE_MODE)?;
+    resample_mode_submodule.setattr("RESAMPLE_MODE_LIBSAMPLERATE", RESAMPLE_MODE_LIBSAMPLERATE)?;
     resample_mode_submodule.setattr(
         "RESAMPLE_MODE_BABYCAT_LANCZOS",
-        crate::backend::RESAMPLE_MODE_BABYCAT_LANCZOS,
+        RESAMPLE_MODE_BABYCAT_LANCZOS,
     )?;
-    resample_mode_submodule.setattr(
-        "RESAMPLE_MODE_BABYCAT_SINC",
-        crate::backend::RESAMPLE_MODE_BABYCAT_SINC,
-    )?;
+    resample_mode_submodule.setattr("RESAMPLE_MODE_BABYCAT_SINC", RESAMPLE_MODE_BABYCAT_SINC)?;
 
     Ok(resample_mode_submodule)
 }
