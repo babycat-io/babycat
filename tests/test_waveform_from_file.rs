@@ -3,6 +3,7 @@ mod fixtures;
 mod test_waveform_from_file {
     use crate::fixtures::*;
     use babycat::Error;
+    use babycat::Signal;
     use babycat::Waveform;
     use babycat::WaveformArgs;
 

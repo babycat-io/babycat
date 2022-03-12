@@ -2,6 +2,7 @@ mod fixtures;
 
 mod test_waveform_from_encoded_bytes {
     use crate::fixtures::*;
+    use babycat::Signal;
     use babycat::Waveform;
 
     #[test]

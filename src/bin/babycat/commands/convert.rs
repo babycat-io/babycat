@@ -1,5 +1,6 @@
 use log::info;
 
+use babycat::Signal;
 use babycat::Waveform;
 use babycat::WaveformArgs;
 use babycat::DECODING_BACKEND_SYMPHONIA;

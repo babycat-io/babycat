@@ -1,4 +1,5 @@
 use crate::backend::Error;
+use crate::backend::Signal;
 use crate::backend::Waveform;
 use crate::backend::WaveformArgs;
 use std::ffi::CStr;

@@ -1,4 +1,5 @@
 mod test_waveform_from_interleaved_samples {
+    use babycat::Signal;
     use babycat::Waveform;
 
     #[test]

@@ -5,6 +5,7 @@ mod fixtures;
 mod test_waveform_resample_method {
     use crate::fixtures::*;
 
+    use babycat::Signal;
     use babycat::Waveform;
     use babycat::WaveformArgs;
     use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;

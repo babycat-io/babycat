@@ -3,6 +3,8 @@ use pyo3::prelude::*;
 use pyo3::types::PyByteArray;
 use pyo3::PyObjectProtocol;
 
+use crate::backend::Signal;
+
 impl From<crate::backend::Waveform> for Py<PyArray2<f32>> {
     fn from(waveform: crate::backend::Waveform) -> Py<PyArray2<f32>> {
         let num_frames: usize = waveform.num_frames();

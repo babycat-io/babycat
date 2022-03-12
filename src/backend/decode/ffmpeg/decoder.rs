@@ -14,6 +14,7 @@ use crate::backend::decode::decoder::Decoder;
 use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::decode::ffmpeg::decoder_iter::FFmpegDecoderIter;
 use crate::backend::errors::Error;
+use crate::backend::signal::Signal;
 
 #[inline(always)]
 fn new_input_for_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Input, Error> {
@@ -83,6 +84,8 @@ pub struct FFmpegDecoder {
     input: Input,
     decoder: AudioDecoder,
     stream_index: usize,
+    frame_rate_hz: u32,
+    num_channels: u16,
     est_num_frames: Option<usize>,
 }
 
@@ -100,10 +103,14 @@ impl FFmpegDecoder {
             }
             _ => (),
         };
+        let frame_rate_hz: u32 = decoder.rate();
+        let num_channels: u16 = decoder.channels();
         Ok(Box::new(Self {
             input,
             decoder,
             stream_index,
+            frame_rate_hz,
+            num_channels,
             est_num_frames,
         }))
     }
@@ -124,17 +131,22 @@ impl Decoder for FFmpegDecoder {
             &mut self.input,
             &mut self.decoder,
             self.stream_index,
+            self.frame_rate_hz,
+            self.num_channels,
+            self.est_num_frames,
         )))
     }
+}
 
+impl Signal for FFmpegDecoder {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
-        self.decoder.rate()
+        self.frame_rate_hz
     }
 
     #[inline(always)]
     fn num_channels(&self) -> u16 {
-        self.decoder.channels()
+        self.num_channels
     }
 
     #[inline(always)]

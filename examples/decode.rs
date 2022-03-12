@@ -1,4 +1,4 @@
-use babycat::{Waveform, WaveformArgs};
+use babycat::{Signal, Waveform, WaveformArgs};
 
 fn main() {
     let waveform_args = WaveformArgs {
