@@ -16,5 +16,9 @@ sphinx-inline-tabs==2022.1.2b11
 # generates Sphinx documentation from Doxygen XML files
 breathe==4.33.1
 
+# a temporary pin for Jinja/Sphinx
+# because MarkupSafe 2.1.0 is a breaking change
+MarkupSafe==2.0.1
+
 # our favorite Sphinx theme. we leave it unpinned to always get the latest.
 neocrym-sphinx-theme
