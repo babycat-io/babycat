@@ -3,6 +3,7 @@ use symphonia::core::codecs::Decoder as SymphoniaDecoderTrait;
 use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::formats::{FormatReader, Track};
 
+use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::errors::Error;
 
 pub struct SymphoniaDecoderIter<'a> {
@@ -72,6 +73,8 @@ impl<'a> SymphoniaDecoderIter<'a> {
         None
     }
 }
+
+impl<'a> DecoderIter for SymphoniaDecoderIter<'a> {}
 
 impl<'a> Iterator for SymphoniaDecoderIter<'a> {
     type Item = f32;

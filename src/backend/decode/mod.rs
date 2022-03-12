@@ -1,8 +1,10 @@
 pub mod boxed_decoder;
 pub mod decoder;
+pub mod decoder_iter;
 pub mod symphonia;
 
 pub use crate::backend::decode::decoder::Decoder;
+pub use crate::backend::decode::decoder_iter::DecoderIter;
 pub use crate::backend::decode::symphonia::decoder::SymphoniaDecoder;
 pub use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
 

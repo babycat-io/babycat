@@ -3,6 +3,7 @@ use ffmpeg::decoder::Audio as AudioDecoder;
 use ffmpeg::format::context::input::PacketIter;
 use ffmpeg::format::context::Input;
 
+use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::decode::ffmpeg::frame_iter::FrameIter;
 
 #[inline(always)]
@@ -45,6 +46,8 @@ impl<'a> FFmpegDecoderIter<'a> {
         }
     }
 }
+
+impl<'a> DecoderIter for FFmpegDecoderIter<'a> {}
 
 impl<'a> Iterator for FFmpegDecoderIter<'a> {
     type Item = f32;

@@ -14,6 +14,7 @@ use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
 use crate::backend::decode::decoder::Decoder;
+use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::errors::Error;
 use crate::backend::waveform_args::DEFAULT_FILE_EXTENSION;
 use crate::backend::waveform_args::DEFAULT_MIME_TYPE;
@@ -138,7 +139,7 @@ impl SymphoniaDecoder {
 
 impl Decoder for SymphoniaDecoder {
     #[inline(always)]
-    fn begin(&mut self) -> Result<Box<dyn Iterator<Item = f32> + '_>, Error> {
+    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
         let decode_iter = SymphoniaDecoderIter::new(&mut self.reader)?;
         Ok(Box::new(decode_iter))
     }
