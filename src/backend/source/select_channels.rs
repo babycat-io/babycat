@@ -1,17 +1,17 @@
 use crate::backend::signal::Signal;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 
-pub struct SelectChannels<D: DecoderIter> {
-    iter: D,
+pub struct SelectChannels<S: Source> {
+    iter: S,
     original_num_channels: usize,
     selected_num_channels: usize,
     disabled: bool,
     channel_idx: usize,
 }
 
-impl<D: DecoderIter> SelectChannels<D> {
+impl<S: Source> SelectChannels<S> {
     #[inline]
-    pub fn new(iter: D, selected_num_channels: u16) -> Self {
+    pub fn new(iter: S, selected_num_channels: u16) -> Self {
         let original_num_channels: usize = iter.num_channels() as usize;
         let selected_num_channels: usize =
             std::cmp::min(selected_num_channels as usize, original_num_channels);
@@ -27,9 +27,9 @@ impl<D: DecoderIter> SelectChannels<D> {
     }
 }
 
-impl<D: DecoderIter> DecoderIter for SelectChannels<D> {}
+impl<S: Source> Source for SelectChannels<S> {}
 
-impl<D: DecoderIter> Signal for SelectChannels<D> {
+impl<S: Source> Signal for SelectChannels<S> {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
         self.iter.frame_rate_hz()
@@ -46,7 +46,7 @@ impl<D: DecoderIter> Signal for SelectChannels<D> {
     }
 }
 
-impl<D: DecoderIter> Iterator for SelectChannels<D> {
+impl<S: Source> Iterator for SelectChannels<S> {
     type Item = f32;
 
     #[inline]

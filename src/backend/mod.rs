@@ -17,10 +17,10 @@ pub mod symphonia;
 
 mod batch_args;
 mod common;
-mod decoder_iter;
 mod errors;
 mod sample;
 mod signal;
+mod source;
 mod waveform;
 mod waveform_args;
 mod waveform_named_result;
@@ -28,10 +28,10 @@ mod waveform_result;
 
 pub use batch_args::BatchArgs;
 pub use decoder::Decoder;
-pub use decoder_iter::DecoderIter;
 pub use errors::Error;
 pub use sample::Sample;
 pub use signal::Signal;
+pub use source::Source;
 pub use waveform::Waveform;
 pub use waveform_args::WaveformArgs;
 pub use waveform_named_result::WaveformNamedResult;

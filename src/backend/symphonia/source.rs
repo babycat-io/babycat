@@ -5,9 +5,9 @@ use symphonia::core::formats::{FormatReader, Track};
 
 use crate::backend::errors::Error;
 use crate::backend::signal::Signal;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 
-pub struct SymphoniaDecoderIter<'a> {
+pub struct SymphoniaSource<'a> {
     decoder: Box<dyn SymphoniaDecoderTrait>,
     reader: &'a mut Box<dyn FormatReader>,
     frame_rate_hz: u32,
@@ -19,7 +19,7 @@ pub struct SymphoniaDecoderIter<'a> {
     error: Result<(), Error>,
 }
 
-impl<'a> SymphoniaDecoderIter<'a> {
+impl<'a> SymphoniaSource<'a> {
     pub fn new(
         reader: &'a mut Box<dyn FormatReader>,
         frame_rate_hz: u32,
@@ -87,9 +87,9 @@ impl<'a> SymphoniaDecoderIter<'a> {
     }
 }
 
-impl<'a> DecoderIter for SymphoniaDecoderIter<'a> {}
+impl<'a> Source for SymphoniaSource<'a> {}
 
-impl<'a> Signal for SymphoniaDecoderIter<'a> {
+impl<'a> Signal for SymphoniaSource<'a> {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
@@ -115,7 +115,7 @@ impl<'a> Signal for SymphoniaDecoderIter<'a> {
     }
 }
 
-impl<'a> Iterator for SymphoniaDecoderIter<'a> {
+impl<'a> Iterator for SymphoniaSource<'a> {
     type Item = f32;
 
     #[inline(always)]
@@ -150,7 +150,7 @@ impl<'a> Iterator for SymphoniaDecoderIter<'a> {
 }
 
 #[cfg(all(test, feature = "enable-ffmpeg"))]
-mod test_symphonia_decoder_iter {
+mod test_symphonia_source {
     use crate::backend::symphonia::SymphoniaDecoder;
 
     pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.flac";
@@ -167,35 +167,35 @@ mod test_symphonia_decoder_iter {
     fn test_cof_size_hint_1() {
         let mut decoder =
             SymphoniaDecoder::from_file(COF_FILENAME).expect("Failed to decode circus-of-freaks");
-        let mut decoder_iter = decoder.begin().expect("Failed to create DecoderIter");
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES - 1, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES - 2, None));
-        let decoder_iter = decoder_iter.skip(10);
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES - 12, None));
-        let mut decoder_iter = decoder_iter.take(1000);
-        assert_eq!(decoder_iter.size_hint(), (1000, Some(1000)));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (999, Some(999)));
+        let mut source = decoder.begin().expect("Failed to create Source");
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES, None));
+        source.next();
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES - 1, None));
+        source.next();
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES - 2, None));
+        let source = source.skip(10);
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES - 12, None));
+        let mut source = source.take(1000);
+        assert_eq!(source.size_hint(), (1000, Some(1000)));
+        source.next();
+        assert_eq!(source.size_hint(), (999, Some(999)));
     }
 
     #[test]
     fn test_mono_dtmf_size_hint_1() {
         let mut decoder = SymphoniaDecoder::from_file(MONO_DTMF_FILENAME)
             .expect("Failed to decode mono-dtmf-tones");
-        let mut decoder_iter = decoder.begin().expect("Failed to create DecoderIter");
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES - 1, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES - 2, None));
-        let decoder_iter = decoder_iter.skip(10);
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES - 12, None));
-        let mut decoder_iter = decoder_iter.take(1000);
-        assert_eq!(decoder_iter.size_hint(), (1000, Some(1000)));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (999, Some(999)));
+        let mut source = decoder.begin().expect("Failed to create Source");
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES, None));
+        source.next();
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES - 1, None));
+        source.next();
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES - 2, None));
+        let source = source.skip(10);
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES - 12, None));
+        let mut source = source.take(1000);
+        assert_eq!(source.size_hint(), (1000, Some(1000)));
+        source.next();
+        assert_eq!(source.size_hint(), (999, Some(999)));
     }
 }

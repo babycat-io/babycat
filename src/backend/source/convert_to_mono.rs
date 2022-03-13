@@ -1,16 +1,16 @@
 use crate::backend::signal::Signal;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 
-pub struct ConvertToMono<D: DecoderIter> {
-    iter: D,
+pub struct ConvertToMono<S: Source> {
+    iter: S,
     disabled: bool,
     iter_num_channels_usize: usize,
     iter_num_channels_f32: f32,
 }
 
-impl<D: DecoderIter> ConvertToMono<D> {
+impl<S: Source> ConvertToMono<S> {
     #[inline(always)]
-    pub fn new(iter: D, enabled: bool) -> Self {
+    pub fn new(iter: S, enabled: bool) -> Self {
         let iter_num_channels_usize: usize = iter.num_channels() as usize;
         let iter_num_channels_f32: f32 = iter_num_channels_usize as f32;
         Self {
@@ -22,9 +22,9 @@ impl<D: DecoderIter> ConvertToMono<D> {
     }
 }
 
-impl<D: DecoderIter> DecoderIter for ConvertToMono<D> {}
+impl<S: Source> Source for ConvertToMono<S> {}
 
-impl<D: DecoderIter> Signal for ConvertToMono<D> {
+impl<S: Source> Signal for ConvertToMono<S> {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
         self.iter.frame_rate_hz()
@@ -41,7 +41,7 @@ impl<D: DecoderIter> Signal for ConvertToMono<D> {
     }
 }
 
-impl<D: DecoderIter> Iterator for ConvertToMono<D> {
+impl<S: Source> Iterator for ConvertToMono<S> {
     type Item = f32;
 
     #[inline(always)]

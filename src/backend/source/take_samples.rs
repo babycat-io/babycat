@@ -1,15 +1,15 @@
 use crate::backend::signal::Signal;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 
-pub struct SkipSamples<D: DecoderIter> {
-    iter: D,
+pub struct TakeSamples<S: Source> {
+    iter: S,
     count: usize,
     disabled: bool,
 }
 
-impl<D: DecoderIter> SkipSamples<D> {
+impl<S: Source> TakeSamples<S> {
     #[inline(always)]
-    pub fn new(iter: D, count: usize) -> Self {
+    pub fn new(iter: S, count: usize) -> Self {
         let disabled: bool = count == 0;
         Self {
             iter,
@@ -19,9 +19,9 @@ impl<D: DecoderIter> SkipSamples<D> {
     }
 }
 
-impl<D: DecoderIter> DecoderIter for SkipSamples<D> {}
+impl<S: Source> Source for TakeSamples<S> {}
 
-impl<D: DecoderIter> Signal for SkipSamples<D> {
+impl<S: Source> Signal for TakeSamples<S> {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
         self.iter.frame_rate_hz()
@@ -38,7 +38,7 @@ impl<D: DecoderIter> Signal for SkipSamples<D> {
     }
 }
 
-impl<D: DecoderIter> Iterator for SkipSamples<D> {
+impl<S: Source> Iterator for TakeSamples<S> {
     type Item = f32;
 
     #[inline(always)]
@@ -51,10 +51,10 @@ impl<D: DecoderIter> Iterator for SkipSamples<D> {
         if self.disabled {
             return self.iter.next();
         }
-        while self.count > 0 {
-            self.iter.next();
-            self.count -= 1;
+        if self.count == 0 {
+            return None;
         }
+        self.count -= 1;
         self.iter.next()
     }
 }
