@@ -1,22 +1,21 @@
 use std::convert::AsRef;
 use std::path::Path;
 
-use ffmpeg::decoder::Audio as AudioDecoder;
-use ffmpeg::format::context::Input;
-use ffmpeg::util::error::Error as FFmpegError;
-use ffmpeg::util::error::ENOENT;
-use ffmpeg::util::format::sample::Sample as FFmpegSample;
-use ffmpeg::util::format::sample::Type::Packed;
-use ffmpeg::util::format::sample::Type::Planar;
-use ffmpeg::Stream;
+use ffmpeg_next::decoder::Audio as AudioDecoder;
+use ffmpeg_next::format::context::Input;
+use ffmpeg_next::util::error::Error as FFmpegError;
+use ffmpeg_next::util::error::ENOENT;
+use ffmpeg_next::util::format::sample::Sample as FFmpegSample;
+use ffmpeg_next::util::format::sample::Type::Packed;
+use ffmpeg_next::util::format::sample::Type::Planar;
+use ffmpeg_next::Stream;
 
-use crate::backend::decode::ffmpeg::ffmpeg_init;
-
-use crate::backend::decode::decoder::Decoder;
-use crate::backend::decode::decoder_iter::DecoderIter;
-use crate::backend::decode::ffmpeg::decoder_iter::FFmpegDecoderIter;
 use crate::backend::errors::Error;
+use crate::backend::ffmpeg::ffmpeg_init;
+use crate::backend::ffmpeg::FFmpegDecoderIter;
 use crate::backend::signal::Signal;
+use crate::backend::Decoder;
+use crate::backend::DecoderIter;
 
 #[inline(always)]
 fn new_input_for_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Input, Error> {

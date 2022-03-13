@@ -3,14 +3,14 @@
 mod fixtures;
 
 mod test_waveform_resample_method {
-    use crate::fixtures::*;
-
+    use babycat::constants::RESAMPLE_MODE_BABYCAT_LANCZOS;
+    use babycat::constants::RESAMPLE_MODE_BABYCAT_SINC;
+    use babycat::constants::RESAMPLE_MODE_LIBSAMPLERATE;
     use babycat::Signal;
     use babycat::Waveform;
     use babycat::WaveformArgs;
-    use babycat::RESAMPLE_MODE_BABYCAT_LANCZOS;
-    use babycat::RESAMPLE_MODE_BABYCAT_SINC;
-    use babycat::RESAMPLE_MODE_LIBSAMPLERATE;
+
+    use crate::fixtures::*;
 
     const RESAMPLE_MODES: &[u32] = &[
         RESAMPLE_MODE_BABYCAT_LANCZOS,

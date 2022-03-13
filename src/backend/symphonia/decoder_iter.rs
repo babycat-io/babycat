@@ -3,9 +3,9 @@ use symphonia::core::codecs::Decoder as SymphoniaDecoderTrait;
 use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::formats::{FormatReader, Track};
 
-use crate::backend::decode::decoder_iter::DecoderIter;
 use crate::backend::errors::Error;
 use crate::backend::signal::Signal;
+use crate::backend::DecoderIter;
 
 pub struct SymphoniaDecoderIter<'a> {
     decoder: Box<dyn SymphoniaDecoderTrait>,
@@ -151,7 +151,7 @@ impl<'a> Iterator for SymphoniaDecoderIter<'a> {
 
 #[cfg(all(test, feature = "enable-ffmpeg"))]
 mod test_symphonia_decoder_iter {
-    use crate::decode::SymphoniaDecoder;
+    use crate::backend::symphonia::SymphoniaDecoder;
 
     pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.flac";
     pub const COF_NUM_CHANNELS: u16 = 2;

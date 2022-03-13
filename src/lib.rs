@@ -28,7 +28,7 @@
 //! There are several resampling backends available:
 //! Current valid values include:
 //!
-//! * [`babycat::RESAMPLE_MODE_LIBSAMPLERATE`](crate::RESAMPLE_MODE_LIBSAMPLERATE):
+//! * [`RESAMPLE_MODE_LIBSAMPLERATE`](crate::constants::RESAMPLE_MODE_LIBSAMPLERATE):
 //!   This uses [libsamplerate](http://www.mega-nerd.com/SRC/) at the
 //!   `SRC_SINC_BEST_QUALITY` setting. This is the highest-quality resampler
 //!   currently offered by Babycat, although it is slightly slower than the other
@@ -39,14 +39,14 @@
 //!   because libsamplerate's dependency on libc makes it hard to compile
 //!   it to the `wasm32-unknown-unknown` target.
 //!
-//! * [`babycat::RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::RESAMPLE_MODE_BABYCAT_LANCZOS):
+//! * [`RESAMPLE_MODE_BABYCAT_LANCZOS`](crate::constants::RESAMPLE_MODE_BABYCAT_LANCZOS):
 //!   A Lanczos resampler to use when compiling to targets like
 //!   `wasm32-unknown-unknown` where libsamplerate cannot be compiled to.
 //!   This is a simple impmenentation of a
 //!   [Lanczos resampler](https://en.wikipedia.org/wiki/Lanczos_resampling).
 //!   This is the fastest (and lowest-quality) resampler available in Babycat.
 //!
-//! * [`babycat::RESAMPLE_MODE_BABYCAT_SINC`](crate::RESAMPLE_MODE_BABYCAT_SINC):
+//! * [`RESAMPLE_MODE_BABYCAT_SINC`](crate::constants::RESAMPLE_MODE_BABYCAT_SINC):
 //!   This is an implementation of a sinc resampler
 //!   [as described by Stanford professor Julius O. Smith](https://ccrma.stanford.edu/~jos/resample/).
 //!   The speed and quality of this resampler is in between the above two.

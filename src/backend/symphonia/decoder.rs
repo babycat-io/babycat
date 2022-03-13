@@ -13,14 +13,14 @@ use symphonia::core::io::{MediaSource, MediaSourceStream, ReadOnlySource};
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
 
-use crate::backend::decode::decoder::Decoder;
-use crate::backend::decode::decoder_iter::DecoderIter;
+use crate::backend::constants::DEFAULT_FILE_EXTENSION;
+use crate::backend::constants::DEFAULT_MIME_TYPE;
 use crate::backend::errors::Error;
 use crate::backend::signal::Signal;
-use crate::backend::waveform_args::DEFAULT_FILE_EXTENSION;
-use crate::backend::waveform_args::DEFAULT_MIME_TYPE;
+use crate::backend::Decoder;
+use crate::backend::DecoderIter;
 
-use crate::backend::decode::symphonia::decoder_iter::SymphoniaDecoderIter;
+use crate::backend::symphonia::SymphoniaDecoderIter;
 
 /// An audio decoder from Philip Deljanov's [`symphonia`] audio decoding library.
 pub struct SymphoniaDecoder {

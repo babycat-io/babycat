@@ -178,7 +178,7 @@ pub fn waveforms_from_files(
         resample_mode,
         decoding_backend,
     };
-    let batch_args = crate::backend::batch::BatchArgs { num_workers };
+    let batch_args = crate::backend::BatchArgs { num_workers };
     let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
     crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
         .into_iter()
@@ -235,7 +235,7 @@ pub fn waveforms_from_files_to_numpy_arrays(
         resample_mode,
         decoding_backend,
     };
-    let batch_args = crate::backend::batch::BatchArgs { num_workers };
+    let batch_args = crate::backend::BatchArgs { num_workers };
     let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
     crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
         .into_iter()

@@ -1,11 +1,12 @@
 mod fixtures;
 
 mod test_waveform_from_file {
-    use crate::fixtures::*;
     use babycat::Error;
     use babycat::Signal;
     use babycat::Waveform;
     use babycat::WaveformArgs;
+
+    use crate::fixtures::*;
 
     fn decode_cof_mp3(waveform_args: WaveformArgs) -> Result<Waveform, Error> {
         Waveform::from_file(COF_FILENAME, waveform_args)
