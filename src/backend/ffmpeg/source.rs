@@ -6,9 +6,9 @@ use ffmpeg_next::format::context::input::PacketIter;
 use ffmpeg_next::format::context::Input;
 use ffmpeg_next::frame::Audio as Frame;
 
-use crate::backend::DecoderIter;
 use crate::backend::Sample;
 use crate::backend::Signal;
+use crate::backend::Source;
 
 #[inline(always)]
 fn next_packet<'a>(
@@ -67,7 +67,7 @@ fn get_sample_planar<T: Sample>(frame: &Frame, frame_idx: usize, channel_idx: us
     }
 }
 
-pub struct FFmpegDecoderIter<'a, T: Sample, const PACKED: bool> {
+pub struct FFmpegSource<'a, T: Sample, const PACKED: bool> {
     decoder: &'a mut AudioDecoder,
     packet_iter: PacketIter<'a>,
     stream_index: usize,
@@ -84,7 +84,7 @@ pub struct FFmpegDecoderIter<'a, T: Sample, const PACKED: bool> {
     _ph: PhantomData<T>,
 }
 
-impl<'a, T: Sample, const PACKED: bool> FFmpegDecoderIter<'a, T, PACKED> {
+impl<'a, T: Sample, const PACKED: bool> FFmpegSource<'a, T, PACKED> {
     pub fn new(
         input: &'a mut Input,
         decoder: &'a mut AudioDecoder,
@@ -115,9 +115,9 @@ impl<'a, T: Sample, const PACKED: bool> FFmpegDecoderIter<'a, T, PACKED> {
     }
 }
 
-impl<'a, T: Sample, const PACKED: bool> DecoderIter for FFmpegDecoderIter<'a, T, PACKED> {}
+impl<'a, T: Sample, const PACKED: bool> Source for FFmpegSource<'a, T, PACKED> {}
 
-impl<'a, T: Sample, const PACKED: bool> Signal for FFmpegDecoderIter<'a, T, PACKED> {
+impl<'a, T: Sample, const PACKED: bool> Signal for FFmpegSource<'a, T, PACKED> {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
@@ -142,7 +142,7 @@ impl<'a, T: Sample, const PACKED: bool> Signal for FFmpegDecoderIter<'a, T, PACK
     }
 }
 
-impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PACKED> {
+impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegSource<'a, T, PACKED> {
     type Item = f32;
 
     #[inline(always)]
@@ -217,7 +217,7 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegDecoderIter<'a, T, PA
 }
 
 #[cfg(all(test, feature = "enable-ffmpeg"))]
-mod test_ffmpeg_decoder_iter {
+mod test_ffmpeg_source {
     use crate::backend::ffmpeg::FFmpegDecoder;
 
     pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.flac";
@@ -234,35 +234,35 @@ mod test_ffmpeg_decoder_iter {
     fn test_cof_size_hint_1() {
         let mut decoder =
             FFmpegDecoder::from_file(COF_FILENAME).expect("Failed to decode circus-of-freaks");
-        let mut decoder_iter = decoder.begin().expect("Failed to create DecoderIter");
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES - 1, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES - 2, None));
-        let decoder_iter = decoder_iter.skip(10);
-        assert_eq!(decoder_iter.size_hint(), (COF_NUM_SAMPLES - 12, None));
-        let mut decoder_iter = decoder_iter.take(1000);
-        assert_eq!(decoder_iter.size_hint(), (1000, Some(1000)));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (999, Some(999)));
+        let mut source = decoder.begin().expect("Failed to create Source");
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES, None));
+        source.next();
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES - 1, None));
+        source.next();
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES - 2, None));
+        let source = source.skip(10);
+        assert_eq!(source.size_hint(), (COF_NUM_SAMPLES - 12, None));
+        let mut source = source.take(1000);
+        assert_eq!(source.size_hint(), (1000, Some(1000)));
+        source.next();
+        assert_eq!(source.size_hint(), (999, Some(999)));
     }
 
     #[test]
     fn test_mono_dtmf_size_hint_1() {
         let mut decoder =
             FFmpegDecoder::from_file(MONO_DTMF_FILENAME).expect("Failed to decode mono-dtmf-tones");
-        let mut decoder_iter = decoder.begin().expect("Failed to create DecoderIter");
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES - 1, None));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES - 2, None));
-        let decoder_iter = decoder_iter.skip(10);
-        assert_eq!(decoder_iter.size_hint(), (MONO_DTMF_SAMPLES - 12, None));
-        let mut decoder_iter = decoder_iter.take(1000);
-        assert_eq!(decoder_iter.size_hint(), (1000, Some(1000)));
-        decoder_iter.next();
-        assert_eq!(decoder_iter.size_hint(), (999, Some(999)));
+        let mut source = decoder.begin().expect("Failed to create Source");
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES, None));
+        source.next();
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES - 1, None));
+        source.next();
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES - 2, None));
+        let source = source.skip(10);
+        assert_eq!(source.size_hint(), (MONO_DTMF_SAMPLES - 12, None));
+        let mut source = source.take(1000);
+        assert_eq!(source.size_hint(), (1000, Some(1000)));
+        source.next();
+        assert_eq!(source.size_hint(), (999, Some(999)));
     }
 }

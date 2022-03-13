@@ -18,9 +18,9 @@ use crate::backend::constants::DEFAULT_MIME_TYPE;
 use crate::backend::errors::Error;
 use crate::backend::signal::Signal;
 use crate::backend::Decoder;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 
-use crate::backend::symphonia::SymphoniaDecoderIter;
+use crate::backend::symphonia::SymphoniaSource;
 
 /// An audio decoder from Philip Deljanov's [`symphonia`] audio decoding library.
 pub struct SymphoniaDecoder {
@@ -140,8 +140,8 @@ impl SymphoniaDecoder {
 
 impl Decoder for SymphoniaDecoder {
     #[inline(always)]
-    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
-        let decode_iter = SymphoniaDecoderIter::new(
+    fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error> {
+        let decode_iter = SymphoniaSource::new(
             &mut self.reader,
             self.frame_rate_hz,
             self.num_channels,

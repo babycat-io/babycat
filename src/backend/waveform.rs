@@ -15,7 +15,7 @@ use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::signal::Signal;
 use crate::backend::Decoder;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 use crate::backend::WaveformArgs;
 
 #[cfg(feature = "enable-filesystem")]
@@ -137,13 +137,13 @@ impl Waveform {
         };
         let mut interleaved_samples: Vec<f32> = Vec::with_capacity(interleaved_samples_capacity);
 
-        let decoder_iter = decoder.begin()?;
-        let bounded_decoder_iter = decoder_iter
+        let source = decoder.begin()?;
+        let bounded_source = source
             .skip_samples(start_sample_idx)
             .take_samples(take_samples)
             .select_first_channels(selected_num_channels)
             .convert_to_mono(args.convert_to_mono);
-        for sample in bounded_decoder_iter {
+        for sample in bounded_source {
             interleaved_samples.push(sample);
         }
 

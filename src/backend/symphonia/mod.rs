@@ -1,5 +1,5 @@
 mod decoder;
-mod decoder_iter;
+mod source;
 
 pub use decoder::SymphoniaDecoder;
-pub use decoder_iter::SymphoniaDecoderIter;
+pub use source::SymphoniaSource;

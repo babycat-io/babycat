@@ -11,7 +11,7 @@ pub use take_samples::TakeSamples;
 use crate::backend::signal::Signal;
 
 /// A sample iterator created by an audio decoder.
-pub trait DecoderIter: Signal + Iterator<Item = f32> {
+pub trait Source: Signal + Iterator<Item = f32> {
     #[inline(always)]
     fn skip_samples(self, count: usize) -> SkipSamples<Self>
     where
@@ -45,9 +45,9 @@ pub trait DecoderIter: Signal + Iterator<Item = f32> {
     }
 }
 
-impl DecoderIter for Box<dyn DecoderIter + '_> {}
+impl Source for Box<dyn Source + '_> {}
 
-impl Signal for Box<dyn DecoderIter + '_> {
+impl Signal for Box<dyn Source + '_> {
     #[inline(always)]
     fn frame_rate_hz(&self) -> u32 {
         (&**self).frame_rate_hz()

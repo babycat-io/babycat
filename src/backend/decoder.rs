@@ -10,16 +10,16 @@ use std::marker::Sync;
 use crate::backend::constants::*;
 use crate::backend::errors::Error;
 use crate::backend::signal::Signal;
-use crate::backend::DecoderIter;
+use crate::backend::Source;
 
 /// Methods common to all audio decoders.
 pub trait Decoder: Signal {
-    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error>;
+    fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error>;
 }
 
 impl Decoder for Box<dyn Decoder> {
     #[inline(always)]
-    fn begin(&mut self) -> Result<Box<dyn DecoderIter + '_>, Error> {
+    fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error> {
         (&mut **self).begin()
     }
 }
