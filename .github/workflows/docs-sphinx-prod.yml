@@ -6,11 +6,9 @@ defaults:
     shell: bash
 
 on:
-  workflow_dispatch:
-  pull_request:
   push:
-    tags-ignore:
-      - 'v*' # Don't run these tests twice when cutting a new version.
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 env:
   CARGO_TERM_COLOR: always
