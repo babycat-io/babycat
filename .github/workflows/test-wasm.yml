@@ -48,4 +48,4 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run WebAssembly tests
-      run: make test-wasm-nodejs
+      run: WASM_PACK=/usr/share/rust/.cargo/bin/wasm-pack make test-wasm-nodejs
