@@ -201,13 +201,37 @@ clean: clean-cache clean-docs clean-node-modules clean-target clean-venv
 # init-python =======================================================
 # ===================================================================
 
-init-python-venv:
+.b/init-python-venv:
 	$(CREATE_VENV_CMD)
+	@touch $@
+init-python-venv: .b/init-python-venv
 .PHONY: init-python-venv
 
-init-python-build: init-python-venv requirements-build.txt
+.b/init-python-build: .b/init-python-venv requirements-build.txt
 	$(PIP) install -r requirements-build.txt
+	@touch $@
+init-python-build: .b/init-python-build
 .PHONY: init-python-build
+
+.b/init-python-deps: .b/init-python-venv requirements.txt
+	$(PIP) install -r requirements.txt
+	@touch $@
+init-python-deps: .b/init-python-deps
+.PHONY: init-python-deps
+
+.b/init-python-dev: .b/init-python-venv requirements-dev.txt
+	$(PIP) install -r requirements-dev.txt
+	@touch $@
+init-python-dev: .b/init-python-dev
+.PHONY: init-python-dev
+
+.b/init-python-docs: .b/init-python-venv requirements-docs.txt
+	$(PIP) install -r requirements-docs.txt
+	@touch $@
+init-python-docs: .b/init-python-docs
+
+init-python: init-python-build init-python-deps init-python-dev init-python-docs
+.PHONY: init-python
 
 init-python-deps: init-python-venv requirements.txt
 	$(PIP) install -r requirements.txt
@@ -217,28 +241,19 @@ init-python-dev: init-python-venv requirements-dev.txt
 	$(PIP) install -r requirements-dev.txt
 .PHONY: init-python-dev
 
-init-python-docs: init-python-venv requirements-docs.txt
-	$(PIP) install -r requirements-docs.txt
-.PHONY: init-python-docs
-
-init-python: init-python-build init-python-deps init-python-dev init-python-docs
-
-
-
-
 # ===================================================================
 # init-npm ==========================================================
 # ===================================================================
 
-init-npm-dev: package.json
+.b/init-npm-dev: package.json
 	$(NPM) rebuild && $(NPM) install
-.PHONY: init-npm-dev
+	@touch $@
 
-init-npm-test: tests-wasm-nodejs/package.json
+.b/init-npm-test: tests-wasm-nodejs/package.json
 	cd tests-wasm-nodejs && $(NPM) rebuild && $(NPM) install
-.PHONY: init-npm-test
+	@touch $@
 
-init-npm: init-npm-dev init-npm-test
+init-npm: .b/init-npm-dev .b/init-npm-test
 .PHONY: init-npm
 
 
@@ -248,26 +263,30 @@ init-npm: init-npm-dev init-npm-test
 # init-cargo ========================================================
 # ===================================================================
 
-init-cargo-clippy:
+.b/init-cargo-clippy:
 	$(RUSTUP) component add clippy
-.PHONY: init-cargo-clippy
+	@touch $@
+.PHONY: .b/init-cargo-clippy
 
-init-cargo-fmt:
+.b/init-cargo-fmt:
 	$(RUSTUP) component add rustfmt
-.PHONY: init-cargo-fmt
+	@touch $@
+.PHONY: .b/init-cargo-fmt
 
-init-cargo-wasm32-unknown-unknown:
+.b/init-cargo-wasm32-unknown-unknown:
 	$(RUSTUP) target add wasm32-unknown-unknown
-.PHONY: init-cargo-wasm32-unknown-unknown
+	@touch $@
+.PHONY: .b/init-cargo-wasm32-unknown-unknown
 
-init-cargo-cbindgen:
+.b/init-cargo-cbindgen:
 	$(CARGO) install cbindgen || true
-.PHONY: init-cargo-cbindgen
+	@touch $@
+.PHONY: .b/init-cargo-cbindgen
 
-init-cargo: init-cargo-clippy init-cargo-fmt init-cargo-wasm32-unknown-unknown init-cargo-cbindgen
-.PHONY: init-cargo
+.b/init-cargo: .b/init-cargo-clippy .b/init-cargo-fmt .b/init-cargo-wasm32-unknown-unknown .b/init-cargo-cbindgen
+.PHONY: .b/init-cargo
 
-init: init-python init-npm init-cargo
+init: .b/init-python .b/init-npm .b/init-cargo
 .PHONY: init
 
 
@@ -277,9 +296,11 @@ init: init-python init-npm init-cargo
 # init-docker =======================================================
 # ===================================================================
 
-init-docker-maturin:
+.b/init-docker-maturin:
 	$(DOCKER) build -t babycat/maturin -f docker/maturin/Dockerfile .
-
+	@touch $@
+init-docker-maturin: .b/init-docker-maturin
+.PHONY: init-docker-maturin
 
 
 
@@ -291,17 +312,17 @@ fmt-c:
 	$(CLANG_FORMAT) -i tests-c/*.c examples-c/*.c
 .PHONY: fmt-c
 
-fmt-javascript: init-npm-dev
+fmt-javascript: .b/init-npm-dev
 	$(ESLINT) --fix $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --write $(JAVASCRIPT_CODE_PATHS)
 .PHONY: fmt-javascript
 
-fmt-python: init-python-dev
+fmt-python: .b/init-python-dev
 	$(BLACK) $(PYTHON_CODE_PATHS)
 	$(ISORT) $(PYTHON_CODE_PATHS)
 .PHONY: fmt-python
 
-fmt-rust: init-cargo-fmt
+fmt-rust: .b/init-cargo-fmt
 	$(CARGO) fmt
 .PHONY: fmt-rust
 
@@ -317,17 +338,17 @@ fmt-check-c:
 	$(CLANG_FORMAT) --dry-run -Werror tests-c/*
 .PHONY: fmt-check-c
 
-fmt-check-javascript: init-npm-dev
+fmt-check-javascript: .b/init-npm-dev
 	$(ESLINT) $(JAVASCRIPT_CODE_PATHS)
 	$(PRETTIER) --check --loglevel=silent $(JAVASCRIPT_CODE_PATHS)
 .PHONY: fmt-check-javascript
 
-fmt-check-python: init-python-dev
+fmt-check-python: .b/init-python-dev
 	$(BLACK) --quiet $(PYTHON_CODE_PATHS)
 	$(ISORT) --quiet $(PYTHON_CODE_PATHS)
 .PHONY: fmt-check-python
 
-fmt-check-rust: init-cargo-fmt
+fmt-check-rust: .b/init-cargo-fmt
 	$(CARGO) fmt -- --check
 .PHONY: fmt-check-rust
 
@@ -340,12 +361,12 @@ fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
 # lint ==============================================================
 # ===================================================================
 
-lint-python: init-python-dev
+lint-python: .b/init-python-dev
 	$(PYLINT) $(PYTHON_CODE_PATHS)
 	$(MYPY) $(PYTHON_CODE_PATHS)
 .PHONY: lint-python
 
-lint-rust: init-cargo-clippy
+lint-rust: .b/init-cargo-clippy
 	$(ALL_FEATURES_TARGET) $(CARGO) clippy $(PROFILE_FLAG) --all-features
 .PHONY: lint-rust
 
@@ -379,7 +400,7 @@ build-ffmpeg-binary:
 	$(CARGO_BUILD) $(FRONTEND_FFMPEG_BINARY_FLAGS)
 .PHONY: build-ffmpeg-binary
 
-build-c-header: init-cargo-cbindgen
+build-c-header: .b/init-cargo-cbindgen
 	$(CBINDGEN) --quiet --output=babycat.h
 .PHONY: build-c-header
 
@@ -393,16 +414,16 @@ build-ffmpeg-c: build-c-header
 	$(CARGO_BUILD) $(FRONTEND_FFMPEG_C_FLAGS) && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_FFMPEG_C_LIB)"
 .PHONY: build-ffmpeg-c
 
-build-python: init-python-build
+build-python: .b/init-python-build
 	$(MATURIN_BUILD) --out="$(WHEEL_DIR)" --cargo-extra-args="$(PROFILE_FLAG) $(FRONTEND_PYTHON_FLAGS)"
 .PHONY: build-python
 
-build-python-manylinux: init-docker-maturin
+build-python-manylinux: .b/init-docker-maturin
 	mkdir -p $(MANYLINUX_WHEEL_DIR)
 	$(DOCKER) run --user=$$(id -u):$$(id -g) -eCARGO_TARGET_DIR=/tmp --volume="$(PWD):/src" --volume="$(MANYLINUX_WHEEL_DIR):/wheels" --workdir=/src babycat/maturin build --out=/wheels $(MATURIN_FLAGS) --cargo-extra-args="$(PROFILE_FLAG) $(FRONTEND_PYTHON_FLAGS)"
 .PHONY: build-python-manylinux
 
-build-ffmpeg-python: init-python-build
+build-ffmpeg-python: .b/init-python-build
 	$(MATURIN_BUILD) --out="$(FFMPEG_WHEEL_DIR)" --cargo-extra-args="$(PROFILE_FLAG) $(FRONTEND_FFMPEG_PYTHON_FLAGS)"
 .PHONY: build-ffmpeg-python
 
@@ -479,7 +500,7 @@ run-ex: run-ex-rust-decode run-ex-rust-resampler run-ex-c-decode run-ex-wasm-dec
 # docs ==============================================================
 # ===================================================================
 
-docs-sphinx: clean-docs init-python-docs init-npm-dev build-c-header build-ffmpeg-python build-wasm-bundler
+docs-sphinx: clean-docs .b/init-python-docs .b/init-npm-dev build-c-header build-ffmpeg-python build-wasm-bundler
 	mkdir docs/build
 	$(DOXYGEN)
 	$(PIP_INSTALL_FFMPEG_WHEEL) && PATH="$(PATH):$(NODE_BIN)" $(SPHINX_BUILD) -M dirhtml docs/source docs/build
@@ -531,19 +552,19 @@ test-ffmpeg-rust:
 	$(CARGO_TEST) $(FRONTEND_FFMPEG_RUST_FLAGS)
 .PHONY: test-ffmpeg-rust
 
-test-python: init-python-dev build-python
+test-python: .b/init-python-dev build-python
 	$(PIP_INSTALL_WHEEL) && $(PYTEST)
 .PHONY: test-python
 
-test-ffmpeg-python: init-python-dev build-ffmpeg-python
+test-ffmpeg-python: .b/init-python-dev build-ffmpeg-python
 	$(PIP_INSTALL_FFMPEG_WHEEL) && $(PYTEST)
 .PHONY: test-ffmpeg-python
 
-test-python-manylinux: init-python-dev build-python-manylinux
+test-python-manylinux: .b/init-python-dev build-python-manylinux
 	$(PIP_INSTALL_MANYLINUX_WHEEL) && $(PYTEST)
 .PHONY: test-python-manylinux
 
-test-wasm-nodejs: build-wasm-nodejs init-npm-test
+test-wasm-nodejs: build-wasm-nodejs .b/init-npm-test
 	cd tests-wasm-nodejs && $(NPM) run test
 .PHONY: test-wasm-nodejs
 
