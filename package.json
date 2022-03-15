@@ -10,15 +10,15 @@
   "author": "Neocrym Records Inc.",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^7.26.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.23.0",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0",
-    "jsdoc": "^3.6.7",
-    "netlify-cli": "^9.13.1",
-    "prettier": "^2.3.0",
-    "webpack-cli": "^4.7.2"
+    "eslint-plugin-promise": "^6.0.0",
+    "jsdoc": "^3.6.10",
+    "netlify-cli": "^9.13.2",
+    "prettier": "^2.5.1",
+    "webpack-cli": "^4.9.2"
   }
 }

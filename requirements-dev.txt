@@ -1,8 +1,5 @@
 # helps us write and run tests
-pytest==7.0.1
-
-# helps us write and run benchmarks
-pytest-benchmark==3.4.1
+pytest==7.1.0
 
 # black formats python source code
 black==22.1.0
@@ -14,4 +11,4 @@ isort==5.10.1
 pylint==2.12.2
 
 # type annotations
-mypy==0.931
+mypy==0.941
