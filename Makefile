@@ -61,6 +61,7 @@ NODE_MODULES_PATH?=$(PWD)/node_modules
 NODE_BIN?=$(NODE_MODULES_PATH)/.bin
 ESLINT?=$(NODE_BIN)/eslint
 PRETTIER?=$(NODE_BIN)/prettier
+NETLIFY?=$(NODE_BIN)/netlify
 
 # Python venv configuration.
 OS?=
@@ -490,6 +491,20 @@ docs-rustdoc:
 
 docs: docs-sphinx docs-rustdoc
 .PHONY: docs
+
+
+
+
+# ===================================================================
+# deploy-docs =======================================================
+# ===================================================================
+deploy-docs-sphinx-netlify-draft: docs-sphinx
+	$(NETLIFY) deploy --dir=docs/build/dirhtml
+.PHONY: deploy-docs-sphinx-netlify-draft
+
+deploy-docs-sphinx-netlify-prod: docs-sphinx
+	$(NETLIFY) deploy --prod --dir=docs/build/dirhtml
+.PHONY: deploy-docs-sphinx-netlify-prod
 
 
 
