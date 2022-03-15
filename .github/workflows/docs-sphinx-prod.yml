@@ -55,3 +55,4 @@ jobs:
       run: WASM_PACK=$PWD/wasm-pack make deploy-docs-sphinx-netlify-prod
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
