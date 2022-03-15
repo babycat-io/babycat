@@ -1,2 +1,2 @@
 # Maturin is a tool for building Rust/Python wheels.
-maturin==0.12.9
+maturin==0.12.11

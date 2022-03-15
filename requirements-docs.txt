@@ -5,7 +5,7 @@ Sphinx==4.4.0
 sphinx-js==3.1.2
 
 # adds metadata to Sphinx pages
-sphinxext-opengraph==0.5.1
+sphinxext-opengraph==0.6.2
 
 # type hints in documentation
 sphinx-autodoc-typehints==1.17.0
