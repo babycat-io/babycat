@@ -54,9 +54,9 @@ You can install a C compiler and build tools from your system package manager:
 
 On Windows, try installing the LLVM toolchain. There are Windows installers listed on the *Pre-Built Binaries* section of the `LLVM releases page <https://releases.llvm.org/download.html>`_.
 
-Python 3.6 or newer
+Python 3.8 or newer
 ^^^^^^^^^^^^^^^^^^^
-Python 3.6 or newer is necessary for the following tasks:
+Python 3.8 or newer is necessary for the following tasks:
 
 - compiling and using the Babycat Python bindings.
 - linting and formatting Python code.

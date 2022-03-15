@@ -22,7 +22,7 @@ ENV RUSTUP_HOME /usr/local/cargo
 
 # Install maturin.
 COPY requirements-build.txt .
-RUN python3.6 -m pip install -r requirements-build.txt \
+RUN python3.8 -m pip install -r requirements-build.txt \
     && rm requirements-build.txt
 
 ENTRYPOINT [ "maturin" ]

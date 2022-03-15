@@ -1,5 +1,4 @@
 use pyo3::prelude::*;
-use pyo3::PyObjectProtocol;
 
 /// A container for decoding operations that may have succeeded or failed.
 #[pyclass(module = "babycat")]
@@ -20,6 +19,10 @@ impl WaveformNamedResult {
     #[getter]
     fn get_exception(&self) -> Option<PyErr> {
         self.error.map(PyErr::from)
+    }
+
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{}", self))
     }
 }
 
@@ -63,12 +66,5 @@ impl std::fmt::Display for WaveformNamedResult {
                 }
             },
         }
-    }
-}
-
-#[pyproto]
-impl PyObjectProtocol for WaveformNamedResult {
-    fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("{}", self))
     }
 }

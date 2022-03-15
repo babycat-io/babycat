@@ -233,7 +233,13 @@ init-python-docs: .b/init-python-docs
 init-python: init-python-build init-python-deps init-python-dev init-python-docs
 .PHONY: init-python
 
+init-python-deps: init-python-venv requirements.txt
+	$(PIP) install -r requirements.txt
+.PHONY: init-python-deps
 
+init-python-dev: init-python-venv requirements-dev.txt
+	$(PIP) install -r requirements-dev.txt
+.PHONY: init-python-dev
 
 # ===================================================================
 # init-npm ==========================================================
