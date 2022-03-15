@@ -46,8 +46,8 @@ extensions = [
 # -- Mappings to other Sphinx documentation sites -------------------
 
 intersphinx_mapping = {
-    # Babycat's Python bindings target Python 3.6.
-    "python": ("https://docs.python.org/3.6", None),
+    # Babycat's Python bindings target Python 3.8.
+    "python": ("https://docs.python.org/3.8", None),
     # Babycat works with NumPy versions 1.16 or newer.
     "numpy": ("https://numpy.org/doc/1.16", None),
 }

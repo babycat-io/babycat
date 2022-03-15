@@ -34,7 +34,7 @@ jobs:
 
     - uses: actions/setup-python@v2
       with:
-        python-version: "3.6"
+        python-version: "3.8"
 
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
