@@ -1,7 +1,6 @@
 use numpy::{IntoPyArray, PyArray2, PyReadonlyArray2};
 use pyo3::prelude::*;
 use pyo3::types::PyByteArray;
-use pyo3::PyObjectProtocol;
 
 use crate::backend::Signal;
 
@@ -42,13 +41,6 @@ impl std::fmt::Display for Waveform {
             self.inner.num_channels(),
             self.inner.frame_rate_hz(),
         )
-    }
-}
-
-#[pyproto]
-impl PyObjectProtocol for Waveform {
-    fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("{}", self))
     }
 }
 
@@ -1058,5 +1050,9 @@ impl Waveform {
 </audio>",
             wav_buffer_base64
         ))
+    }
+
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{}", self))
     }
 }

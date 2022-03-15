@@ -1,6 +1,5 @@
 use numpy::PyArray2;
 use pyo3::prelude::*;
-use pyo3::PyObjectProtocol;
 
 /// A container for decoding operations that may have succeeded or failed.
 #[pyclass(module = "babycat")]
@@ -21,6 +20,10 @@ impl NumPyNamedResult {
     #[getter]
     fn get_exception(&self) -> Option<PyErr> {
         self.error.map(PyErr::from)
+    }
+
+    fn __repr__(&self) -> PyResult<String> {
+        Ok(format!("{}", self))
     }
 }
 
@@ -64,12 +67,5 @@ impl std::fmt::Display for NumPyNamedResult {
                 }
             },
         }
-    }
-}
-
-#[pyproto]
-impl PyObjectProtocol for NumPyNamedResult {
-    fn __repr__(&self) -> PyResult<String> {
-        Ok(format!("{}", self))
     }
 }
