@@ -66,8 +66,10 @@ PRETTIER?=$(NODE_BIN)/prettier
 OS?=
 ifeq ($(OS),Windows_NT)
 	PYTHON?=python
+	VENV_SUBDIR?=Scripts
 else
 	PYTHON?=python3
+	VENV_SUBDIR?=bin
 endif
 
 DISABLE_VENV?=0
@@ -79,7 +81,7 @@ ifeq ($(DISABLE_VENV), 1)
 else
 	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_DIR)
 	DELETE_VENV_CMD?=rm -rfv $(VENV_DIR)
-	VENV_BIN?=$(VENV_DIR)/bin/
+	VENV_BIN?=$(VENV_DIR)/$(VENV_SUBDIR)/
 endif
 
 # This is the shared library filename
