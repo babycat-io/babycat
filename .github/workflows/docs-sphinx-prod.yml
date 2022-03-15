@@ -1,4 +1,5 @@
-name: publish-wasm
+# Deploy Sphinx docs to production
+name: docs-sphinx-prod
 
 defaults:
   run:
@@ -13,10 +14,15 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  publish-wasm:
+  docs-sphinx-prod:
     runs-on: ubuntu-20.04
 
     steps:
+
+    - name: Install dependencies from Apt
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends libasound2-dev yasm doxygen
 
     - name: Install Rust
       uses: actions-rs/toolchain@v1
@@ -30,15 +36,13 @@ jobs:
       with:
         node-version: "14"
 
+    - name: Install Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: "3.8"
+
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
-
-    - name: Get the version from the Git tag name
-      id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
-
-    - name: Set the version in our Cargo.toml
-      run: ./.version-bump.py ${{ steps.get_version.outputs.VERSION }}
 
     - name: Install wasm-pack
       run: |
@@ -47,11 +51,8 @@ jobs:
         cp wasm-pack-v0.10.2-x86_64-unknown-linux-musl/wasm-pack .
         rm -rfv wasm-pack-v0.10.2-x86_64-unknown-linux-muslwasm-pack-v0.10.2-x86_64-unknown-linux-musl.tar.gz
 
-    - name: Build the WebAssembly bundle
-      run: WASM_PACK=$PWD/wasm-pack make build-wasm-bundler
-
-    - name: Publish to NPM
-      run: npm publish
-      working-directory: ./target/release/wasm/bundler
+    - name: Deploy Sphinx docs on Netlify
+      run: WASM_PACK=$PWD/wasm-pack make deploy-docs-sphinx-netlify-prod
       env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

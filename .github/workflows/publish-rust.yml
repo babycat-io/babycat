@@ -35,12 +35,6 @@ jobs:
     - name: Set the version in our Cargo.toml
       run: ./.version-bump.py ${{ steps.get_version.outputs.VERSION }}
 
-    - name: Vendor Rust code
-      run: make vendor
-
-    - name: Disable cargo vendoring to make 'cargo publish' work
-      run: cp .cargo/config-no-vendoring.toml .cargo/config.toml
-
     - name: Log into crates.io
       run: cargo login ${{ secrets.CRATES_IO_TOKEN }}
 

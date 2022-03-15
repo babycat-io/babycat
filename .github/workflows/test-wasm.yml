@@ -33,36 +33,15 @@ jobs:
       with:
         node-version: "14"
 
-    - name: Cache the wasm-pack binary
-      id: cache-wasm-pack-binary
-      uses: actions/cache@v2
-      with:
-        path: /usr/share/rust/.cargo/bin/wasm-pack
-        key: test-wasm-linux-cache-wasm-pack-0-10-1
-
-    - name: Install wasm-pack (if it is not cached)
-      run: cargo install wasm-pack --version=^0.10.1
-      if: steps.cache-wasm-pack-binary.outputs.cache-hit != 'true'
-
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Vendor Rust code
-      run: make vendor
-
-    - name: Cache JavaScript test dependencies
-      id: cache-javascript-test-dependencies
-      uses: actions/cache@v2
-      with:
-        path: ./tests-wasm-nodejs/node_modules
-        key: test-wasm-linux-${{ hashFiles('./tests-wasm-nodejs/package.json') }}
-
-    - name: Install JavaScript test requirements (if they are not cached)
-      run: make init-javascript-tests
-      if: steps.cache-javascript-test-dependencies.outputs.cache-hit != 'true'
-
-    - name: Build the WebAssembly frontend
-      run: make build-wasm-nodejs
+    - name: Install wasm-pack
+      run: |
+        wget https://github.com/rustwasm/wasm-pack/releases/download/v0.10.2/wasm-pack-v0.10.2-x86_64-unknown-linux-musl.tar.gz
+        tar xvf wasm-pack-v0.10.2-x86_64-unknown-linux-musl.tar.gz
+        cp wasm-pack-v0.10.2-x86_64-unknown-linux-musl/wasm-pack .
+        rm -rfv wasm-pack-v0.10.2-x86_64-unknown-linux-muslwasm-pack-v0.10.2-x86_64-unknown-linux-musl.tar.gz
 
     - name: Run WebAssembly tests
-      run: make test-wasm-nodejs
+      run: WASM_PACK=$PWD/wasm-pack make test-wasm-nodejs

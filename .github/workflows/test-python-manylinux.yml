@@ -21,20 +21,5 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Initialize our Python requirements
-      run: make init-python-requirements init-python-requirements-dev
-
-    - name: Build the manylinux Docker container
-      run: make docker-build-pip
-
-    - name: Disable vendoring of Rust dependencies
-      run: mv .cargo/config-no-vendoring.toml .cargo/config.toml
-
-    - name: Build a Babycat Python manylinux wheel
-      run: make build-python-manylinux
-
-    - name: Install the manylinux wheel
-      run: make install-python-wheel-manylinux
-
-    - name: Run Python tests
+    - name: Build a manylinux wheel and run Python tests
       run: make test-python-manylinux

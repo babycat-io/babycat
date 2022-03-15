@@ -49,12 +49,6 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Vendor Rust code
-      run: make vendor
-
-    - name: Build Python frontend
-      run: make build-python
-
     - name: Run Python tests
       run: make test-python
       if: matrix.python-version == '3.8' || matrix.python-version == '3.9' || matrix.python-version == '3.10'

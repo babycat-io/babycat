@@ -1,5 +1,5 @@
 # Runs the tests for Babycat's Rust frontend with FFmpeg enabled.
-name: test-rust-ffmpeg
+name: test-ffmpeg-rust
 
 defaults:
   run:
@@ -16,12 +16,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test-rust-ffmpeg:
+  test-ffmpeg-rust:
     runs-on: "ubuntu-20.04"
 
     steps:
 
-    # We need yasm for buildling/linting FFmpeg.
     - name: Install yasm for building FFmpeg
       run: |
         sudo apt-get update
@@ -36,11 +35,5 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Vendor Rust code
-      run: make vendor
-
-    - name: Build FFmpeg and Rust frontend
-      run: ENABLE_FFMPEG_BUILD_LINK_STATIC=1 make build-rust
-
-    - name: Run Rust tests
-      run: ENABLE_FFMPEG_BUILD_LINK_STATIC=1 make test-rust
+    - name: Build and run Rust tests with FFmpeg
+      run: make test-ffmpeg-rust

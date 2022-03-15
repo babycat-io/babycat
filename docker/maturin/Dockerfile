@@ -1,7 +1,7 @@
 # Use a Docker container to build the manylinux wheel.
 FROM quay.io/pypa/manylinux2014_x86_64
-
 ENV DEBIAN_FRONTEND noninteractive
+
 
 # Fix permissions issues with our pip cache.
 RUN mkdir /.cache && chmod --recursive 777 /.cache
@@ -18,3 +18,11 @@ ENV PATH /usr/local/cargo/bin:/opt/python/cp36-cp36m/bin/:/opt/python/cp37-cp37m
 ENV RUST_ARCH x86_64-unknown-linux-gnu
 ENV CARGO_HOME /usr/local/cargo
 ENV RUSTUP_HOME /usr/local/cargo
+
+
+# Install maturin.
+COPY requirements-build.txt .
+RUN python3.6 -m pip install -r requirements-build.txt \
+    && rm requirements-build.txt
+
+ENTRYPOINT [ "maturin" ]

@@ -1,217 +1,98 @@
-Babycat Makefile commands:
------------------------------------------------------------------------
+MAKEFILE COMMANDS
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+help                    Print this help message.
 
-Many commands operate on codebases of one language. If you want to
-only affect one language, then use the `-lang` suffix.
------------------------------------------------------------------------
-help                            Print this help message.
+build                   Build a Babycat frontend.
+build-binary
+build-c
+build-python
+build-python-manylinux
+build-rust
+build-wasm
+build-wasm-bundler
+build-wasm-nodejs
+build-wasm-web
 
+build-ffmpeg            Build a Babycat frontend with FFmpeg.
+build-ffmpeg-binary
+build-ffmpeg-c
+build-ffmpeg-python
+build-ffmpeg-rust
 
------------------------------------------------------------------------
-clean                           Clean all of the below:
-clean-caches                     - Local cache and checkpoint files.
-clean-node-modules               - Installed node_modules directories.
-clean-vendor                     - The vendor/ dir of Rust deps.
-clean-target                     - The target/ dir of build arifacts.
-clean-venv                       - The Python virtualenv.
+docs                    Build documentation.
+docs-rustdoc            Build docs.rs/babycat documentation.
+docs-sphinx             Build babycat.io documentation.
 
+doctest                 Run documentation tests.
+doctest-python
+doctest-rust
 
+init                    Initialize development dependencies.
+init-cargo
+init-npm
+init-python
 
------------------------------------------------------------------------
-vendor                          Download and store source code
-vendor-rust                     dependencies within this project
-                                directory.
+test                    Run unit tests for each frontend.
+test-c
+test-python
+test-python-manylinux
+test-rust
+test-wasm-nodejs
 
+test-ffmpeg             Run unit tests with FFmpeg.
+test-ffmpeg-c
+test-ffmpeg-python
+test-ffmpeg-rust
 
------------------------------------------------------------------------
-init                            Locally installs various developer
-                                tools and vendors dependencies.
+build-ex                Builds one of the examples.
+build-ex-c-decode
+build-ex-rust-decode
+build-ex-rust-resampler
+build-ex-wasm-decode
 
+run-ex                  Runs the examples.
+run-ex-c-decode
+run-ex-rust-decode
+run-ex-rust-resampler
+run-ex-wasm-decode
 
------------------------------------------------------------------------
-fmt                             Automatically format code.
+fmt                     Format source code.
 fmt-c
 fmt-javascript
 fmt-python
 fmt-rust
 
-
-
------------------------------------------------------------------------
-fmt-check                       Check formatting, but do not fix
-fmt-check-c                     anything. Useful for CI.
+fmt-check               Check that source code is formatted.
+fmt-check-c
 fmt-check-javascript
 fmt-check-python
 fmt-check-rust
 
-
-
------------------------------------------------------------------------
-lint                            Lint code for errors.
+lint                    Lint source code.
 lint-python
 lint-rust
 
-
-
------------------------------------------------------------------------
-docs                            Builds documentation.
-
-docs-rustdoc                    Only build the Rustdoc documentation.
-
-docs-sphinx                     Only build the Sphinx documentation.
-
-docs-sphinx-netlify             Builds the Sphinx documentation
-                                without using a Python virtualenv.
-
-
------------------------------------------------------------------------
-build                           Build the babycat libraries+bindings.
-
-build-python                    Build a Python abi3 wheel for the
-                                current operating system.
-
-build-rust                      Build a Rust library.
-
-build-wasm-bundler              Build the WebAssembly bindings in a
-                                format suitable for
-                                JavaScript/TypeScript projects
-                                using a bundler like Webpack.
-
-build-wasm-nodejs               Builds the WebAssembly bindings to
-                                be used in the NodeJS runtime.
-
-build-wasm-web                  Builds the WebAssembly bindings to
-                                be used in a web browser. This does
-                                not require a JavaScript bundler
-                                like Webpack.
+clean                   Clean build artifacts.
+clean-caches
+clean-docs
+clean-node-modules
+clean-target
+clean-venv
 
 
 
------------------------------------------------------------------------
-(These are additional build commands that are not covered in
- `make build`.)
-babycat.h                       Build the C header file that describes
-                                babycat's C bindings.
+MAKEFILE VARIABLES
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
 
-build-python-manylinux          Build a Python abi3 manylinux wheel
-                                in a Docker container.
+PROFILE
+    is the Cargo Profile (`debug`, `release`, or another profile defined in our Cargo.toml.)
 
-build-binary                    Builds the Babycat command line app.
-                                This command is not invoked by the
-                                above `make build` command because
-                                the command line app has additional
-                                dependencies on Linux.
+FEATURES
+    are the Cargo features that are not related to FFmpeg.
 
+CARGO_TARGET_DIR
+    is the root path for compiled artifacts.
 
-
------------------------------------------------------------------------
-build-ex                        Builds all of the "example"
-                                programs.
-
-build-ex-resampler-comparison   Builds the "resampler comparison"
-                                example.
-
-build-ex-decode-rust            Builds the Rust decoding example.
-
-build-ex-decode-c               Builds the C decoding example.
-
-build-ex-decode-wasm            Builds the WebAssembly/Webpack
-                                decoding example.
-
-
-
------------------------------------------------------------------------
-run-ex-resampler-comparison     Runs the "resampler comparison"
-                                example.
-
-run-ex-decode-rust              Runs the Rust decoding example.
-
-run-ex-decode-c                 Runs the C decoding example.
-
-run-ex-decode-python            Runs the Python decoding example.
-
-
-
------------------------------------------------------------------------
-                                Installs compiled binarines in the
-                                local environment.
-
-install-python-wheel            Builds a Python abi3 wheel for the
-                                current operating system, and then
-                                installs it in the virtualenv.
-
-install-python-wheel-manylinux  Builds a Python abi3 manylinux wheel
-                                for and then installs it in the
-                                virtualenv. This command only works
-                                on Linux machines with Docker
-                                installed.
-
-
-
------------------------------------------------------------------------
-test                            Run all unit and integration tests.
-
-test-c                          Run C unit tests.
-
-test-c-valgrind                 Run C unit tests while checking for
-                                memory leaks using Valgrind.
-
-test-python                     Run Python tests.
-
-test-python-manylinux           Run Python tests after building and
-                                installing the manylinux wheel.
-
-test-rust                       Run Rust unit tests.
-
-test-wasm-nodejs                Run WebAssembly unit tests.
-
-
-
------------------------------------------------------------------------
-doctest                         Run *ONLY* tests that are written in
-doctest-python                  documentation strings.
-doctest-rust
-
-
-
------------------------------------------------------------------------
-bench                           Run all benchmarks.
-
-bench-rust                      Run all benchmarks for the Rust
-                                frontend.
-
-bench-rust-decoding             Run the Rust frontend's benchmarks
-                                for Babycat's decoders.
-
-bench-rust-resample             Run the Rust frontend's benchmarks
-bench-rust-resample-bc-lanczos  for Babycat's resamplers.
-bench-rust-resample-bc-sinc
-bench-rust-resample-libsamplerate
-
-
------------------------------------------------------------------------
-docker-build                    Manage Docker containers for this
-                                project. We have four container
-                                images. These commands build the
-                                containers:
-
-docker-build-cargo              - cargo: Rust and Cargo. The base
-                                  for the below three images.
-
-docker-build-ubuntu-minimal     - ubuntu-minimal: The minimal Ubuntu
-                                  installation needed to compile
-                                  Babycat.
-
-docker-build-main               - main: Many versions of Python and
-                                  developer tools.
-
-docker-build-pip                - pip: A container for building
-                                  manylinux images.
-
-
-
------------------------------------------------------------------------
-docker-run-docs-netlify         Runs our documentation build rule
-                                inside of a copy of Netlify's
-                                build image.
-
+Set ENABLE_VENV=0 to disable creating a Python virtualenv.
