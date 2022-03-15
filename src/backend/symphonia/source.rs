@@ -153,15 +153,15 @@ impl<'a> Iterator for SymphoniaSource<'a> {
 mod test_symphonia_source {
     use crate::backend::symphonia::SymphoniaDecoder;
 
-    pub const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.flac";
-    pub const COF_NUM_CHANNELS: u16 = 2;
-    pub const COF_NUM_FRAMES: usize = 2491247;
-    pub const COF_NUM_SAMPLES: usize = COF_NUM_FRAMES * COF_NUM_CHANNELS as usize;
+    const COF_FILENAME: &str = "./audio-for-tests/circus-of-freaks/track.flac";
+    const COF_NUM_CHANNELS: u16 = 2;
+    const COF_NUM_FRAMES: usize = 2491247;
+    const COF_NUM_SAMPLES: usize = COF_NUM_FRAMES * COF_NUM_CHANNELS as usize;
 
-    pub const MONO_DTMF_FILENAME: &str = "./audio-for-tests/mono-dtmf-tones/track.flac";
-    pub const MONO_DTMF_NUM_CHANNELS: u16 = 1;
-    pub const MONO_DTMF_NUM_FRAMES: usize = 441000;
-    pub const MONO_DTMF_SAMPLES: usize = MONO_DTMF_NUM_FRAMES * MONO_DTMF_NUM_CHANNELS as usize;
+    const MONO_DTMF_FILENAME: &str = "./audio-for-tests/mono-dtmf-tones/track.flac";
+    const MONO_DTMF_NUM_CHANNELS: u16 = 1;
+    const MONO_DTMF_NUM_FRAMES: usize = 441000;
+    const MONO_DTMF_SAMPLES: usize = MONO_DTMF_NUM_FRAMES * MONO_DTMF_NUM_CHANNELS as usize;
 
     #[test]
     fn test_cof_size_hint_1() {
