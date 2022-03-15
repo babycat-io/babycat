@@ -1,10 +1,3 @@
-# Vendor dependencies from crates.io (but do not check them into Git.)
-[source.crates-io]
-replace-with = "vendored-sources"
-
-[source.vendored-sources]
-directory = "vendor"
-
 # These rustflags are necessary for building Babycat's Python bindings
 # on MacOS.
 [target.x86_64-apple-darwin]

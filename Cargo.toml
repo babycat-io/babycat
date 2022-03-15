@@ -12,32 +12,6 @@ license = "MIT"
 include = ["Cargo.toml", "benches", "examples", "rust-toolchain.toml", "src", "tests"]
 
 
-# == Benchmarks ==
-[[bench]]
-name = "resample_babycat_lanczos"
-harness = false
-
-[[bench]]
-name = "resample_babycat_sinc"
-harness = false
-
-[[bench]]
-name = "resample_libsamplerate"
-harness = false
-
-[[bench]]
-name = "decoding_benchmark"
-harness = false
-
-[[bench]]
-name = "decoding_log_sweep"
-harness = false
-
-[[bench]]   
-name = "decoding_batch_misc"
-harness = false
-
-
 # == Binary targets ==
 [[bin]]
 name = "babycat"
@@ -49,13 +23,6 @@ required-features = ["frontend-binary"]
 name = "babycat"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
-
-# == Build profiles ==
-[profile.bench]
-lto = "fat"
-
-[profile.release]
-debug = false
 
 # == Dependencies ==
 [dependencies]
@@ -96,8 +63,6 @@ ffmpeg-next = { version = "5.0.2", default-features = false, optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
-criterion = { version = "0.3", features = ["html_reports"] }
-
 
 # == Features ==
 [features]
@@ -119,18 +84,15 @@ enable-ffmpeg = [
     "ffmpeg-next/device",
     "ffmpeg-next/format",
 ]
-enable-ffmpeg-link-dynamic = [
-    "enable-ffmpeg"
-]
 # Statically link to FFmpeg
-enable-ffmpeg-link-static = [
+enable-ffmpeg-static = [
     "enable-ffmpeg",
     "ffmpeg-next/static",
 ]
 # Build FFmpeg and statically link to it
-enable-ffmpeg-build-link-static  = [
+enable-ffmpeg-build  = [
     "enable-ffmpeg",
-    "ffmpeg-next/static",
+    "enable-ffmpeg-static",
     "ffmpeg-next/build"
 ]
 

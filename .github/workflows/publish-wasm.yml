@@ -43,14 +43,11 @@ jobs:
     - name: Install wasm-pack
       run: cargo install wasm-pack --version=^0.10.1
 
-    - name: Vendor Rust code
-      run: make vendor
-
     - name: Build the WebAssembly bundle
       run: make build-wasm-bundler
 
     - name: Publish to NPM
       run: npm publish
-      working-directory: ./target/frontend-wasm/no-ffmpeg/release/bundler
+      working-directory: ./target/frontend-wasm/release/bundler
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

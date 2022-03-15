@@ -37,11 +37,5 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Vendor Rust code
-      run: make vendor
-
-    - name: Build Rust frontend
-      run: make build-rust
-
     - name: Run Rust tests
       run: make test-rust
