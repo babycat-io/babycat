@@ -260,7 +260,7 @@ init-cargo-wasm32-unknown-unknown:
 .PHONY: init-cargo-wasm32-unknown-unknown
 
 init-cargo-cbindgen:
-	$(CARGO) install cbindgen
+	$(CARGO) install cbindgen || true
 .PHONY: init-cargo-cbindgen
 
 init-cargo: init-cargo-clippy init-cargo-fmt init-cargo-wasm32-unknown-unknown init-cargo-cbindgen
