@@ -5,7 +5,6 @@ pub struct SelectChannels<S: Source> {
     iter: S,
     original_num_channels: usize,
     selected_num_channels: usize,
-    disabled: bool,
     channel_idx: usize,
 }
 
@@ -15,13 +14,10 @@ impl<S: Source> SelectChannels<S> {
         let original_num_channels: usize = iter.num_channels() as usize;
         let selected_num_channels: usize =
             std::cmp::min(selected_num_channels as usize, original_num_channels);
-        let disabled: bool =
-            selected_num_channels == 0 || selected_num_channels == original_num_channels;
         Self {
             iter,
             original_num_channels,
             selected_num_channels,
-            disabled,
             channel_idx: 0,
         }
     }
@@ -49,11 +45,20 @@ impl<S: Source> Signal for SelectChannels<S> {
 impl<S: Source> Iterator for SelectChannels<S> {
     type Item = f32;
 
+    #[inline(always)]
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let (lower, upper) = self.iter.size_hint();
+        let lower = (lower * self.selected_num_channels + self.original_num_channels - 1)
+            / self.original_num_channels;
+        let upper = upper.map(|u| {
+            (u * self.selected_num_channels + self.original_num_channels - 1)
+                / self.original_num_channels
+        });
+        (lower, upper)
+    }
+
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        if self.disabled {
-            return self.iter.next();
-        }
         loop {
             let iter_next = self.iter.next();
             let channel_idx = self.channel_idx;
@@ -63,5 +68,33 @@ impl<S: Source> Iterator for SelectChannels<S> {
             }
             return iter_next;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::backend::{Source, Waveform};
+
+    #[test]
+    fn test_size_hint_1() {
+        let frame_rate_hz: u32 = 1234;
+        let num_channels: u16 = 5;
+        let samples: Vec<usize> = (0..11).collect();
+        let waveform = Waveform::new(
+            frame_rate_hz,
+            num_channels,
+            samples.iter().map(|x| *x as f32).collect(),
+        );
+
+        let ws = waveform.to_source();
+        assert_eq!(ws.size_hint().0, 11);
+        assert_eq!(ws.size_hint().1.unwrap(), 11);
+
+        let ws = ws.select_first_channels(3);
+        assert_eq!(ws.size_hint().0, 7);
+        assert_eq!(ws.size_hint().1.unwrap(), 7);
+        let collected: Vec<usize> = ws.map(|x| x as usize).collect();
+        assert_eq!(collected.len(), 7);
+        assert_eq!(collected, [0, 1, 2, 5, 6, 7, 10]);
     }
 }

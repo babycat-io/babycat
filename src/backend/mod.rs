@@ -13,6 +13,7 @@ pub mod resample;
 pub mod build_info;
 pub mod constants;
 pub mod decoder;
+pub mod source;
 pub mod symphonia;
 
 mod batch_args;
@@ -20,7 +21,6 @@ mod common;
 mod errors;
 mod sample;
 mod signal;
-mod source;
 mod waveform;
 mod waveform_args;
 mod waveform_named_result;

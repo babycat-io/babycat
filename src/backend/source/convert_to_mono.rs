@@ -3,19 +3,17 @@ use crate::backend::Source;
 
 pub struct ConvertToMono<S: Source> {
     iter: S,
-    disabled: bool,
     iter_num_channels_usize: usize,
     iter_num_channels_f32: f32,
 }
 
 impl<S: Source> ConvertToMono<S> {
     #[inline(always)]
-    pub fn new(iter: S, enabled: bool) -> Self {
+    pub fn new(iter: S) -> Self {
         let iter_num_channels_usize: usize = iter.num_channels() as usize;
         let iter_num_channels_f32: f32 = iter_num_channels_usize as f32;
         Self {
             iter,
-            disabled: !enabled,
             iter_num_channels_usize,
             iter_num_channels_f32,
         }
@@ -57,9 +55,6 @@ impl<S: Source> Iterator for ConvertToMono<S> {
 
     #[inline(always)]
     fn next(&mut self) -> Option<Self::Item> {
-        if self.disabled {
-            return self.iter.next();
-        }
         let mut psum: f32 = 0.0_f32;
         for _ in 0..self.iter_num_channels_usize {
             match self.iter.next() {
@@ -68,5 +63,24 @@ impl<S: Source> Iterator for ConvertToMono<S> {
             }
         }
         Some(psum / self.iter_num_channels_f32)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::backend::{Source, Waveform};
+
+    #[test]
+    fn test_size_hint_1() {
+        let frame_rate_hz: u32 = 1234;
+        let num_channels: u16 = 2;
+        let interleaved_samples: Vec<f32> = (0..100).step_by(10).map(|x| x as f32).collect();
+        let waveform = Waveform::new(frame_rate_hz, num_channels, interleaved_samples);
+        let ws = waveform.to_source();
+        assert_eq!(ws.size_hint().0, 10);
+        assert_eq!(ws.size_hint().1.unwrap(), 10);
+        let collected: Vec<usize> = ws.convert_to_mono().map(|x| x as usize).collect();
+        assert_eq!(collected.len(), 5);
+        assert_eq!(collected, [5, 25, 45, 65, 85]);
     }
 }

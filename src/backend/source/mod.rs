@@ -2,11 +2,13 @@ mod convert_to_mono;
 mod select_channels;
 mod skip_samples;
 mod take_samples;
+mod waveform_source;
 
 pub use convert_to_mono::ConvertToMono;
 pub use select_channels::SelectChannels;
 pub use skip_samples::SkipSamples;
 pub use take_samples::TakeSamples;
+pub use waveform_source::WaveformSource;
 
 use crate::backend::signal::Signal;
 
@@ -37,11 +39,11 @@ pub trait Source: Signal + Iterator<Item = f32> {
     }
 
     #[inline(always)]
-    fn convert_to_mono(self, enabled: bool) -> ConvertToMono<Self>
+    fn convert_to_mono(self) -> ConvertToMono<Self>
     where
         Self: Sized,
     {
-        ConvertToMono::new(self, enabled)
+        ConvertToMono::new(self)
     }
 }
 
