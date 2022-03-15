@@ -6,10 +6,7 @@ use wasm_bindgen::prelude::*;
 
 use crate::backend::Signal;
 
-fn throw_js_error<E: std::fmt::Display>(err: E) -> JsValue {
-    let err_string: String = err.to_string();
-    js_sys::Error::new(&err_string).into()
-}
+use crate::frontends::wasm::error::throw_js_error;
 
 /// Docs for Waveform struct.
 #[allow(clippy::unused_unit)]
