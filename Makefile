@@ -70,16 +70,16 @@ else
 	PYTHON?=python3
 endif
 
-ENABLE_VENV?=1
+DISABLE_VENV?=0
 VENV_DIR?=$(PWD)/venv
-ifeq ($(ENABLE_VENV), 1)
-	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_DIR)
-	DELETE_VENV_CMD?=rm -rfv $(VENV_DIR)
-	VENV_BIN?=$(VENV_DIR)/bin/
-else
+ifeq ($(DISABLE_VENV), 1)
 	CREATE_VENV_CMD?=
 	DELETE_VENV_CMD?=
 	VENV_BIN?=
+else
+	CREATE_VENV_CMD?=$(PYTHON) -m venv $(VENV_DIR)
+	DELETE_VENV_CMD?=rm -rfv $(VENV_DIR)
+	VENV_BIN?=$(VENV_DIR)/bin/
 endif
 
 # This is the shared library filename
@@ -113,8 +113,12 @@ else
 endif
 
 # The path to the Babycat shared library.
-FRONTEND_C_LIB?=$(CARGO_TARGET_PROFILE_DIR)/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
-FRONTEND_FFMPEG_C_LIB?=$(CARGO_TARGET_PROFILE_DIR)/${BABYCAT_SHARED_LIB_NAME}.${SHARED_LIB_EXT}
+SHARED_LIB_FILENAME?=$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+SHARED_LIB_PATH?=$(CARGO_TARGET_PROFILE_DIR)/$(SHARED_LIB_FILENAME)
+CARGO_TARGET_C_DIR=$(CARGO_TARGET_PROFILE_DIR)/c
+CARGO_TARGET_FFMPEG_C_DIR=$(CARGO_TARGET_PROFILE_DIR)/ffmpeg-c
+FRONTEND_C_LIB?=$(CARGO_TARGET_C_DIR)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
+FRONTEND_FFMPEG_C_LIB?=$(CARGO_TARGET_FFMPEG_C_DIR)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 
 # Tools in our Python venv
 PIP?=$(VENV_BIN)pip
@@ -377,11 +381,13 @@ build-c-header: init-cargo-cbindgen
 .PHONY: build-c-header
 
 build-c: build-c-header
-	$(CARGO_BUILD) $(FRONTEND_C_FLAGS)
+	mkdir -p "$(CARGO_TARGET_C_DIR)"
+	$(CARGO_BUILD) $(FRONTEND_C_FLAGS) && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_C_LIB)"
 .PHONY: build-c
 
 build-ffmpeg-c: build-c-header
-	$(CARGO_BUILD) $(FRONTEND_FFMPEG_C_FLAGS)
+	mkdir -p "$(CARGO_TARGET_FFMPEG_C_DIR)"
+	$(CARGO_BUILD) $(FRONTEND_FFMPEG_C_FLAGS) && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_FFMPEG_C_LIB)"
 .PHONY: build-ffmpeg-c
 
 build-python: init-python-build
@@ -429,9 +435,8 @@ build-ex-rust-resampler:
 	$(CARGO_BUILD) $(FRONTEND_RUST_FLAGS) --example=resampler_comparison
 .PHONY: build-ex-rust-resampler
 
-build-ex-c-decode:
-	mkdir -p "$(CARGO_TARGET_PROFILE_DIR)/examples-c"
-	$(CARGO_BUILD) $(FRONTEND_C_FLAGS) && $(CC) -Wall -o "$(CARGO_TARGET_PROFILE_DIR)/examples-c/decode" examples-c/decode.c "$(FRONTEND_C_LIB)"
+build-ex-c-decode: build-c
+	$(CC) -Wall -o "$(CARGO_TARGET_PROFILE_DIR)/examples-c/decode" examples-c/decode.c "$(FRONTEND_C_LIB)"
 .PHONY: build-ex-c-decode
 
 build-ex-wasm-decode: build-wasm-web
@@ -491,13 +496,13 @@ docs: docs-sphinx docs-rustdoc
 # test ==============================================================
 # ===================================================================
 
-test-c:
-	$(CARGO_BUILD) $(FRONTEND_C_FLAGS) && $(CC) -g -Wall -Werror=unused-function -o "$(CARGO_TARGET_PROFILE_DIR)/test-c" tests-c/test.c "$(FRONTEND_C_LIB)"
+test-c: build-c
+	$(CC) -g -Wall -Werror=unused-function -o "$(CARGO_TARGET_PROFILE_DIR)/test-c" tests-c/test.c "$(FRONTEND_C_LIB)"
 	"$(CARGO_TARGET_PROFILE_DIR)/test-c"
 .PHONY: test-c
 
-test-ffmpeg-c:
-	$(CARGO_BUILD) $(FRONTEND_FFMPEG_C_FLAGS) && $(CC) -g -Wall -Werror=unused-function -o $(CARGO_TARGET_PROFILE_DIR)/test-ffmpeg-c tests-c/test.c "$(FRONTEND_FFMPEG_C_LIB)"
+test-ffmpeg-c: build-ffmpeg-c
+	$(CC) -g -Wall -Werror=unused-function -o $(CARGO_TARGET_PROFILE_DIR)/test-ffmpeg-c tests-c/test.c "$(FRONTEND_FFMPEG_C_LIB)"
 	"$(CARGO_TARGET_PROFILE_DIR)/test-ffmpeg-c"
 .PHONY: test-ffmpeg-c
 
