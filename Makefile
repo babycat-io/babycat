@@ -266,27 +266,31 @@ init-npm: .b/init-npm-dev .b/init-npm-test
 .b/init-cargo-clippy:
 	$(RUSTUP) component add clippy
 	@touch $@
-.PHONY: .b/init-cargo-clippy
+init-cargo-clippy: .b/init-cargo-clippy
+.PHONY: init-cargo-clippy
 
 .b/init-cargo-fmt:
 	$(RUSTUP) component add rustfmt
 	@touch $@
-.PHONY: .b/init-cargo-fmt
+init-cargo-fmt: .b/init-cargo-fmt
+.PHONY: init-cargo-fmt
 
 .b/init-cargo-wasm32-unknown-unknown:
 	$(RUSTUP) target add wasm32-unknown-unknown
 	@touch $@
-.PHONY: .b/init-cargo-wasm32-unknown-unknown
+init-cargo-wasm32-unknown-unknown: .b/init-cargo-wasm32-unknown-unknown
+.PHONY: init-cargo-wasm32-unknown-unknown
 
 .b/init-cargo-cbindgen:
 	$(CARGO) install cbindgen || true
 	@touch $@
-.PHONY: .b/init-cargo-cbindgen
+init-cargo-cbindgen: .b/init-cargo-cbindgen
+.PHONY: init-cargo-cbindgen
 
-.b/init-cargo: .b/init-cargo-clippy .b/init-cargo-fmt .b/init-cargo-wasm32-unknown-unknown .b/init-cargo-cbindgen
-.PHONY: .b/init-cargo
+init-cargo: init-cargo-clippy init-cargo-fmt init-cargo-wasm32-unknown-unknown init-cargo-cbindgen
+.PHONY: init-cargo
 
-init: .b/init-python .b/init-npm .b/init-cargo
+init: init-python init-npm init-cargo
 .PHONY: init
 
 
