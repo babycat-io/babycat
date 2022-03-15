@@ -48,6 +48,6 @@ jobs:
 
     - name: Publish to NPM
       run: npm publish
-      working-directory: ./target/frontend-wasm/release/bundler
+      working-directory: ./target/release/wasm/bundler
       env:
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

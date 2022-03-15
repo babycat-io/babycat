@@ -126,4 +126,4 @@ autodoc_default_options = {
 
 js_language = "javascript"  # not TypeScript
 
-js_source_path = "../../target/frontend-wasm/release/bundler/"
+js_source_path = "../../target/release/wasm/bundler/"

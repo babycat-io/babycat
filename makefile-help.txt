@@ -9,21 +9,16 @@ build-c
 build-python
 build-python-manylinux
 build-rust
+build-wasm
 build-wasm-bundler
 build-wasm-nodejs
 build-wasm-web
 
-build-binary-ffmpeg     Build a Babycat frontend with FFmpeg.
-build-c-ffmpeg
-build-python-ffmpeg
-build-rust-ffmpeg
-
-
-build-ex                Build one of the examples.
-build-ex-c-decode
-build-ex-rust-decode
-build-ex-rust-resampler
-build-ex-wasm-decode
+build-ffmpeg            Build a Babycat frontend with FFmpeg.
+build-ffmpeg-binary
+build-ffmpeg-c
+build-ffmpeg-python
+build-ffmpeg-rust
 
 docs                    Build documentation.
 docs-rustdoc            Build docs.rs/babycat documentation.
@@ -45,9 +40,22 @@ test-python-manylinux
 test-rust
 test-wasm-nodejs
 
-test-c-ffmpeg           Run unit tests with FFmpeg.
-test-python-ffmpeg
-test-rust-ffmpeg
+test-ffmpeg             Run unit tests with FFmpeg.
+test-ffmpeg-c
+test-ffmpeg-python
+test-ffmpeg-rust
+
+build-ex                Builds one of the examples.
+build-ex-c-decode
+build-ex-rust-decode
+build-ex-rust-resampler
+build-ex-wasm-decode
+
+run-ex                  Runs the examples.
+run-ex-c-decode
+run-ex-rust-decode
+run-ex-rust-resampler
+run-ex-wasm-decode
 
 fmt                     Format source code.
 fmt-c
@@ -55,7 +63,7 @@ fmt-javascript
 fmt-python
 fmt-rust
 
-fmt-check               Check that source ccode is formatted.
+fmt-check               Check that source code is formatted.
 fmt-check-c
 fmt-check-javascript
 fmt-check-python
