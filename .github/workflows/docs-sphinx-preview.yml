@@ -21,6 +21,11 @@ jobs:
 
     steps:
 
+    - name: Install ALSA development headers and yasm
+      run: |
+        sudo apt-get update
+        sudo apt-get install --yes --no-install-recommends libasound2-dev yasm
+
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
