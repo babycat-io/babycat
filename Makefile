@@ -141,7 +141,7 @@ JAVASCRIPT_CODE_PATHS?=./tests-wasm-nodejs/test.js
 # pip
 PIP_INSTALL_WHEEL?=$(PIP) install $(WHEEL_DIR)/*.whl
 PIP_INSTALL_MANYLINUX_WHEEL?=$(PIP) install $(MANYLINUX_WHEEL_DIR)/*.whl
-PIP_FFMPEG_INSTALL_WHEEL?=$(PIP) install $(FFMPEG_WHEEL_DIR)/*.whl
+PIP_INSTALL_FFMPEG_WHEEL?=$(PIP) install $(FFMPEG_WHEEL_DIR)/*.whl
 
 # cargo
 CARGO_BUILD?=$(CARGO) build $(PROFILE_FLAG)
@@ -482,7 +482,7 @@ run-ex: run-ex-rust-decode run-ex-rust-resampler run-ex-c-decode run-ex-wasm-dec
 docs-sphinx: clean-docs init-python-docs init-npm-dev build-c-header build-ffmpeg-python build-wasm-bundler
 	mkdir docs/build
 	$(DOXYGEN)
-	$(PIP_INSTALL_WHEEL) && PATH="$(PATH):$(NODE_BIN)" $(SPHINX_BUILD) -M dirhtml docs/source docs/build
+	$(PIP_INSTALL_FFMPEG_WHEEL) && PATH="$(PATH):$(NODE_BIN)" $(SPHINX_BUILD) -M dirhtml docs/source docs/build
 .PHONY: docs-sphinx
 
 docs-rustdoc:
@@ -536,7 +536,7 @@ test-python: init-python-dev build-python
 .PHONY: test-python
 
 test-ffmpeg-python: init-python-dev build-ffmpeg-python
-	$(PIP_FFMPEG_INSTALL_WHEEL) && $(PYTEST)
+	$(PIP_INSTALL_FFMPEG_WHEEL) && $(PYTEST)
 .PHONY: test-ffmpeg-python
 
 test-python-manylinux: init-python-dev build-python-manylinux
@@ -561,7 +561,7 @@ test-ffmpeg: test-ffmpeg-rust test-ffmpeg-python test-ffmpeg-c
 # ===================================================================
 
 doctest-python: build-ffmpeg-python
-	$(PIP_FFMPEG_INSTALL_WHEEL) && $(PYTEST) tests-python/test_doctests.py
+	$(PIP_INSTALL_FFMPEG_WHEEL) && $(PYTEST) tests-python/test_doctests.py
 
 doctest-rust:
 	$(CARGO_TEST) $(FRONTEND_FFMPEG_RUST_FLAGS) --doc
