@@ -14,6 +14,7 @@ use crate::backend::decoder::from_encoded_stream_with_hint;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::signal::Signal;
+use crate::backend::source::WaveformSource;
 use crate::backend::Decoder;
 use crate::backend::Source;
 use crate::backend::WaveformArgs;
@@ -111,42 +112,25 @@ impl Waveform {
         let start_sample_idx = start_frame_idx * original_num_channels as usize;
         let end_sample_idx = end_frame_idx * original_num_channels as usize;
 
-        let expected_buffer_len_from_decoder: usize =
-            decoder.num_frames_estimate().unwrap_or(0) * output_num_channels as usize;
-        let interleaved_samples_capacity: usize = if end_frame_idx > start_frame_idx {
-            let expected_buffer_len_from_user: usize =
-                (end_frame_idx - start_frame_idx) * output_num_channels as usize;
-            if args.zero_pad_ending {
-                std::cmp::max(
-                    expected_buffer_len_from_user,
-                    expected_buffer_len_from_decoder,
-                )
-            } else {
-                std::cmp::min(
-                    expected_buffer_len_from_user,
-                    expected_buffer_len_from_decoder,
-                )
-            }
-        } else {
-            expected_buffer_len_from_decoder
-        };
         let take_samples = if end_sample_idx > start_sample_idx {
             end_sample_idx - start_sample_idx
         } else {
             0
         };
-        let mut interleaved_samples: Vec<f32> = Vec::with_capacity(interleaved_samples_capacity);
-
-        let source = decoder.begin()?;
-        let bounded_source = source
-            .skip_samples(start_sample_idx)
-            .take_samples(take_samples)
-            .select_first_channels(selected_num_channels)
-            .convert_to_mono(args.convert_to_mono);
-        for sample in bounded_source {
-            interleaved_samples.push(sample);
+        let mut source: Box<dyn Source + '_> = decoder.begin()?;
+        if start_sample_idx != 0 {
+            source = Box::new(source.skip_samples(start_sample_idx));
         }
-
+        if take_samples != 0 {
+            source = Box::new(source.take_samples(take_samples));
+        }
+        if selected_num_channels != original_num_channels {
+            source = Box::new(source.select_first_channels(selected_num_channels));
+        }
+        if args.convert_to_mono {
+            source = Box::new(source.convert_to_mono());
+        }
+        let mut interleaved_samples: Vec<f32> = source.collect();
         // Zero-pad the output audio vector if our start/end interval
         // is longer than the actual audio we decoded.
         if args.zero_pad_ending && end_frame_idx > start_frame_idx {
@@ -589,6 +573,14 @@ impl Waveform {
     /// Returns the waveform as a slice of channel-interleaved `f32` samples.
     pub fn to_interleaved_samples(&self) -> &[f32] {
         &self.interleaved_samples
+    }
+
+    pub fn to_source(&self) -> WaveformSource {
+        WaveformSource::new(
+            &self.interleaved_samples,
+            self.frame_rate_hz,
+            self.num_channels,
+        )
     }
 }
 
