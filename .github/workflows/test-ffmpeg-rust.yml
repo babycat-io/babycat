@@ -1,5 +1,5 @@
 # Runs the tests for Babycat's Rust frontend with FFmpeg enabled.
-name: test-rust-ffmpeg
+name: test-ffmpeg-rust
 
 defaults:
   run:
