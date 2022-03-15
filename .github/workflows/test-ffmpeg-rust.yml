@@ -16,12 +16,11 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test-rust-ffmpeg:
+  test-ffmpeg-rust:
     runs-on: "ubuntu-20.04"
 
     steps:
 
-    # We need yasm for buildling/linting FFmpeg.
     - name: Install yasm for building FFmpeg
       run: |
         sudo apt-get update
@@ -36,5 +35,5 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Run Rust test with FFmpeg
-      run: make test-rust-ffmpeg
+    - name: Build and run Rust tests with FFmpeg
+      run: make test-ffmpeg-rust
