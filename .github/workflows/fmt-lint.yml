@@ -54,7 +54,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: venv
-        key: fmt-lint-${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
+        key: fmt-lint-ubuntu-20.04-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
 
     - name: Check code formatting
       run: make fmt-check

@@ -51,7 +51,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: venv
-        key: docs-sphinx-${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
+        key: docs-sphinx-ubuntu-20.04-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
 
     - name: Install wasm-pack
       run: |

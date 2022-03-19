@@ -52,7 +52,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: venv
-        key: test-python-${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
+        key: test-python-${{ matrix.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
 
     - name: Run Python tests
       run: make test-python
