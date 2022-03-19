@@ -1,5 +1,9 @@
+use numpy::PyArray2;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
+use rayon::prelude::*;
+
+use crate::backend::Waveform;
 
 /// Uses multithreading in Rust to decode many audio files in parallel.
 ///
@@ -245,6 +249,70 @@ pub fn waveforms_from_files_to_numpy_arrays(
         .collect::<Vec<crate::frontends::python::numpy_named_result::NumPyNamedResult>>()
 }
 
+#[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]
+#[pyfunction(
+    filenames,
+    "*",
+    start_time_milliseconds = 0,
+    end_time_milliseconds = 0,
+    frame_rate_hz = 0,
+    num_channels = 0,
+    convert_to_mono = false,
+    zero_pad_ending = false,
+    resample_mode = 0,
+    decoding_backend = 0,
+    num_workers = 0
+)]
+#[pyo3(text_signature = "(
+    filenames,
+    start_time_milliseconds = 0,
+    end_time_milliseconds= 0,
+    frame_rate_hz = 0,
+    num_channels = 0,
+    convert_to_mono = False,
+    zero_pad_ending = False,
+    resample_mode = 0,
+    decoding_backend = 0,
+    num_workers = 0,
+)")]
+#[allow(clippy::too_many_arguments)]
+pub fn waveforms_from_files_to_numpy_arrays_unwrapped(
+    filenames: Vec<String>,
+    start_time_milliseconds: usize,
+    end_time_milliseconds: usize,
+    frame_rate_hz: u32,
+    num_channels: u16,
+    convert_to_mono: bool,
+    zero_pad_ending: bool,
+    resample_mode: u32,
+    decoding_backend: u32,
+    num_workers: usize,
+) -> Vec<Py<PyArray2<f32>>> {
+    let waveform_args = crate::backend::WaveformArgs {
+        start_time_milliseconds,
+        end_time_milliseconds,
+        frame_rate_hz,
+        num_channels,
+        convert_to_mono,
+        zero_pad_ending,
+        resample_mode,
+        decoding_backend,
+    };
+    let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
+        .num_threads(num_workers)
+        .build()
+        .unwrap();
+
+    let waveforms: Vec<Waveform> = thread_pool.install(|| {
+        filenames
+            .par_iter()
+            .map(|filename| Waveform::from_file(filename, waveform_args).unwrap())
+            .collect()
+    });
+    let waveform_arrays: Vec<Py<PyArray2<f32>>> = waveforms.into_iter().map(|w| w.into()).collect();
+    waveform_arrays
+}
+
 pub fn make_batch_submodule(py: Python) -> PyResult<&PyModule> {
     let batch_submodule = PyModule::new(py, "batch")?;
 
@@ -259,6 +327,11 @@ Functions that use multithreading to manipulate multiple audio files in parallel
 
     batch_submodule.add_function(wrap_pyfunction!(
         waveforms_from_files_to_numpy_arrays,
+        batch_submodule
+    )?)?;
+
+    batch_submodule.add_function(wrap_pyfunction!(
+        waveforms_from_files_to_numpy_arrays_unwrapped,
         batch_submodule
     )?)?;
 
