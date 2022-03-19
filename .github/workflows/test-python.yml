@@ -40,12 +40,21 @@ jobs:
           override: true
 
     - name: Install Python
+      id: install-python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
+
+    - name: Cache the Python virtualenv
+      uses: actions/cache@v2
+      with:
+        path: venv
+        key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-
 
     - name: Run Python tests
       run: make test-python
