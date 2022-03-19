@@ -38,6 +38,7 @@ jobs:
 
     - name: Install Python
       uses: actions/setup-python@v2
+      id: setup-python
       with:
         python-version: "3.8"
 
@@ -53,9 +54,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: venv
-        key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-
+        key: fmt-lint-${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
 
     - name: Check code formatting
       run: make fmt-check

@@ -36,14 +36,6 @@ jobs:
     - name: Check out Babycat code from GitHub
       uses: actions/checkout@v2
 
-    - name: Cache the node_modules directory
-      uses: actions/cache@v2
-      with:
-        path: venv
-        key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-
-
     - name: Install wasm-pack
       run: |
         wget https://github.com/rustwasm/wasm-pack/releases/download/v0.10.2/wasm-pack-v0.10.2-x86_64-unknown-linux-musl.tar.gz
