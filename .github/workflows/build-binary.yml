@@ -40,7 +40,8 @@ jobs:
           toolchain: "1.56.0"
           override: true
 
-    - uses: actions/checkout@v2
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
 
-    - name: Build babycat command line program
+    - name: Build `babycat` command line program
       run: make build-binary

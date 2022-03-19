@@ -46,7 +46,16 @@ jobs:
       with:
         node-version: "14"
 
-    - uses: actions/checkout@v2
+    - name: Check out Babycat code from GitHub
+      uses: actions/checkout@v2
+
+    - name: Cache the Python virtualenv
+      uses: actions/cache@v2
+      with:
+        path: venv
+        key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-
 
     - name: Check code formatting
       run: make fmt-check
