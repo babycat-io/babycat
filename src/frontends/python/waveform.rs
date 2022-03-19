@@ -534,6 +534,68 @@ impl Waveform {
         ))
     }
 
+    #[staticmethod]
+    #[args(
+        encoded_bytes,
+        "*",
+        start_time_milliseconds = 0,
+        end_time_milliseconds = 0,
+        frame_rate_hz = 0,
+        num_channels = 0,
+        convert_to_mono = false,
+        zero_pad_ending = false,
+        resample_mode = 0,
+        decoding_backend = 0,
+        file_extension = "\"\"",
+        mime_type = "\"\""
+    )]
+    #[pyo3(text_signature = "(
+        encoded_bytes,
+        start_time_milliseconds = 0,
+        end_time_milliseconds= 0,
+        frame_rate_hz = 0,
+        num_channels = 0,
+        convert_to_mono = False,
+        zero_pad_ending = False,
+        resample_mode = 0,
+        decoding_backend = 0,
+        file_extension = \"\",
+        mime_type = \"\",
+    )")]
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_encoded_bytes_into_numpy_unwrapped(
+        encoded_bytes: Vec<u8>,
+        start_time_milliseconds: usize,
+        end_time_milliseconds: usize,
+        frame_rate_hz: u32,
+        num_channels: u16,
+        convert_to_mono: bool,
+        zero_pad_ending: bool,
+        resample_mode: u32,
+        decoding_backend: u32,
+        file_extension: &str,
+        mime_type: &str,
+    ) -> Py<PyArray2<f32>> {
+        let waveform_args = crate::backend::WaveformArgs {
+            start_time_milliseconds,
+            end_time_milliseconds,
+            frame_rate_hz,
+            num_channels,
+            convert_to_mono,
+            zero_pad_ending,
+            resample_mode,
+            decoding_backend,
+        };
+        crate::backend::Waveform::from_encoded_bytes_with_hint(
+            &encoded_bytes,
+            waveform_args,
+            file_extension,
+            mime_type,
+        )
+        .unwrap()
+        .into()
+    }
+
     /// Decodes audio stored in a local file.
     ///
     /// Example:
@@ -767,7 +829,7 @@ impl Waveform {
         decoding_backend = 0,
     )")]
     #[allow(clippy::too_many_arguments)]
-    pub fn from_file_into_numpy(
+    pub fn from_file_into_numpy_result(
         filename: &str,
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
@@ -792,6 +854,58 @@ impl Waveform {
             filename,
             waveform_args,
         ))
+    }
+
+    #[cfg(feature = "enable-filesystem")]
+    #[staticmethod]
+    #[args(
+        filename,
+        "*",
+        start_time_milliseconds = 0,
+        end_time_milliseconds = 0,
+        frame_rate_hz = 0,
+        num_channels = 0,
+        convert_to_mono = false,
+        zero_pad_ending = false,
+        resample_mode = 0,
+        decoding_backend = 0
+    )]
+    #[pyo3(text_signature = "(
+        filename,
+        start_time_milliseconds = 0,
+        end_time_milliseconds= 0,
+        frame_rate_hz = 0,
+        num_channels = 0,
+        convert_to_mono = False,
+        zero_pad_ending = False,
+        resample_mode = 0,
+        decoding_backend = 0,
+    )")]
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_file_into_numpy_unwrapped(
+        filename: &str,
+        start_time_milliseconds: usize,
+        end_time_milliseconds: usize,
+        frame_rate_hz: u32,
+        num_channels: u16,
+        convert_to_mono: bool,
+        zero_pad_ending: bool,
+        resample_mode: u32,
+        decoding_backend: u32,
+    ) -> Py<PyArray2<f32>> {
+        let waveform_args = crate::backend::WaveformArgs {
+            start_time_milliseconds,
+            end_time_milliseconds,
+            frame_rate_hz,
+            num_channels,
+            convert_to_mono,
+            zero_pad_ending,
+            resample_mode,
+            decoding_backend,
+        };
+        crate::backend::Waveform::from_file(filename, waveform_args)
+            .unwrap()
+            .into()
     }
 
     /// Returns the decoded waveform's frame rate in hertz.
