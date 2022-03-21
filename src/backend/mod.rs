@@ -1,7 +1,4 @@
 #[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
-extern crate ffmpeg_next;
-
-#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
 pub mod ffmpeg;
 
 #[cfg(all(feature = "enable-multithreading", feature = "enable-filesystem"))]

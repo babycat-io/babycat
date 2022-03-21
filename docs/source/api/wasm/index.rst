@@ -5,6 +5,7 @@ Babycat WebAssembly API Documentation
    :maxdepth: 1
    :hidden:
 
+   BuildInfo <BuildInfo/index>
    Waveform <Waveform/index>
 
 - :doc:`Waveform/index`

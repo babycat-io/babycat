@@ -5,6 +5,7 @@ Babycat C API Documentation
    :maxdepth: 1
    :hidden:
 
+   babycat_build_info/index
    babycat_WaveformArgs/index
    babycat_Waveform/index
    babycat_WaveformResult/index

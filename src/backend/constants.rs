@@ -33,6 +33,7 @@ pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 pub const DECODING_BACKEND_SYMPHONIA: u32 = 1;
 
 /// Sets the decoding backend as [`FFmpegDecoder`](crate::ffmpeg::FFmpegDecoder).
+#[allow(dead_code)]
 pub const DECODING_BACKEND_FFMPEG: u32 = 2;
 
 /// The default number of threads to use for multithreaded operations.
