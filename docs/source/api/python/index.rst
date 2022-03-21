@@ -5,6 +5,7 @@ Babycat Python API Documentation
    :maxdepth: 5
    :hidden:
 
+   build_info <build_info/index>
    batch <batch/index>
    Waveform <Waveform/index>
    WaveformNamedResult <WaveformNamedResult/index>

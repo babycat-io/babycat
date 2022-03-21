@@ -20,7 +20,7 @@ use crate::backend::Source;
 #[inline(always)]
 fn new_input_for_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Input, Error> {
     let filename_ref = filename.as_ref();
-    ffmpeg::format::input(&filename_ref).map_err(|err| match err {
+    ffmpeg_next::format::input(&filename_ref).map_err(|err| match err {
         // File not found error. Audio filename was not found on the local filesystem.
         FFmpegError::Other { errno: ENOENT } => Error::FileNotFound(Box::leak(
             filename_ref.to_str().unwrap().to_owned().into_boxed_str(),
@@ -34,7 +34,7 @@ fn get_first_working_audio_stream(input: &Input) -> Result<(Stream, AudioDecoder
     let mut num_found_streams = 0;
     for input_stream in input.streams() {
         num_found_streams += 1;
-        match ffmpeg::codec::context::Context::from_parameters(input_stream.parameters()) {
+        match ffmpeg_next::codec::context::Context::from_parameters(input_stream.parameters()) {
             Err(_) => continue,
             Ok(codec_context) => match codec_context.decoder().audio() {
                 Err(_) => continue,
@@ -68,7 +68,10 @@ fn estimate_num_frames_inner(
 }
 
 #[inline(always)]
-pub fn estimate_num_frames(stream: &ffmpeg::Stream, decoder: &ffmpeg::decoder::Audio) -> usize {
+pub fn estimate_num_frames(
+    stream: &ffmpeg_next::Stream,
+    decoder: &ffmpeg_next::decoder::Audio,
+) -> usize {
     let stream_duration = stream.duration();
     let stream_tb = stream.time_base();
     let decoder_tb = decoder.time_base();
