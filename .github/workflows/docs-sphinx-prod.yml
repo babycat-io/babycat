@@ -37,7 +37,7 @@ jobs:
         node-version: "14"
 
     - name: Install Python
-      id: install-python
+      id: setup-python
       uses: actions/setup-python@v2
       with:
         python-version: "3.8"
@@ -49,9 +49,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: venv
-        key: ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-python-${{ steps.setup-python.outputs.python-version }}-requirements-
+        key: docs-sphinx-ubuntu-20.04-python-${{ steps.setup-python.outputs.python-version }}-requirements-${{ hashFiles('**/requirements*.txt') }}
 
     - name: Install wasm-pack
       run: |
