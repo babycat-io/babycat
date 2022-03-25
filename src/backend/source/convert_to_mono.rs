@@ -8,9 +8,10 @@ pub struct ConvertToMono<S: Source> {
 }
 
 impl<S: Source> ConvertToMono<S> {
-    #[inline(always)]
+    #[inline]
     pub fn new(iter: S) -> Self {
         let iter_num_channels_usize: usize = iter.num_channels() as usize;
+        #[allow(clippy::cast_precision_loss)]
         let iter_num_channels_f32: f32 = iter_num_channels_usize as f32;
         Self {
             iter,
@@ -23,17 +24,17 @@ impl<S: Source> ConvertToMono<S> {
 impl<S: Source> Source for ConvertToMono<S> {}
 
 impl<S: Source> Signal for ConvertToMono<S> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.iter.frame_rate_hz()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         1
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         self.iter.num_frames_estimate()
     }
@@ -42,7 +43,7 @@ impl<S: Source> Signal for ConvertToMono<S> {
 impl<S: Source> Iterator for ConvertToMono<S> {
     type Item = f32;
 
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self.iter.size_hint() {
             (min, None) => (min / self.iter_num_channels_usize, None),
@@ -53,7 +54,7 @@ impl<S: Source> Iterator for ConvertToMono<S> {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         let mut psum: f32 = 0.0_f32;
         for _ in 0..self.iter_num_channels_usize {

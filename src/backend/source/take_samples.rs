@@ -7,7 +7,7 @@ pub struct TakeSamples<S: Source> {
 }
 
 impl<S: Source> TakeSamples<S> {
-    #[inline(always)]
+    #[inline]
     pub fn new(iter: S, count: usize) -> Self {
         Self { iter, count }
     }
@@ -16,17 +16,17 @@ impl<S: Source> TakeSamples<S> {
 impl<S: Source> Source for TakeSamples<S> {}
 
 impl<S: Source> Signal for TakeSamples<S> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.iter.frame_rate_hz()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         self.iter.num_channels()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         self.iter.num_frames_estimate()
     }
@@ -35,7 +35,7 @@ impl<S: Source> Signal for TakeSamples<S> {
 impl<S: Source> Iterator for TakeSamples<S> {
     type Item = f32;
 
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         if self.count == 0 {
             return (0, Some(0));
@@ -49,7 +49,7 @@ impl<S: Source> Iterator for TakeSamples<S> {
         (lower, upper)
     }
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.count == 0 {
             return None;

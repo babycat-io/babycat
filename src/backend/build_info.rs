@@ -2,13 +2,13 @@
 
 /// Returns `true` if Babycat was compiled with support for
 /// reading and writing files from/to the local filesystem.
-#[inline(always)]
+#[inline]
 pub fn compiled_with_filesystem() -> bool {
     cfg!(feature = "enable-filesystem")
 }
 
 /// Returns `true` if Babycat was compiled with multithreading support.
-#[inline(always)]
+#[inline]
 pub fn compiled_with_multithreading() -> bool {
     cfg!(feature = "enable-multithreading")
 }
@@ -17,19 +17,19 @@ pub fn compiled_with_multithreading() -> bool {
 ///
 /// This function will return `true` no matter how
 /// FFmpeg was compiled or linked to Babycat.
-#[inline(always)]
+#[inline]
 pub fn compiled_with_ffmpeg() -> bool {
     cfg!(feature = "enable-ffmpeg")
 }
 
 /// Returns `true` if Babycat was statically linked to an existing copy of FFmpeg.
-#[inline(always)]
+#[inline]
 pub fn compiled_with_ffmpeg_link_static() -> bool {
     cfg!(feature = "enable-ffmpeg-link-static")
 }
 
 /// Returns `true` if Babycat compiled its own copy of FFmpeg.
-#[inline(always)]
+#[inline]
 pub fn compiled_with_ffmpeg_build_link_static() -> bool {
     cfg!(feature = "enable-ffmpeg-build-link-static")
 }
@@ -41,7 +41,7 @@ const LGPL_2_1_OR_LATER_LICENSE: &str = "LGPL-2.1+";
 ///
 /// This could change based on which features or libraries
 /// were compiled into Babycat.
-#[inline(always)]
+#[inline]
 pub fn copyright_license_spdx() -> &'static str {
     if cfg!(feature = "enable-ffmpeg") {
         return LGPL_2_1_OR_LATER_LICENSE;
@@ -53,7 +53,7 @@ pub fn copyright_license_spdx() -> &'static str {
 ///
 /// This function returns `"0.0.0"` for development versions
 /// of Babycat.
-#[inline(always)]
+#[inline]
 pub fn babycat_version() -> &'static str {
     option_env!("CARGO_PKG_VERSION").unwrap_or("0.0.0")
 }

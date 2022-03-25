@@ -14,7 +14,7 @@ use crate::backend::signal::Signal;
 
 /// A sample iterator created by an audio decoder.
 pub trait Source: Signal + Iterator<Item = f32> {
-    #[inline(always)]
+    #[inline]
     fn skip_samples(self, count: usize) -> SkipSamples<Self>
     where
         Self: Sized,
@@ -22,7 +22,7 @@ pub trait Source: Signal + Iterator<Item = f32> {
         SkipSamples::new(self, count)
     }
 
-    #[inline(always)]
+    #[inline]
     fn take_samples(self, count: usize) -> TakeSamples<Self>
     where
         Self: Sized,
@@ -30,7 +30,7 @@ pub trait Source: Signal + Iterator<Item = f32> {
         TakeSamples::new(self, count)
     }
 
-    #[inline(always)]
+    #[inline]
     fn select_first_channels(self, selected_num_channels: u16) -> SelectChannels<Self>
     where
         Self: Sized,
@@ -38,7 +38,7 @@ pub trait Source: Signal + Iterator<Item = f32> {
         SelectChannels::new(self, selected_num_channels)
     }
 
-    #[inline(always)]
+    #[inline]
     fn convert_to_mono(self) -> ConvertToMono<Self>
     where
         Self: Sized,
@@ -50,17 +50,17 @@ pub trait Source: Signal + Iterator<Item = f32> {
 impl Source for Box<dyn Source + '_> {}
 
 impl Signal for Box<dyn Source + '_> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         (&**self).frame_rate_hz()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         (&**self).num_channels()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         (&**self).num_frames_estimate()
     }

@@ -21,6 +21,7 @@ impl WaveformNamedResult {
         self.error.map(PyErr::from)
     }
 
+    #[allow(clippy::unnecessary_wraps)]
     fn __repr__(&self) -> PyResult<String> {
         Ok(format!("{}", self))
     }

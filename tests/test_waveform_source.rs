@@ -8,7 +8,7 @@ mod test_waveform_source {
 
     pub const COF_NUM_SAMPLES: usize = COF_NUM_FRAMES * COF_NUM_CHANNELS as usize;
 
-    #[inline(always)]
+    #[inline]
     #[track_caller]
     fn assert_ws(ws: &WaveformSource, num_channels: u16, frame_rate_hz: u32, num_samples: usize) {
         let num_frames = num_samples / num_channels as usize;

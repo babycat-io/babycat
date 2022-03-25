@@ -31,6 +31,7 @@ pub struct SymphoniaDecoder {
 }
 
 impl SymphoniaDecoder {
+    #[allow(clippy::missing_panics_doc)]
     pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
         encoded_stream: R,
         file_extension: &str,
@@ -88,8 +89,10 @@ impl SymphoniaDecoder {
 
         // Examine the actual shape of this audio file.
         let frame_rate_hz = default_track.codec_params.sample_rate.unwrap();
+        #[allow(clippy::cast_possible_truncation)]
         let num_channels = default_track.codec_params.channels.unwrap().count() as u16;
 
+        #[allow(clippy::cast_possible_truncation)]
         let est_num_frames: Option<usize> = default_track
             .codec_params
             .n_frames
@@ -104,6 +107,7 @@ impl SymphoniaDecoder {
     }
 
     #[cfg(feature = "enable-filesystem")]
+    #[allow(clippy::missing_panics_doc)]
     pub fn from_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Box<dyn Decoder>, Error> {
         let filename_ref = filename.as_ref();
         let file = match std::fs::File::open(filename_ref) {
@@ -139,7 +143,7 @@ impl SymphoniaDecoder {
 }
 
 impl Decoder for SymphoniaDecoder {
-    #[inline(always)]
+    #[inline]
     fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error> {
         let decode_iter = SymphoniaSource::new(
             &mut self.reader,
@@ -152,17 +156,17 @@ impl Decoder for SymphoniaDecoder {
 }
 
 impl Signal for SymphoniaDecoder {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         self.num_channels
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         self.est_num_frames
     }

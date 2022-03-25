@@ -98,7 +98,15 @@
 //!     }
 //! }
 //! ```
-
+#![warn(clippy::pedantic)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::must_use_candidate)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::doc_markdown)]
+#![allow(clippy::used_underscore_binding)]
+#![allow(clippy::unnecessary_wraps)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::default_trait_access)]
 #![doc(
     html_logo_url = "https://static.neocrym.com/images/babycat/v1/1x/babycat-face-icon-on-transparent--1x.png"
 )]

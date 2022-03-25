@@ -6,7 +6,11 @@ use std::marker::Sync;
 use serde::{Deserialize, Serialize};
 
 use crate::backend::common::milliseconds_to_frames;
-use crate::backend::constants::*;
+//use crate::backend::constants::*;
+use crate::backend::constants::{
+    DEFAULT_END_TIME_MILLISECONDS, DEFAULT_FRAME_RATE_HZ, DEFAULT_NUM_CHANNELS,
+    DEFAULT_RESAMPLE_MODE, DEFAULT_START_TIME_MILLISECONDS,
+};
 use crate::backend::decoder::from_encoded_bytes;
 use crate::backend::decoder::from_encoded_bytes_with_hint;
 use crate::backend::decoder::from_encoded_stream;
@@ -623,7 +627,7 @@ mod test_waveform_from_file_ffmpeg {
     use crate::WaveformArgs;
 
     #[track_caller]
-    #[inline(always)]
+    #[inline]
     fn assert_waveform(
         result: Result<Waveform, Error>,
         num_channels: u16,

@@ -26,17 +26,19 @@ impl<S: Source> SelectChannels<S> {
 impl<S: Source> Source for SelectChannels<S> {}
 
 impl<S: Source> Signal for SelectChannels<S> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.iter.frame_rate_hz()
     }
 
-    #[inline(always)]
+    #[inline]
+    #[allow(clippy::cast_precision_loss)]
+    #[allow(clippy::cast_possible_truncation)]
     fn num_channels(&self) -> u16 {
         self.selected_num_channels as u16
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         self.iter.num_frames_estimate()
     }
@@ -45,7 +47,7 @@ impl<S: Source> Signal for SelectChannels<S> {
 impl<S: Source> Iterator for SelectChannels<S> {
     type Item = f32;
 
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let (lower, upper) = self.iter.size_hint();
         let lower = (lower * self.selected_num_channels + self.original_num_channels - 1)

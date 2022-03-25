@@ -75,7 +75,7 @@ impl<'a> SymphoniaSource<'a> {
                 }
 
                 Ok(decoded) => {
-                    let spec = decoded.spec().to_owned();
+                    let spec = *decoded.spec();
                     let duration = decoded.capacity() as u64;
                     let mut buffer = SampleBuffer::<f32>::new(duration, spec);
                     buffer.copy_interleaved_ref(decoded);
@@ -90,17 +90,17 @@ impl<'a> SymphoniaSource<'a> {
 impl<'a> Source for SymphoniaSource<'a> {}
 
 impl<'a> Signal for SymphoniaSource<'a> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         self.num_channels
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         match self.est_num_frames {
             None => None,
@@ -118,7 +118,7 @@ impl<'a> Signal for SymphoniaSource<'a> {
 impl<'a> Iterator for SymphoniaSource<'a> {
     type Item = f32;
 
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self.est_num_frames {
             None => (0, None),
@@ -132,7 +132,7 @@ impl<'a> Iterator for SymphoniaSource<'a> {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             let buffer = self.current_packet_audio_buffer.as_ref()?;
