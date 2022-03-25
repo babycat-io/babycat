@@ -21,17 +21,17 @@ impl<'a> WaveformSource<'a> {
 impl<'a> Source for WaveformSource<'a> {}
 
 impl<'a> Signal for WaveformSource<'a> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         self.num_channels
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         let remaining_samples: usize = self.interleaved_samples.len() - self.current_sample;
         Some(remaining_samples / self.num_channels as usize)
@@ -41,13 +41,13 @@ impl<'a> Signal for WaveformSource<'a> {
 impl<'a> Iterator for WaveformSource<'a> {
     type Item = f32;
 
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let diff = self.interleaved_samples.len() - self.current_sample;
         (diff, Some(diff))
     }
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         if self.current_sample >= self.interleaved_samples.len() {
             return None;
@@ -57,7 +57,7 @@ impl<'a> Iterator for WaveformSource<'a> {
         retval
     }
 
-    #[inline(always)]
+    #[inline]
     fn nth(&mut self, n: usize) -> Option<Self::Item> {
         self.current_sample += n;
         self.next()

@@ -11,8 +11,12 @@ use crate::backend::{
 };
 
 #[allow(clippy::excessive_precision)]
+#[allow(clippy::unreadable_literal)]
 const KAISER_BEST_WINDOW: [f32; 32769] = include!("kaiser_best.txt");
 
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_sign_loss)]
+#[allow(clippy::cast_precision_loss)]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
@@ -21,7 +25,8 @@ pub fn resample(
 ) -> Result<Vec<f32>, Error> {
     validate_args(input_frame_rate_hz, output_frame_rate_hz, num_channels)?;
 
-    let sample_ratio: f32 = (output_frame_rate_hz as f32) / (input_frame_rate_hz as f32);
+    let sample_ratio: f32 =
+        (f64::from(output_frame_rate_hz) / f64::from(input_frame_rate_hz as f32)) as f32;
 
     let num_output_frames = get_num_output_frames(
         input_audio,
@@ -51,7 +56,7 @@ pub fn resample(
         input_audio,
         &mut ret,
         num_channels as usize,
-        (output_frame_rate_hz as f64) / (input_frame_rate_hz as f64),
+        f64::from(output_frame_rate_hz) / f64::from(input_frame_rate_hz),
         &interp_win,
         &interp_delta,
         precision,
@@ -60,6 +65,9 @@ pub fn resample(
     Ok(ret)
 }
 
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_sign_loss)]
+#[allow(clippy::cast_precision_loss)]
 fn resample_f(
     in_audio: &[f32],
     out_audio: &mut [f32],
@@ -73,7 +81,7 @@ fn resample_f(
 
     // equal to (in_audio_hz / out_audio_hz)
     let time_increment = 1.0 / sample_ratio;
-    let index_step = (scale * num_table as f64) as usize;
+    let index_step = (scale * f64::from(num_table)) as usize;
 
     let n_win = interp_win.len();
     let n_in_frames = in_audio.len() / (num_channels);
@@ -84,7 +92,7 @@ fn resample_f(
         let in_frame_idx = time_register as usize;
 
         let frac: f64 = scale * time_register.fract();
-        let index_frac = frac * num_table as f64;
+        let index_frac = frac * f64::from(num_table);
         let offset = index_frac as usize;
         let eta = index_frac.fract() as f32;
 
@@ -101,7 +109,7 @@ fn resample_f(
 
         // Right wing of response
         let frac = scale - frac;
-        let index_frac = frac * num_table as f64;
+        let index_frac = frac * f64::from(num_table);
         let offset = index_frac as usize;
         let eta = index_frac.fract() as f32;
 

@@ -26,14 +26,14 @@ pub fn validate_args(
         return Err(Error::ResamplingError);
     }
     if (input_frame_rate_hz > output_frame_rate_hz)
-        && (input_frame_rate_hz as f64 / output_frame_rate_hz as f64 > 256.0)
+        && (f64::from(input_frame_rate_hz) / f64::from(output_frame_rate_hz) > 256.0)
     {
         return Err(Error::WrongFrameRateRatio(
             input_frame_rate_hz,
             output_frame_rate_hz,
         ));
     }
-    if output_frame_rate_hz as f64 / input_frame_rate_hz as f64 > 256.0 {
+    if f64::from(output_frame_rate_hz) / f64::from(input_frame_rate_hz) > 256.0 {
         return Err(Error::WrongFrameRateRatio(
             input_frame_rate_hz,
             output_frame_rate_hz,
@@ -42,13 +42,17 @@ pub fn validate_args(
     Ok(())
 }
 
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_precision_loss)]
+#[allow(clippy::cast_sign_loss)]
 pub fn get_num_output_frames(
     input_audio: &[f32],
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
     num_channels: u16,
 ) -> usize {
-    ((input_audio.len() as f64 * output_frame_rate_hz as f64 / input_frame_rate_hz as f64).ceil()
-        / num_channels as f64)
-        .ceil() as usize
+    ((input_audio.len() as f64 * f64::from(output_frame_rate_hz) / f64::from(input_frame_rate_hz))
+        .ceil()
+        / f64::from(num_channels))
+    .ceil() as usize
 }

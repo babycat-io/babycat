@@ -1,8 +1,11 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 
-use crate::backend::build_info::*;
-
+use crate::backend::build_info::{
+    babycat_version, compiled_with_ffmpeg, compiled_with_ffmpeg_build_link_static,
+    compiled_with_ffmpeg_link_static, compiled_with_filesystem, compiled_with_multithreading,
+    copyright_license_spdx,
+};
 /// Returns `true` if Babycat was compiled with support for
 /// reading and writing files to/from the local filesystem.
 ///
@@ -56,6 +59,7 @@ pub unsafe extern "C" fn babycat_build_info_compiled_with_ffmpeg_build_link_stat
 ///
 ///
 #[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_build_info_copyright_license_spdx() -> *const c_char {
     let c_string = CString::new(copyright_license_spdx()).unwrap();
@@ -68,6 +72,7 @@ pub unsafe extern "C" fn babycat_build_info_copyright_license_spdx() -> *const c
 /// of Babycat.
 ///
 #[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_build_info_version() -> *const c_char {
     let c_string = CString::new(babycat_version()).unwrap();

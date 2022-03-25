@@ -278,8 +278,9 @@ impl Waveform {
         frame_rate_hz,
         arr,
     )")]
-    #[allow(clippy::too_many_arguments)]
+    #[allow(clippy::needless_pass_by_value)]
     pub fn from_numpy(frame_rate_hz: u32, arr: PyReadonlyArray2<f32>) -> PyResult<Self> {
+        #[allow(clippy::cast_possible_truncation)]
         let num_channels: u16 = arr.shape()[1] as u16;
         waveform_result_to_pyresult(Ok(crate::backend::Waveform::new(
             frame_rate_hz,
@@ -444,7 +445,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_encoded_bytes(
-        encoded_bytes: Vec<u8>,
+        encoded_bytes: &[u8],
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
         frame_rate_hz: u32,
@@ -467,7 +468,7 @@ impl Waveform {
             decoding_backend,
         };
         waveform_result_to_pyresult(crate::backend::Waveform::from_encoded_bytes_with_hint(
-            &encoded_bytes,
+            encoded_bytes,
             waveform_args,
             file_extension,
             mime_type,
@@ -504,7 +505,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_encoded_bytes_into_numpy(
-        encoded_bytes: Vec<u8>,
+        encoded_bytes: &[u8],
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
         frame_rate_hz: u32,
@@ -527,7 +528,7 @@ impl Waveform {
             decoding_backend,
         };
         waveform_result_to_numpy_pyresult(crate::backend::Waveform::from_encoded_bytes_with_hint(
-            &encoded_bytes,
+            encoded_bytes,
             waveform_args,
             file_extension,
             mime_type,

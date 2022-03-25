@@ -74,6 +74,7 @@ use crate::backend::WaveformNamedResult;
 /// );
 /// ```
 #[allow(dead_code)] // Silence dead code warning because we do not use this function in the C frontend.
+#[allow(clippy::missing_panics_doc)]
 pub fn waveforms_from_files(
     filenames: &[&str],
     waveform_args: WaveformArgs,

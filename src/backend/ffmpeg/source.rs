@@ -10,7 +10,7 @@ use crate::backend::Sample;
 use crate::backend::Signal;
 use crate::backend::Source;
 
-#[inline(always)]
+#[inline]
 fn next_packet<'a>(
     packet_iter: &mut PacketIter<'a>,
     decoder: &mut AudioDecoder,
@@ -24,7 +24,7 @@ fn next_packet<'a>(
     None
 }
 
-#[inline(always)]
+#[inline]
 fn next_decoded_frame_and_len(decoder: &mut AudioDecoder) -> (Option<Frame>, usize) {
     let mut frame = Frame::empty();
     if decoder.receive_frame(&mut frame).is_err() {
@@ -34,7 +34,7 @@ fn next_decoded_frame_and_len(decoder: &mut AudioDecoder) -> (Option<Frame>, usi
     (Some(frame), frame_len)
 }
 
-#[inline(always)]
+#[inline]
 fn get_sample_packed<T: Sample>(
     frame: &Frame,
     num_channels: usize,
@@ -51,7 +51,7 @@ fn get_sample_packed<T: Sample>(
     }
 }
 
-#[inline(always)]
+#[inline]
 fn get_sample_planar<T: Sample>(frame: &Frame, frame_idx: usize, channel_idx: usize) -> f32 {
     unsafe {
         // When audio is stored in a "planar" format, FFmpeg
@@ -118,17 +118,17 @@ impl<'a, T: Sample, const PACKED: bool> FFmpegSource<'a, T, PACKED> {
 impl<'a, T: Sample, const PACKED: bool> Source for FFmpegSource<'a, T, PACKED> {}
 
 impl<'a, T: Sample, const PACKED: bool> Signal for FFmpegSource<'a, T, PACKED> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         self.num_channels
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         match self.est_num_frames {
             None => None,
@@ -145,7 +145,7 @@ impl<'a, T: Sample, const PACKED: bool> Signal for FFmpegSource<'a, T, PACKED> {
 impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegSource<'a, T, PACKED> {
     type Item = f32;
 
-    #[inline(always)]
+    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self.est_num_frames {
             None => (0, None),
@@ -161,7 +161,7 @@ impl<'a, T: Sample, const PACKED: bool> Iterator for FFmpegSource<'a, T, PACKED>
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         loop {
             match (&mut self.packet, &mut self.frame, self.sent_eof) {

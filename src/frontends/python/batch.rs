@@ -156,6 +156,7 @@ use pyo3::wrap_pyfunction;
     num_workers = 0,
 )")]
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::needless_pass_by_value)]
 pub fn waveforms_from_files(
     filenames: Vec<String>,
     start_time_milliseconds: usize,
@@ -179,7 +180,7 @@ pub fn waveforms_from_files(
         decoding_backend,
     };
     let batch_args = crate::backend::BatchArgs { num_workers };
-    let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
+    let filenames_ref: Vec<&str> = filenames.iter().map(String::as_str).collect();
     crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
         .into_iter()
         .map(crate::frontends::python::waveform_named_result::WaveformNamedResult::from)
@@ -213,6 +214,7 @@ pub fn waveforms_from_files(
     num_workers = 0,
 )")]
 #[allow(clippy::too_many_arguments)]
+#[allow(clippy::needless_pass_by_value)]
 pub fn waveforms_from_files_to_numpy_arrays(
     filenames: Vec<String>,
     start_time_milliseconds: usize,
@@ -236,7 +238,7 @@ pub fn waveforms_from_files_to_numpy_arrays(
         decoding_backend,
     };
     let batch_args = crate::backend::BatchArgs { num_workers };
-    let filenames_ref: Vec<&str> = filenames.iter().map(|f| f.as_str()).collect();
+    let filenames_ref: Vec<&str> = filenames.iter().map(String::as_str).collect();
     crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
         .into_iter()
         .map(crate::frontends::python::numpy_named_result::NumPyNamedResult::from)

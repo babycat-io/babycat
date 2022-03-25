@@ -7,7 +7,10 @@ use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
 
-use crate::backend::constants::*;
+use crate::backend::constants::{
+    DECODING_BACKEND_FFMPEG, DECODING_BACKEND_SYMPHONIA, DEFAULT_DECODING_BACKEND,
+    DEFAULT_FILE_EXTENSION, DEFAULT_MIME_TYPE,
+};
 use crate::backend::errors::Error;
 use crate::backend::signal::Signal;
 use crate::backend::Source;
@@ -18,19 +21,19 @@ pub trait Decoder: Signal {
 }
 
 impl Decoder for Box<dyn Decoder> {
-    #[inline(always)]
+    #[inline]
     fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error> {
         (&mut **self).begin()
     }
 }
 
 impl Signal for Box<dyn Decoder> {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         (&**self).frame_rate_hz()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         (&**self).num_channels()
     }
@@ -99,6 +102,7 @@ pub fn from_file<F: Clone + AsRef<Path>>(
     decoding_backend: u32,
     filename: F,
 ) -> Result<Box<dyn Decoder>, Error> {
+    #[allow(clippy::match_same_arms)]
     match decoding_backend {
         DEFAULT_DECODING_BACKEND => {
             #[cfg(feature = "enable-ffmpeg")]

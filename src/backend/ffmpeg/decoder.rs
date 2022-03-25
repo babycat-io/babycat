@@ -17,7 +17,7 @@ use crate::backend::signal::Signal;
 use crate::backend::Decoder;
 use crate::backend::Source;
 
-#[inline(always)]
+#[inline]
 fn new_input_for_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Input, Error> {
     let filename_ref = filename.as_ref();
     ffmpeg_next::format::input(&filename_ref).map_err(|err| match err {
@@ -29,7 +29,7 @@ fn new_input_for_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Input, Erro
     })
 }
 
-#[inline(always)]
+#[inline]
 fn get_first_working_audio_stream(input: &Input) -> Result<(Stream, AudioDecoder), Error> {
     let mut num_found_streams = 0;
     for input_stream in input.streams() {
@@ -50,7 +50,9 @@ fn get_first_working_audio_stream(input: &Input) -> Result<(Stream, AudioDecoder
     Err(Error::NoSuitableAudioStreams(num_found_streams))
 }
 
-#[inline(always)]
+#[inline]
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_sign_loss)]
 fn estimate_num_frames_inner(
     stream_duration: i64,
     stream_tb_n: i32,
@@ -58,16 +60,17 @@ fn estimate_num_frames_inner(
     decoder_tb_n: i32,
     decoder_tb_d: i32,
 ) -> usize {
+    #[allow(clippy::cast_precision_loss)]
     let mut x = stream_duration as f64;
-    x *= decoder_tb_d as f64;
-    x *= stream_tb_n as f64;
-    x /= stream_tb_d as f64;
-    x /= decoder_tb_n as f64;
+    x *= f64::from(decoder_tb_d);
+    x *= f64::from(stream_tb_n);
+    x /= f64::from(stream_tb_d);
+    x /= f64::from(decoder_tb_n);
     x = x.ceil();
     x as usize
 }
 
-#[inline(always)]
+#[inline]
 pub fn estimate_num_frames(
     stream: &ffmpeg_next::Stream,
     decoder: &ffmpeg_next::decoder::Audio,
@@ -129,7 +132,7 @@ impl FFmpegDecoder {
 }
 
 impl Decoder for FFmpegDecoder {
-    #[inline(always)]
+    #[inline]
     fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error> {
         let format = self.decoder.format();
         match format {
@@ -203,17 +206,17 @@ impl Decoder for FFmpegDecoder {
 }
 
 impl Signal for FFmpegDecoder {
-    #[inline(always)]
+    #[inline]
     fn frame_rate_hz(&self) -> u32 {
         self.frame_rate_hz
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_channels(&self) -> u16 {
         self.num_channels
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         self.est_num_frames
     }

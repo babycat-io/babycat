@@ -61,9 +61,9 @@ impl std::convert::From<Error> for PyErr {
 
             Error::UnknownEncodeError => UnknownEncodeError::new_err(err.to_string()),
 
-            Error::ResamplingError => ResamplingError::new_err(err.to_string()),
-
-            Error::ResamplingErrorWithMessage(..) => ResamplingError::new_err(err.to_string()),
+            Error::ResamplingError | Error::ResamplingErrorWithMessage(..) => {
+                ResamplingError::new_err(err.to_string())
+            }
 
             Error::WrongFrameRate(..) => WrongFrameRate::new_err(err.to_string()),
 

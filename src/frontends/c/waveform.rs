@@ -8,9 +8,7 @@ use crate::frontends::c::waveform_result::WaveformResult;
 /// Returns a `babycat_WaveformArgs` struct with all default values.
 #[no_mangle]
 pub extern "C" fn babycat_waveform_args_init_default() -> WaveformArgs {
-    WaveformArgs {
-        ..Default::default()
-    }
+    WaveformArgs::default()
 }
 
 /// Frees a `babycat_Waveform` struct.
@@ -42,6 +40,7 @@ pub extern "C" fn babycat_waveform_from_frames_of_silence(
 /// @param duration_milliseconds The length of the audio waveform in milliseconds.
 ///
 #[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
 #[no_mangle]
 pub extern "C" fn babycat_waveform_from_milliseconds_of_silence(
     frame_rate_hz: u32,
@@ -63,6 +62,7 @@ pub extern "C" fn babycat_waveform_from_milliseconds_of_silence(
 ///        the encoding of the audio in `encoded_bytes`.
 ///
 #[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_waveform_from_encoded_bytes_with_hint(
     encoded_bytes: *mut u8,
@@ -108,6 +108,7 @@ pub unsafe extern "C" fn babycat_waveform_from_encoded_bytes(
 /// @param waveform_args Instructions on how to decode the audio.
 ///
 #[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_waveform_from_file(
     filename: *const c_char,
@@ -160,6 +161,7 @@ pub unsafe extern "C" fn babycat_waveform_get_num_samples(waveform: *mut Wavefor
 /// @param waveform A pointer to the `babycat_Waveform`.
 ///
 #[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn babycat_waveform_to_interleaved_samples(
     waveform: *mut Waveform,

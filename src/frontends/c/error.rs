@@ -60,15 +60,13 @@ pub fn error_to_num(err: Error) -> u32 {
 
         Error::UnknownInputEncoding => ERROR_UNKNOWN_INPUT_ENCODING,
 
-        Error::UnknownDecodeError => ERROR_UNKNOWN_DECODE_ERROR,
-
-        Error::UnknownDecodeErrorWithMessage(..) => ERROR_UNKNOWN_DECODE_ERROR,
+        Error::UnknownDecodeError | Error::UnknownDecodeErrorWithMessage(..) => {
+            ERROR_UNKNOWN_DECODE_ERROR
+        }
 
         Error::UnknownEncodeError => ERROR_UNKNOWN_ENCODE_ERROR,
 
-        Error::ResamplingError => ERROR_RESAMPLING_ERROR,
-
-        Error::ResamplingErrorWithMessage(..) => ERROR_RESAMPLING_ERROR,
+        Error::ResamplingError | Error::ResamplingErrorWithMessage(..) => ERROR_RESAMPLING_ERROR,
 
         Error::WrongFrameRate(..) => ERROR_WRONG_FRAME_RATE,
 

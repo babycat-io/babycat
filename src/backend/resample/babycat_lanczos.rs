@@ -23,6 +23,9 @@ fn lanczos_kernel(x: f32, a: f32) -> f32 {
     0.0
 }
 
+#[allow(clippy::cast_precision_loss)]
+#[allow(clippy::cast_possible_truncation)]
+#[allow(clippy::cast_sign_loss)]
 fn compute_sample(
     input_audio: &[f32],
     frame_idx: f32,
@@ -38,12 +41,13 @@ fn compute_sample(
     for i in i_start..i_end {
         if (i as usize) < num_input_frames {
             the_sample += get(input_audio, i as usize, channel_idx, num_channels)
-                * lanczos_kernel(frame_idx - i as f32, a)
+                * lanczos_kernel(frame_idx - i as f32, a);
         }
     }
     the_sample
 }
 
+#[allow(clippy::cast_precision_loss)]
 pub fn resample(
     input_frame_rate_hz: u32,
     output_frame_rate_hz: u32,
