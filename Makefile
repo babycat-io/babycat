@@ -139,9 +139,9 @@ JAVASCRIPT_CODE_PATHS?=./tests-wasm-nodejs/test.js
 
 # Commands to execute
 # pip
-PIP_INSTALL_WHEEL?=$(PIP) install $(WHEEL_DIR)/*.whl
-PIP_INSTALL_MANYLINUX_WHEEL?=$(PIP) install $(MANYLINUX_WHEEL_DIR)/*.whl
-PIP_INSTALL_FFMPEG_WHEEL?=$(PIP) install $(FFMPEG_WHEEL_DIR)/*.whl
+PIP_INSTALL_WHEEL?=$(PIP) install --force-reinstall $(WHEEL_DIR)/*.whl
+PIP_INSTALL_MANYLINUX_WHEEL?=$(PIP) install --force-reinstall $(MANYLINUX_WHEEL_DIR)/*.whl
+PIP_INSTALL_FFMPEG_WHEEL?=$(PIP) install --force-reinstall $(FFMPEG_WHEEL_DIR)/*.whl
 
 # cargo
 CARGO_BUILD?=$(CARGO) build $(PROFILE_FLAG)
