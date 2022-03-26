@@ -2,13 +2,18 @@ use numpy::PyArray2;
 use pyo3::prelude::*;
 
 /// A container for decoding operations that may have succeeded or failed.
+///
+/// :py:class:`NumPyNamedResult` contains either a :py:class:`numpy.ndarray`
+/// from a successful audio decoding or a Python exception from a failed
+/// audio decoding.
+///
 #[pyclass(module = "babycat")]
 #[derive(Clone, Debug)]
 pub struct NumPyNamedResult {
     /// The "name" of a result as a :py:class:`str`, typically a filename for an audio file.
     #[pyo3(get)]
     pub name: String,
-    /// A :py:class:`~babycat.array` if decoding succeeded... or ``None`` if decoding failed.
+    /// A :py:class:`numpy.ndarray` if decoding succeeded... or ``None`` if decoding failed.
     #[pyo3(get)]
     pub array: Option<Py<PyArray2<f32>>>,
     error: Option<crate::backend::Error>,

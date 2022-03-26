@@ -104,22 +104,6 @@ impl Waveform {
             .into()
     }
 
-    #[staticmethod]
-    #[args("*", frame_rate_hz, num_channels, num_frames)]
-    #[pyo3(text_signature = "(
-        frame_rate_hz,
-        num_channels,
-        num_frames,
-    )")]
-    pub fn from_frames_of_silence_into_numpy(
-        frame_rate_hz: u32,
-        num_channels: u16,
-        num_frames: usize,
-    ) -> Py<PyArray2<f32>> {
-        crate::backend::Waveform::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
-            .into()
-    }
-
     /// Creates a silent waveform measured in milliseconds.
     ///
     /// Example:
@@ -156,26 +140,6 @@ impl Waveform {
         num_channels: u16,
         duration_milliseconds: usize,
     ) -> Self {
-        crate::backend::Waveform::from_milliseconds_of_silence(
-            frame_rate_hz,
-            num_channels,
-            duration_milliseconds,
-        )
-        .into()
-    }
-
-    #[staticmethod]
-    #[args("*", frame_rate_hz, num_channels, duration_milliseconds)]
-    #[pyo3(text_signature = "(
-        frame_rate_hz,
-        num_channels,
-        duration_milliseconds,
-    )")]
-    pub fn from_milliseconds_of_silence_into_numpy(
-        frame_rate_hz: u32,
-        num_channels: u16,
-        duration_milliseconds: usize,
-    ) -> Py<PyArray2<f32>> {
         crate::backend::Waveform::from_milliseconds_of_silence(
             frame_rate_hz,
             num_channels,
@@ -223,22 +187,6 @@ impl Waveform {
         num_channels: u16,
         interleaved_samples: Vec<f32>,
     ) -> Self {
-        crate::backend::Waveform::new(frame_rate_hz, num_channels, interleaved_samples).into()
-    }
-
-    #[staticmethod]
-    #[args("*", frame_rate_hz, num_channels, interleaved_samples)]
-    #[pyo3(text_signature = "(
-        frame_rate_hz,
-        num_channels,
-        interleaved_samples,
-    )")]
-    #[allow(clippy::too_many_arguments)]
-    pub fn from_interleaved_samples_into_numpy(
-        frame_rate_hz: u32,
-        num_channels: u16,
-        interleaved_samples: Vec<f32>,
-    ) -> Py<PyArray2<f32>> {
         crate::backend::Waveform::new(frame_rate_hz, num_channels, interleaved_samples).into()
     }
 
@@ -475,6 +423,75 @@ impl Waveform {
         ))
     }
 
+    /// Decodes audio stored as ``bytes``, directly returning a NumPy array.
+    ///
+    /// This method is just like :py:meth:`from_encoded_bytes`, but it
+    /// returns a NumPy array of shape ``(frames, channels)`` instead of
+    /// a :py:class:`Waveform` object.
+    ///
+    /// See the documentation for :py:meth:`from_encoded_bytes`
+    /// for a complete list of raised exceptions.
+    ///
+    /// Args:
+    ///     encoded_bytes(bytes): A :py:class:`bytes` object
+    ///         containing an *encoded* audio file, such as MP3 file.
+    ///
+    ///     start_time_milliseconds(int, optional): We discard
+    ///         any audio before this millisecond offset. By default, this
+    ///         does nothing and the audio is decoded from the beginning.
+    ///         Negative offsets are invalid.
+    ///
+    ///     end_time_milliseconds(int, optional): We discard
+    ///         any audio after this millisecond offset. By default,
+    ///         this does nothing and the audio is decoded all the way
+    ///         to the end. If ``start_time_milliseconds`` is specified,
+    ///         then ``end_time_milliseconds`` must be greater. The resulting
+    ///
+    ///     frame_rate_hz(int, optional): A destination frame rate to resample
+    ///         the audio to. Do not specify this parameter if you wish
+    ///         Babycat to preserve the audio's original frame rate.
+    ///         This does nothing if ``frame_rate_hz`` is equal to the
+    ///         audio's original frame rate.
+    ///
+    ///     num_channels(int, optional): Set this to a positive integer ``n``
+    ///         to select the *first* ``n`` channels stored in the
+    ///         audio file. By default, Babycat will return all of the channels
+    ///         in the original audio. This will raise an exception
+    ///         if you specify a ``num_channels`` greater than the actual
+    ///         number of channels in the audio.
+    ///
+    ///     convert_to_mono(bool, optional): Set to ``True`` to average all channels
+    ///         into a single monophonic (mono) channel. If
+    ///         ``num_channels = n`` is also specified, then only the
+    ///         first ``n`` channels will be averaged. Note that
+    ///         ``convert_to_mono`` cannot be set to ``True`` while
+    ///         also setting ``num_channels = 1``.
+    ///
+    ///     zero_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will zero-pad the ending of the decoded waveform
+    ///         to ensure that the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``zero_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``
+    ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///
+    ///     resample_mode(int, optional): If you set ``frame_rate_hz``
+    ///         to resample the audio when decoding, you can also set
+    ///         ``resample_mode`` to pick which resampling backend to use.
+    ///         The :py:mod:`babycat.resample_mode` submodule contains
+    ///         the various available resampling algorithms compiled into Babycat.
+    ///         By default, Babycat resamples audio using
+    ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    ///         highest-quality setting.
+    ///
+    ///     decoding_backend(int, optional): Sets the audio decoding
+    ///         backend to use. Defaults to the Symphonia backend.
+    ///
+    /// Returns:
+    ///     numpy.ndarray: A NumPy array of shape ``(frames, channels)``
+    ///     of the decoded audio waveform.
+    ///
     #[staticmethod]
     #[args(
         encoded_bytes,
@@ -533,68 +550,6 @@ impl Waveform {
             file_extension,
             mime_type,
         ))
-    }
-
-    #[staticmethod]
-    #[args(
-        encoded_bytes,
-        "*",
-        start_time_milliseconds = 0,
-        end_time_milliseconds = 0,
-        frame_rate_hz = 0,
-        num_channels = 0,
-        convert_to_mono = false,
-        zero_pad_ending = false,
-        resample_mode = 0,
-        decoding_backend = 0,
-        file_extension = "\"\"",
-        mime_type = "\"\""
-    )]
-    #[pyo3(text_signature = "(
-        encoded_bytes,
-        start_time_milliseconds = 0,
-        end_time_milliseconds= 0,
-        frame_rate_hz = 0,
-        num_channels = 0,
-        convert_to_mono = False,
-        zero_pad_ending = False,
-        resample_mode = 0,
-        decoding_backend = 0,
-        file_extension = \"\",
-        mime_type = \"\",
-    )")]
-    #[allow(clippy::too_many_arguments)]
-    pub fn from_encoded_bytes_into_numpy_unwrapped(
-        encoded_bytes: Vec<u8>,
-        start_time_milliseconds: usize,
-        end_time_milliseconds: usize,
-        frame_rate_hz: u32,
-        num_channels: u16,
-        convert_to_mono: bool,
-        zero_pad_ending: bool,
-        resample_mode: u32,
-        decoding_backend: u32,
-        file_extension: &str,
-        mime_type: &str,
-    ) -> Py<PyArray2<f32>> {
-        let waveform_args = crate::backend::WaveformArgs {
-            start_time_milliseconds,
-            end_time_milliseconds,
-            frame_rate_hz,
-            num_channels,
-            convert_to_mono,
-            zero_pad_ending,
-            resample_mode,
-            decoding_backend,
-        };
-        crate::backend::Waveform::from_encoded_bytes_with_hint(
-            &encoded_bytes,
-            waveform_args,
-            file_extension,
-            mime_type,
-        )
-        .unwrap()
-        .into()
     }
 
     /// Decodes audio stored in a local file.
@@ -804,6 +759,76 @@ impl Waveform {
         waveform_result_to_pyresult(crate::backend::Waveform::from_file(filename, waveform_args))
     }
 
+    /// Decodes audio stored in a local file, directly returning a NumPy array.
+    ///
+    /// This method is just like :py:meth:`from_file`, but it
+    /// returns a NumPy array of shape ``(frames, channels)`` instead of
+    /// a :py:class:`Waveform` object.
+    ///
+    ///
+    /// See the documentation for :py:meth:`from_file`
+    /// for a complete list of raised exceptions.
+    ///
+    /// Args:
+    ///     filename(str): The path to an audio file on the local
+    ///         filesystem.
+    ///
+    ///     start_time_milliseconds(int, optional): We discard
+    ///         any audio before this millisecond offset. By default, this
+    ///         does nothing and the audio is decoded from the beginning.
+    ///         Negative offsets are invalid.
+    ///
+    ///     end_time_milliseconds(int, optional): We discard
+    ///         any audio after this millisecond offset. By default,
+    ///         this does nothing and the audio is decoded all the way
+    ///         to the end. If ``start_time_milliseconds`` is specified,
+    ///         then ``end_time_milliseconds`` must be greater. The resulting
+    ///
+    ///     frame_rate_hz(int, optional): A destination frame rate to resample
+    ///         the audio to. Do not specify this parameter if you wish
+    ///         Babycat to preserve the audio's original frame rate.
+    ///         This does nothing if ``frame_rate_hz`` is equal to the
+    ///         audio's original frame rate.
+    ///
+    ///     num_channels(int, optional): Set this to a positive integer ``n``
+    ///         to select the *first* ``n`` channels stored in the
+    ///         audio file. By default, Babycat will return all of the channels
+    ///         in the original audio. This will raise an exception
+    ///         if you specify a ``num_channels`` greater than the actual
+    ///         number of channels in the audio.
+    ///
+    ///     convert_to_mono(bool, optional): Set to ``True`` to average all channels
+    ///         into a single monophonic (mono) channel. If
+    ///         ``num_channels = n`` is also specified, then only the
+    ///         first ``n`` channels will be averaged. Note that
+    ///         ``convert_to_mono`` cannot be set to ``True`` while
+    ///         also setting ``num_channels = 1``.
+    ///
+    ///     zero_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will zero-pad the ending of the decoded waveform
+    ///         to ensure that the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``zero_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``
+    ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///
+    ///     resample_mode(int, optional): If you set ``frame_rate_hz``
+    ///         to resample the audio when decoding, you can also set
+    ///         ``resample_mode`` to pick which resampling backend to use.
+    ///         The :py:mod:`babycat.resample_mode` submodule contains
+    ///         the various available resampling algorithms compiled into Babycat.
+    ///         By default, Babycat resamples audio using
+    ///         `libsamplerate <http://www.mega-nerd.com/SRC/>`_ at its
+    ///         highest-quality setting.
+    ///
+    ///     decoding_backend(int, optional): Sets the audio decoding
+    ///         backend to use. Defaults to the Symphonia backend.
+    ///
+    /// Returns:
+    ///     numpy.ndarray: A NumPy array of shape ``(frames, channels)``
+    ///     of the decoded audio waveform.
+    ///
     #[cfg(feature = "enable-filesystem")]
     #[staticmethod]
     #[args(
@@ -830,7 +855,7 @@ impl Waveform {
         decoding_backend = 0,
     )")]
     #[allow(clippy::too_many_arguments)]
-    pub fn from_file_into_numpy_result(
+    pub fn from_file_into_numpy(
         filename: &str,
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
@@ -855,58 +880,6 @@ impl Waveform {
             filename,
             waveform_args,
         ))
-    }
-
-    #[cfg(feature = "enable-filesystem")]
-    #[staticmethod]
-    #[args(
-        filename,
-        "*",
-        start_time_milliseconds = 0,
-        end_time_milliseconds = 0,
-        frame_rate_hz = 0,
-        num_channels = 0,
-        convert_to_mono = false,
-        zero_pad_ending = false,
-        resample_mode = 0,
-        decoding_backend = 0
-    )]
-    #[pyo3(text_signature = "(
-        filename,
-        start_time_milliseconds = 0,
-        end_time_milliseconds= 0,
-        frame_rate_hz = 0,
-        num_channels = 0,
-        convert_to_mono = False,
-        zero_pad_ending = False,
-        resample_mode = 0,
-        decoding_backend = 0,
-    )")]
-    #[allow(clippy::too_many_arguments)]
-    pub fn from_file_into_numpy_unwrapped(
-        filename: &str,
-        start_time_milliseconds: usize,
-        end_time_milliseconds: usize,
-        frame_rate_hz: u32,
-        num_channels: u16,
-        convert_to_mono: bool,
-        zero_pad_ending: bool,
-        resample_mode: u32,
-        decoding_backend: u32,
-    ) -> Py<PyArray2<f32>> {
-        let waveform_args = crate::backend::WaveformArgs {
-            start_time_milliseconds,
-            end_time_milliseconds,
-            frame_rate_hz,
-            num_channels,
-            convert_to_mono,
-            zero_pad_ending,
-            resample_mode,
-            decoding_backend,
-        };
-        crate::backend::Waveform::from_file(filename, waveform_args)
-            .unwrap()
-            .into()
     }
 
     /// Returns the decoded waveform's frame rate in hertz.

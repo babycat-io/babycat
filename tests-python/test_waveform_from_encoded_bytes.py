@@ -1,5 +1,5 @@
 """
-Tests loading waveform from file.
+Tests loading waveform from encoded bytes.
 
 These tests mirror the ones in ``../tests/test_waveform_from_encoded_bytes.rs``
 """

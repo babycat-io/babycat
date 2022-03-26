@@ -1,6 +1,11 @@
 use pyo3::prelude::*;
 
 /// A container for decoding operations that may have succeeded or failed.
+///
+/// :py:class:`WaveformNamedResult` contains either a :py:class:`Waveform`
+/// from a successful audio decoding or a Python exception from a failed
+/// audio decoding.
+///
 #[pyclass(module = "babycat")]
 #[derive(Clone, Debug)]
 pub struct WaveformNamedResult {
