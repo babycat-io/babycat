@@ -9,6 +9,7 @@ Babycat Python API Documentation
    batch <batch/index>
    Waveform <Waveform/index>
    WaveformNamedResult <WaveformNamedResult/index>
+   NumPyNamedResult <NumPyNamedResult/index>
    exceptions <exceptions>
    resample_mode <resample_mode>
 
@@ -23,4 +24,5 @@ Submodules
 Classes
 -------
 - :doc:`Waveform/index`: Handles decoding audio into a 32-bit floating point waveform.
-- :doc:`WaveformNamedResult/index`: A wrapper class that holds either a :doc:`WaveformNamedResult/index`.
+- :doc:`WaveformNamedResult/index`: A wrapper class that holds either a :doc:`Waveform/index` or a Python exception.
+- :doc:`NumPyNamedResult/index`: A wrapper class that holds either a NumPy array or a Python exception.

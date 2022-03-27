@@ -38,7 +38,9 @@ Decoding audio
    :maxdepth: 2
 
    .from_encoded_bytes() <from_encoded_bytes>
+   .from_encoded_bytes_into_numpy() <from_encoded_bytes_into_numpy>
    .from_file() <from_file>
+   .from_file_into_numpy() <from_file_into_numpy>
 
 
 Resampling audio

@@ -13,3 +13,5 @@ Decoding audio
    :maxdepth: 2
 
    .waveforms_from_files() <waveforms_from_files>
+   .waveforms_from_files_into_numpys() <waveforms_from_files_into_numpys>
+   .waveforms_from_files_into_numpys_unwrapped() <waveforms_from_files_into_numpys_unwrapped>
