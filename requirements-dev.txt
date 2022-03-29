@@ -2,7 +2,7 @@
 pytest==7.1.0
 
 # black formats python source code
-black==22.1.0
+black==22.3.0
 
 # isort sorts python source code
 isort==5.10.1
