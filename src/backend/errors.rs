@@ -31,6 +31,14 @@ pub enum Error {
     WrongNumChannelsAndMono,
     /// Raised if you set [`WaveformArgs.zero_pad_ending`][crate::WaveformArgs#structfield.zero_pad_ending] as `true` without also specifying [`WaveformArgs.end_time_milliseconds`][crate::WaveformArgs#structfield.end_time_milliseconds].
     CannotZeroPadWithoutSpecifiedLength,
+    /// Raised if you set [`WaveformArgs.repeat_pad_ending`][crate::WaveformArgs#structfield.repeat_pad_ending] as `true` without also specifying [`WaveformArgs.end_time_milliseconds`][crate::WaveformArgs#structfield.end_time_milliseconds].
+    CannotRepeatPadWithoutSpecifiedLength,
+    /// Raised if you set both
+    /// [`WaveformArgs.zero_pad_ending`][crate::WaveformArgs#structfield.zero_pad_ending]
+    /// and
+    /// [`WaveformArgs.repeat_pad_ending`][crate::WaveformArgs#structfield.repeat_pad_ending]
+    /// as `true`.
+    CannotSetZeroPadEndingAndRepeatPadEnding,
     //
     // Decoding errors
     /// Raised when we could not decode any of the audio streams.
@@ -83,6 +91,12 @@ impl Error {
             Error::CannotZeroPadWithoutSpecifiedLength => {
                 "CannotZeroPadWithoutSpecifiedLength".to_string()
             }
+            Error::CannotRepeatPadWithoutSpecifiedLength => {
+                "CannotRepeatPadWithoutSpecifiedLength".to_string()
+            }
+            Error::CannotSetZeroPadEndingAndRepeatPadEnding => {
+                "CannotSetZeroPadEndingAndRepeatPadEnding".to_string()
+            }
 
             Error::NoSuitableAudioStreams(num_streams) => {
                 format!("NoSuitableAudioStreams({})", num_streams)
@@ -131,6 +145,10 @@ impl fmt::Display for Error {
             Error::WrongNumChannelsAndMono => write!(f, "You cannot set `convert_to_mono` as `true` and also set `num_channels` = 1. Pick one or the other. You either want `convert_to_mono` to average all channels as one channel... or you want to select the first channel with `num_channels`."),
 
             Error::CannotZeroPadWithoutSpecifiedLength => write!(f, "You cannot set `zero_pad_ending` without also specifying *where* the ending should be. Either set `zero_pad_ending` = `false` or specify `end_time_milliseconds` to a value above 0."),
+
+            Error::CannotRepeatPadWithoutSpecifiedLength => write!(f, "You cannot set `repeat_pad_ending` without also specifying *where* the ending should be. Either set `repeat_pad_ending` = `false` or specify `end_time_milliseconds` to a value above 0."),
+
+            Error::CannotSetZeroPadEndingAndRepeatPadEnding => write!(f, "You cannot set both `zero_pad_ending` and `repeat_pad_ending` as `true`. Pick one or the other."),
 
             Error::NoSuitableAudioStreams(num_streams) => write!(f, "We probed {} audio streams but could not decode any of them.", num_streams),
 

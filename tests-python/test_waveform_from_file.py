@@ -37,6 +37,17 @@ def test_circus_of_freaks_wrong_time_offset_2():
         )
 
 
+def test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_repeat_pad_ending_1():
+    with pytest.raises(bexc.CannotSetZeroPadEndingAndRepeatPadEnding):
+        Waveform.from_file(
+            COF_FILENAME,
+            start_time_milliseconds=5,
+            end_time_milliseconds=1000,
+            zero_pad_ending=True,
+            repeat_pad_ending=True,
+        )
+
+
 def test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1():
     with pytest.raises(bexc.CannotZeroPadWithoutSpecifiedLength):
         Waveform.from_file(
@@ -44,6 +55,16 @@ def test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1():
             start_time_milliseconds=5,
             end_time_milliseconds=0,
             zero_pad_ending=True,
+        )
+
+
+def test_circus_of_freaks_invalid_end_time_milliseconds_repeat_pad_ending_1():
+    with pytest.raises(bexc.CannotRepeatPadWithoutSpecifiedLength):
+        Waveform.from_file(
+            COF_FILENAME,
+            start_time_milliseconds=5,
+            end_time_milliseconds=0,
+            repeat_pad_ending=True,
         )
 
 
@@ -267,6 +288,113 @@ def test_circus_of_freaks_end_milliseconds_zero_pad_ending_1():
     assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
 
 
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_1():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=1,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 44
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_2():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=10,
+        end_time_milliseconds=11,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 44
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_3():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=30000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 1323000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_4():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=15000,
+        end_time_milliseconds=45000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 1323000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_5():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=30000,
+        end_time_milliseconds=60000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 1323000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_6():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=60000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 2646000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_7():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=90000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 3969000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_8():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=30000,
+        end_time_milliseconds=90000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 2646000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
+def test_circus_of_freaks_end_milliseconds_repeat_pad_ending_1():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        end_time_milliseconds=90000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 3969000
+    assert waveform.frame_rate_hz == COF_FRAME_RATE_HZ
+
+
 def test_circus_of_freaks_invalid_resample_1():
     with pytest.raises(bexc.WrongFrameRateRatio):
         Waveform.from_file(
@@ -444,6 +572,45 @@ def test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_3():
         end_time_milliseconds=60000,
         frame_rate_hz=22050,
         zero_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 1323000
+    assert waveform.frame_rate_hz == 22050
+
+
+def test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_1():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=60000,
+        frame_rate_hz=48000,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 2880000
+    assert waveform.frame_rate_hz == 48000
+
+
+def test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_2():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=60000,
+        frame_rate_hz=44099,
+        repeat_pad_ending=True,
+    )
+    assert waveform.num_channels == COF_NUM_CHANNELS
+    assert waveform.num_frames == 2645940
+    assert waveform.frame_rate_hz == 44099
+
+
+def test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_3():
+    waveform = Waveform.from_file(
+        COF_FILENAME,
+        start_time_milliseconds=0,
+        end_time_milliseconds=60000,
+        frame_rate_hz=22050,
+        repeat_pad_ending=True,
     )
     assert waveform.num_channels == COF_NUM_CHANNELS
     assert waveform.num_frames == 1323000

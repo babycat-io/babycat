@@ -14,6 +14,8 @@ pub const DEFAULT_NUM_CHANNELS: u16 = 0;
 pub const DEFAULT_CONVERT_TO_MONO: bool = false;
 /// By default, we do not zero-pad the ending of an audio file.
 pub const DEFAULT_ZERO_PAD_ENDING: bool = false;
+/// By default, we do not repeat-pad the ending of an audio file.
+pub const DEFAULT_REPEAT_PAD_ENDING: bool = false;
 /// Sets the default resampler.
 pub const DEFAULT_RESAMPLE_MODE: u32 = 0;
 /// Sets the default audio decoding backend.

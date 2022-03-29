@@ -73,10 +73,21 @@ impl Waveform {
             ));
         }
 
+        // The user cannot set zero_pad_ending and repeat_pad_ending at the same time.
+        if args.zero_pad_ending && args.repeat_pad_ending {
+            return Err(Error::CannotSetZeroPadEndingAndRepeatPadEnding);
+        }
+
         // If the user has not specified how long the output audio should be,
         // then we would not know how to zero-pad after it.
         if args.zero_pad_ending && args.end_time_milliseconds == DEFAULT_END_TIME_MILLISECONDS {
             return Err(Error::CannotZeroPadWithoutSpecifiedLength);
+        }
+
+        // If the user has not specified how long the output audio should be,
+        // then we would not know how to repeat-pad after it.
+        if args.repeat_pad_ending && args.end_time_milliseconds == DEFAULT_END_TIME_MILLISECONDS {
+            return Err(Error::CannotRepeatPadWithoutSpecifiedLength);
         }
 
         // We do not allow the user to specify that they want to extract
@@ -136,15 +147,25 @@ impl Waveform {
             source = Box::new(source.convert_to_mono());
         }
         let mut interleaved_samples: Vec<f32> = source.collect();
-        // Zero-pad the output audio vector if our start/end interval
-        // is longer than the actual audio we decoded.
-        if args.zero_pad_ending && end_frame_idx > start_frame_idx {
+
+        // Pad the waveform if necessary.
+        if (args.zero_pad_ending || args.repeat_pad_ending) && end_frame_idx > start_frame_idx {
             let expected_buffer_len_from_user: usize =
                 (end_frame_idx - start_frame_idx) * output_num_channels as usize;
             let actual_buffer_len = interleaved_samples.len();
             if expected_buffer_len_from_user > actual_buffer_len {
-                let buffer_padding = expected_buffer_len_from_user - actual_buffer_len;
-                interleaved_samples.extend(vec![0.0_f32; buffer_padding]);
+                // Pad with zeros.
+                if args.zero_pad_ending {
+                    interleaved_samples.resize(expected_buffer_len_from_user, 0.0_f32);
+                }
+                // Pad with elements from the beginning, looping multiple times if necessary.
+                else if args.repeat_pad_ending {
+                    let buffer_padding_len = expected_buffer_len_from_user - actual_buffer_len;
+                    for idx in 0..buffer_padding_len {
+                        let rounded_idx = idx % actual_buffer_len;
+                        interleaved_samples.push(interleaved_samples[rounded_idx]);
+                    }
+                }
             }
         }
 

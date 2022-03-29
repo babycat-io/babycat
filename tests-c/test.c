@@ -52,6 +52,19 @@ test_waveform_from_file__test_circus_of_freaks_wrong_time_offset_2() {
 }
 
 static void
+test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_repeat_pad_ending_1() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 1000;
+  waveform_args.zero_pad_ending = true;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num ==
+         babycat_ERROR_CANNOT_ZERO_PAD_AND_REPEAT_PAD);
+  SUCCESS();
+}
+
+static void
 test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1() {
   babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
   waveform_args.start_time_milliseconds = 5;
@@ -59,6 +72,17 @@ test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zer
   waveform_args.zero_pad_ending = true;
   babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
   assert(waveform_result.error_num == babycat_ERROR_CANNOT_ZERO_PAD);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_repeat_pad_ending_1() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 5;
+  waveform_args.end_time_milliseconds = 0;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_ERROR_CANNOT_REPEAT_PAD);
   SUCCESS();
 }
 
@@ -354,6 +378,149 @@ test_waveform_from_file__test_circus_of_freaks_end_milliseconds_zero_pad_ending_
 }
 
 static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_1() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 1;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 44);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_2() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 10;
+  waveform_args.end_time_milliseconds = 11;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 44);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_3() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 30000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 1323000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_4() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 15000;
+  waveform_args.end_time_milliseconds = 45000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 1323000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_5() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 30000;
+  waveform_args.end_time_milliseconds = 60000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 1323000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_6() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 60000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 2646000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_7() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 90000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 3969000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_8() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 30000;
+  waveform_args.end_time_milliseconds = 90000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 2646000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_end_milliseconds_repeat_pad_ending_1() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.end_time_milliseconds = 90000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 3969000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44100);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
 test_waveform_from_file__test_circus_of_freaks_invalid_resample_1() {
   babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
   waveform_args.frame_rate_hz = 1;
@@ -601,6 +768,57 @@ test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_z
   SUCCESS();
 }
 
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_1() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 60000;
+  waveform_args.frame_rate_hz = 48000;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 2880000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 48000);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_2() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 60000;
+  waveform_args.frame_rate_hz = 44099;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 2645940);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 44099);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
+static void
+test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_3() {
+  babycat_WaveformArgs waveform_args = babycat_waveform_args_init_default();
+  waveform_args.start_time_milliseconds = 0;
+  waveform_args.end_time_milliseconds = 60000;
+  waveform_args.frame_rate_hz = 22050;
+  waveform_args.repeat_pad_ending = true;
+  babycat_WaveformResult waveform_result = DECODE_COF(waveform_args);
+  assert(waveform_result.error_num == babycat_NO_ERROR);
+  babycat_Waveform *waveform = waveform_result.result;
+  assert(babycat_waveform_get_num_channels(waveform) == 2);
+  assert(babycat_waveform_get_num_frames(waveform) == 1323000);
+  assert(babycat_waveform_get_frame_rate_hz(waveform) == 22050);
+  babycat_waveform_free(waveform);
+  SUCCESS();
+}
+
 static void test_waveform_resample_method__test_circus_of_freaks_no_change_1() {
   uint32_t new_frame_rate_hz = 44100;
   uint32_t expected_num_frames = 2491247;
@@ -804,7 +1022,9 @@ int main() {
   test_waveform_from_file__test_circus_of_freaks_default_1();
   test_waveform_from_file__test_circus_of_freaks_wrong_time_offset_1();
   test_waveform_from_file__test_circus_of_freaks_wrong_time_offset_2();
+  test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_repeat_pad_ending_1();
   test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1();
+  test_waveform_from_file__test_circus_of_freaks_invalid_end_time_milliseconds_repeat_pad_ending_1();
   test_waveform_from_file__test_circus_of_freaks_get_channels_1();
   test_waveform_from_file__test_circus_of_freaks_get_channels_2();
   test_waveform_from_file__test_circus_of_freaks_get_channels_too_many_1();
@@ -825,6 +1045,15 @@ int main() {
   test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_7();
   test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_zero_pad_ending_8();
   test_waveform_from_file__test_circus_of_freaks_end_milliseconds_zero_pad_ending_1();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_1();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_2();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_3();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_4();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_5();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_6();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_7();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_8();
+  test_waveform_from_file__test_circus_of_freaks_end_milliseconds_repeat_pad_ending_1();
   test_waveform_from_file__test_circus_of_freaks_invalid_resample_1();
   test_waveform_from_file__test_circus_of_freaks_invalid_resample_2();
   test_waveform_from_file__test_circus_of_freaks_invalid_resample_2();
@@ -845,6 +1074,9 @@ int main() {
   test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_1();
   test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_2();
   test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_zero_pad_ending_3();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_1();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_2();
+  test_waveform_from_file__test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_3();
   test_waveform_resample_method__test_circus_of_freaks_no_change_1();
   test_waveform_resample_method__test_circus_of_freaks_44099();
   test_waveform_resample_method__test_circus_of_freaks_44101();

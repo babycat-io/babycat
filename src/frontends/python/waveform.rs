@@ -300,6 +300,18 @@ impl Waveform {
     ///         the output waveform will be shorter than
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///         Note that setting ``zero_pad_ending = True`` is
+    ///         mutually exclusive with setting ``repeat_pad_ending = True``.
+    ///
+    ///     repeat_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will repeat the audio waveform to ensure that
+    ///         the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``repeat_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         Note that setting ``repeat_pad_ending = True`` is
+    ///         mutually exclusive with setting ``zero_pad_ending = True``.
     ///
     ///     resample_mode(int, optional): If you set ``frame_rate_hz``
     ///         to resample the audio when decoding, you can also set
@@ -373,6 +385,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = false,
         zero_pad_ending = false,
+        repeat_pad_ending = false,
         resample_mode = 0,
         decoding_backend = 0,
         file_extension = "\"\"",
@@ -386,6 +399,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = False,
         zero_pad_ending = False,
+        repeat_pad_ending = False,
         resample_mode = 0,
         decoding_backend = 0,
         file_extension = \"\",
@@ -400,6 +414,7 @@ impl Waveform {
         num_channels: u16,
         convert_to_mono: bool,
         zero_pad_ending: bool,
+        repeat_pad_ending: bool,
         resample_mode: u32,
         decoding_backend: u32,
         file_extension: &str,
@@ -412,6 +427,7 @@ impl Waveform {
             num_channels,
             convert_to_mono,
             zero_pad_ending,
+            repeat_pad_ending,
             resample_mode,
             decoding_backend,
         };
@@ -475,6 +491,18 @@ impl Waveform {
     ///         the output waveform will be shorter than
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///         Note that setting ``zero_pad_ending = True`` is
+    ///         mutually exclusive with setting ``repeat_pad_ending = True``.
+    ///
+    ///     repeat_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will repeat the audio waveform to ensure that
+    ///         the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``repeat_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         Note that setting ``repeat_pad_ending = True`` is
+    ///         mutually exclusive with setting ``zero_pad_ending = True``.
     ///
     ///     resample_mode(int, optional): If you set ``frame_rate_hz``
     ///         to resample the audio when decoding, you can also set
@@ -502,6 +530,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = false,
         zero_pad_ending = false,
+        repeat_pad_ending = false,
         resample_mode = 0,
         decoding_backend = 0,
         file_extension = "\"\"",
@@ -515,6 +544,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = False,
         zero_pad_ending = False,
+        repeat_pad_ending = False,
         resample_mode = 0,
         decoding_backend = 0,
         file_extension = \"\",
@@ -529,6 +559,7 @@ impl Waveform {
         num_channels: u16,
         convert_to_mono: bool,
         zero_pad_ending: bool,
+        repeat_pad_ending: bool,
         resample_mode: u32,
         decoding_backend: u32,
         file_extension: &str,
@@ -541,6 +572,7 @@ impl Waveform {
             num_channels,
             convert_to_mono,
             zero_pad_ending,
+            repeat_pad_ending,
             resample_mode,
             decoding_backend,
         };
@@ -646,6 +678,18 @@ impl Waveform {
     ///         the output waveform will be shorter than
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///         Note that setting ``zero_pad_ending = True`` is
+    ///         mutually exclusive with setting ``repeat_pad_ending = True``.
+    ///
+    ///     repeat_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will repeat the audio waveform to ensure that
+    ///         the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``repeat_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         Note that setting ``repeat_pad_ending = True`` is
+    ///         mutually exclusive with setting ``zero_pad_ending = True``.
     ///
     ///     resample_mode(int, optional): If you set ``frame_rate_hz``
     ///         to resample the audio when decoding, you can also set
@@ -720,6 +764,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = false,
         zero_pad_ending = false,
+        repeat_pad_ending = false,
         resample_mode = 0,
         decoding_backend = 0
     )]
@@ -731,6 +776,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = False,
         zero_pad_ending = False,
+        repeat_pad_ending = False,
         resample_mode = 0,
         decoding_backend = 0,
     )")]
@@ -743,6 +789,7 @@ impl Waveform {
         num_channels: u16,
         convert_to_mono: bool,
         zero_pad_ending: bool,
+        repeat_pad_ending: bool,
         resample_mode: u32,
         decoding_backend: u32,
     ) -> PyResult<Self> {
@@ -753,6 +800,7 @@ impl Waveform {
             num_channels,
             convert_to_mono,
             zero_pad_ending,
+            repeat_pad_ending,
             resample_mode,
             decoding_backend,
         };
@@ -812,6 +860,18 @@ impl Waveform {
     ///         the output waveform will be shorter than
     ///         ``end_time_milliseconds - start_time_milliseconds``
     ///         if the input audio is shorter than ``end_time_milliseconds``.
+    ///         Note that setting ``zero_pad_ending = True`` is
+    ///         mutually exclusive with setting ``repeat_pad_ending = True``.
+    ///
+    ///     repeat_pad_ending(bool, optional): If you set this to ``True``,
+    ///         Babycat will repeat the audio waveform to ensure that
+    ///         the output waveform's duration is exactly
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         By default, ``repeat_pad_ending = False``, in which case
+    ///         the output waveform will be shorter than
+    ///         ``end_time_milliseconds - start_time_milliseconds``.
+    ///         Note that setting ``repeat_pad_ending = True`` is
+    ///         mutually exclusive with setting ``zero_pad_ending = True``.
     ///
     ///     resample_mode(int, optional): If you set ``frame_rate_hz``
     ///         to resample the audio when decoding, you can also set
@@ -840,6 +900,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = false,
         zero_pad_ending = false,
+        repeat_pad_ending = false,
         resample_mode = 0,
         decoding_backend = 0
     )]
@@ -851,6 +912,7 @@ impl Waveform {
         num_channels = 0,
         convert_to_mono = False,
         zero_pad_ending = False,
+        repeat_pad_ending = False,
         resample_mode = 0,
         decoding_backend = 0,
     )")]
@@ -863,6 +925,7 @@ impl Waveform {
         num_channels: u16,
         convert_to_mono: bool,
         zero_pad_ending: bool,
+        repeat_pad_ending: bool,
         resample_mode: u32,
         decoding_backend: u32,
     ) -> PyResult<Py<PyArray2<f32>>> {
@@ -873,6 +936,7 @@ impl Waveform {
             num_channels,
             convert_to_mono,
             zero_pad_ending,
+            repeat_pad_ending,
             resample_mode,
             decoding_backend,
         };

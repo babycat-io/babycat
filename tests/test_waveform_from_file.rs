@@ -20,13 +20,14 @@ mod test_waveform_from_file {
         assert_eq!(error_type, result.unwrap_err().error_type());
     }
 
+    #[track_caller]
+    #[inline]
     fn assert_waveform(
-        result: Result<Waveform, Error>,
+        waveform: &Waveform,
         num_channels: u16,
         num_frames: usize,
         frame_rate_hz: u32,
     ) {
-        let waveform = result.unwrap();
         assert_eq!(num_channels, waveform.num_channels());
         assert_eq!(num_frames, waveform.num_frames());
         assert_eq!(frame_rate_hz, waveform.frame_rate_hz());
@@ -36,13 +37,34 @@ mod test_waveform_from_file {
         );
     }
 
+    #[track_caller]
+    #[inline]
+    fn assert_zeros_after_frame(waveform: &Waveform, start_frame_idx: usize) {
+        let num_frames = waveform.num_frames();
+        let num_channels = waveform.num_channels() as usize;
+        for frame_idx in start_frame_idx..num_frames {
+            for channel_idx in 0..num_channels {
+                assert_eq!(
+                    waveform.get_sample(frame_idx, channel_idx as u16).unwrap(),
+                    0.0_f32
+                );
+            }
+        }
+    }
+
     #[test]
     fn test_circus_of_freaks_default_1() {
         let waveform_args = WaveformArgs {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(
+            &waveform,
+            COF_NUM_CHANNELS,
+            COF_NUM_FRAMES,
+            COF_FRAME_RATE_HZ,
+        );
     }
 
     #[test]
@@ -68,6 +90,19 @@ mod test_waveform_from_file {
     }
 
     #[test]
+    fn test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_repeat_pad_ending_1() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 1000,
+            zero_pad_ending: true,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        assert_error(result, "CannotSetZeroPadEndingAndRepeatPadEnding");
+    }
+
+    #[test]
     fn test_circus_of_freaks_invalid_end_time_milliseconds_zero_pad_ending_1() {
         let waveform_args = WaveformArgs {
             start_time_milliseconds: 5,
@@ -80,13 +115,26 @@ mod test_waveform_from_file {
     }
 
     #[test]
+    fn test_circus_of_freaks_invalid_end_time_milliseconds_repeat_pad_ending_1() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 5,
+            end_time_milliseconds: 0,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        assert_error(result, "CannotRepeatPadWithoutSpecifiedLength");
+    }
+
+    #[test]
     fn test_circus_of_freaks_get_channels_1() {
         let waveform_args = WaveformArgs {
             num_channels: 1,
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, 1, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, 1, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -96,7 +144,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, 2, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, 2, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -117,7 +166,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, 1, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, 1, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
     }
     #[test]
     fn test_circus_of_freaks_convert_to_mono_2() {
@@ -126,7 +176,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, 1, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, 1, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -183,7 +234,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -194,7 +246,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -205,7 +258,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -216,7 +270,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -227,7 +282,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1168247, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1168247, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -238,7 +294,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 506747, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 506747, COF_FRAME_RATE_HZ);
     }
 
     #[test]
@@ -250,7 +307,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -262,7 +321,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -274,7 +335,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -286,7 +349,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -298,7 +363,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -310,7 +377,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -322,7 +391,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -334,7 +405,9 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
     }
 
     #[test]
@@ -345,7 +418,148 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+        assert_zeros_after_frame(&waveform, COF_NUM_FRAMES);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_1() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 1,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_2() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 10,
+            end_time_milliseconds: 11,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_3() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 30000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_4() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 15000,
+            end_time_milliseconds: 45000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_5() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 30000,
+            end_time_milliseconds: 60000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_6() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 60000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_7() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 90000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_8() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 30000,
+            end_time_milliseconds: 90000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_end_milliseconds_repeat_pad_ending_1() {
+        let waveform_args = WaveformArgs {
+            end_time_milliseconds: 90000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_end_milliseconds_repeat_pad_ending_2() {
+        let end_time_milliseconds: usize = 190000;
+        let waveform_args = WaveformArgs {
+            end_time_milliseconds: end_time_milliseconds,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        let final_frame: usize = end_time_milliseconds * COF_FRAME_RATE_HZ as usize / 1000;
+        assert_waveform(&waveform, COF_NUM_CHANNELS, final_frame, COF_FRAME_RATE_HZ);
+        for frame_idx in COF_NUM_FRAMES..final_frame {
+            for channel_idx in 0..COF_NUM_CHANNELS {
+                let original_frame_idx = frame_idx % COF_NUM_FRAMES;
+                assert_eq!(
+                    waveform.get_sample(original_frame_idx, channel_idx),
+                    waveform.get_sample(frame_idx, channel_idx)
+                );
+            }
+        }
     }
 
     #[test]
@@ -385,7 +599,13 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, COF_NUM_FRAMES, COF_FRAME_RATE_HZ);
+        let waveform = result.unwrap();
+        assert_waveform(
+            &waveform,
+            COF_NUM_CHANNELS,
+            COF_NUM_FRAMES,
+            COF_FRAME_RATE_HZ,
+        );
     }
 
     #[test]
@@ -395,7 +615,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1245624, 22050);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1245624, 22050);
     }
 
     #[test]
@@ -405,7 +626,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 622812, 11025);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 622812, 11025);
     }
 
     #[test]
@@ -415,7 +637,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 4982494, 88200);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 4982494, 88200);
     }
 
     #[test]
@@ -425,7 +648,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 249125, 4410);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 249125, 4410);
     }
 
     #[test]
@@ -435,7 +659,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2491191, 44099);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2491191, 44099);
     }
 
     #[test]
@@ -445,7 +670,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2711562, 48000);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2711562, 48000);
     }
 
     #[test]
@@ -455,7 +681,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 3389452, 60000);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 3389452, 60000);
     }
 
     #[test]
@@ -465,7 +692,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 4982494, 88200);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 4982494, 88200);
     }
 
     #[test]
@@ -475,7 +703,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 5423123, 96000);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 5423123, 96000);
     }
 
     #[test]
@@ -485,7 +714,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 11299, 200);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 11299, 200);
     }
 
     #[test]
@@ -495,7 +725,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 112982, 2000);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 112982, 2000);
     }
 
     #[test]
@@ -505,7 +736,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 9773, 173);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 9773, 173);
     }
 
     #[test]
@@ -518,7 +750,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2880000, 48000);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2880000, 48000);
     }
 
     #[test]
@@ -531,7 +764,8 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 2645940, 44099);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2645940, 44099);
     }
 
     #[test]
@@ -544,6 +778,49 @@ mod test_waveform_from_file {
             ..Default::default()
         };
         let result = decode_cof_mp3(waveform_args);
-        assert_waveform(result, COF_NUM_CHANNELS, 1323000, 22050);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, 22050);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_1() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 60000,
+            frame_rate_hz: 48000,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2880000, 48000);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_2() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 60000,
+            frame_rate_hz: 44099,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 2645940, 44099);
+    }
+
+    #[test]
+    fn test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_3() {
+        let waveform_args = WaveformArgs {
+            start_time_milliseconds: 0,
+            end_time_milliseconds: 60000,
+            frame_rate_hz: 22050,
+            repeat_pad_ending: true,
+            ..Default::default()
+        };
+        let result = decode_cof_mp3(waveform_args);
+        let waveform = result.unwrap();
+        assert_waveform(&waveform, COF_NUM_CHANNELS, 1323000, 22050);
     }
 }

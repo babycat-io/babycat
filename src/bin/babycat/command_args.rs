@@ -84,6 +84,13 @@ pub enum SubcommandArgs {
 
         #[structopt(
             long,
+            display_order = 9,
+            help = "Repeat the audio waveform to make it exactly `--end-time-milliseconds` in length in case the input audio file is shorter"
+        )]
+        repeat_pad_ending: bool,
+
+        #[structopt(
+            long,
             display_order = 10,
             default_value = "libsamplerate",
             help = "Select the backend to use for resampling. Valid values are: libsamplerate, babycat_lanczos, babycat_sinc"

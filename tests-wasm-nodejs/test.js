@@ -78,6 +78,15 @@ describe("Waveform.fromEncodedArray", function () {
     assert.throws(() => babycat.Waveform.fromEncodedArray(COF, WaveformArgs));
   });
 
+  it("test_circus_of_freaks_invalid_end_time_milliseconds_repeat_pad_ending_1", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 5,
+      end_time_milliseconds: 0,
+      repeat_pad_ending: true,
+    };
+    assert.throws(() => babycat.Waveform.fromEncodedArray(COF, WaveformArgs));
+  });
+
   it("test_circus_of_freaks_get_channels_1", function () {
     const WaveformArgs = {
       num_channels: 1,
@@ -262,6 +271,97 @@ describe("Waveform.fromEncodedArray", function () {
     assertWaveform(waveform, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
   });
 
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_1", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 0,
+      end_time_milliseconds: 1,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 44, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_2", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 10,
+      end_time_milliseconds: 11,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assert.strictEqual(waveform.numChannels(), COF_NUM_CHANNELS);
+    assert.strictEqual(waveform.numFrames(), 44);
+    assert.strictEqual(waveform.frameRateHz(), COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_3", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 0,
+      end_time_milliseconds: 30000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_4", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 15000,
+      end_time_milliseconds: 45000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_5", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 30000,
+      end_time_milliseconds: 60000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_6", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 0,
+      end_time_milliseconds: 60000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_7", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 30000,
+      end_time_milliseconds: 90000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_repeat_pad_ending_8", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 30000,
+      end_time_milliseconds: 90000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2646000, COF_FRAME_RATE_HZ);
+  });
+
+  it("test_circus_of_freaks_end_milliseconds_repeat_pad_ending_1", function () {
+    const WaveformArgs = {
+      end_time_milliseconds: 90000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 3969000, COF_FRAME_RATE_HZ);
+  });
+
   it("test_circus_of_freaks_invalid_resample_1", function () {
     const WaveformArgs = {
       frame_rate_hz: 1,
@@ -420,6 +520,39 @@ describe("Waveform.fromEncodedArray", function () {
       end_time_milliseconds: 60000,
       frame_rate_hz: 22050,
       zero_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, 22050);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_1", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 0,
+      end_time_milliseconds: 60000,
+      frame_rate_hz: 48000,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2880000, 48000);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_2", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 0,
+      end_time_milliseconds: 60000,
+      frame_rate_hz: 44099,
+      repeat_pad_ending: true,
+    };
+    const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
+    assertWaveform(waveform, COF_NUM_CHANNELS, 2645940, 44099);
+  });
+
+  it("test_circus_of_freaks_start_end_milliseconds_resample_repeat_pad_ending_3", function () {
+    const WaveformArgs = {
+      start_time_milliseconds: 0,
+      end_time_milliseconds: 60000,
+      frame_rate_hz: 22050,
+      repeat_pad_ending: true,
     };
     const waveform = babycat.Waveform.fromEncodedArray(COF, WaveformArgs);
     assertWaveform(waveform, COF_NUM_CHANNELS, 1323000, 22050);
