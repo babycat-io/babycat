@@ -27,6 +27,7 @@ use crate::backend::WaveformArgs;
 use crate::backend::decoder::from_file;
 
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
+#[allow(clippy::unsafe_derive_deserialize)]
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct Waveform {
     interleaved_samples: Vec<f32>,
@@ -567,6 +568,92 @@ impl Waveform {
             num_channels,
             num_frames,
         }
+    }
+
+    /// Return a given audio sample belonging to a specific frame and channel.
+    ///
+    /// This method performs bounds checks before returning an audio sample.
+    /// If you want a method that does not perform bounds checks,
+    /// use [`get_unchecked_sample`](crate::Waveform::get_unchecked_sample).
+    ///
+    /// # Examples
+    /// ```
+    /// use babycat::Waveform;
+    ///
+    /// let interleaved_samples: Vec<f32> = vec![
+    ///    -1.0, -0.9, -0.8, //
+    ///    -0.7, -0.6, -0.5, //
+    ///    -0.4, -0.3, -0.2, //
+    ///    -0.1, 0.0, 0.1, //
+    ///    0.2, 0.3, 0.4,
+    /// ];
+    ///
+    /// let frame_rate_hz = 44100;
+    /// let num_channels = 3;
+    ///
+    /// let waveform = Waveform::from_interleaved_samples(
+    ///     frame_rate_hz, num_channels, &interleaved_samples,
+    /// );
+    ///
+    /// assert_eq!(waveform.get_sample(0, 0).unwrap(), -1.0);
+    /// assert_eq!(waveform.get_sample(0, 1).unwrap(), -0.9);
+    /// assert_eq!(waveform.get_sample(0, 2).unwrap(), -0.8);
+    ///
+    /// assert_eq!(waveform.get_sample(1, 0).unwrap(), -0.7);
+    /// assert_eq!(waveform.get_sample(1, 1).unwrap(), -0.6);
+    /// assert_eq!(waveform.get_sample(1, 2).unwrap(), -0.5);
+    /// ```
+    #[inline]
+    pub fn get_sample(&self, frame_idx: usize, channel_idx: u16) -> Option<f32> {
+        if frame_idx >= self.num_frames || channel_idx >= self.num_channels {
+            return None;
+        }
+        unsafe { Some(self.get_unchecked_sample(frame_idx, channel_idx)) }
+    }
+
+    /// Return a given audio sample belonging to a specific frame and channel,
+    /// *without* performing any bounds checks.
+    ///
+    /// If you want a method that performs bounds checks,
+    /// use [`get_sample`](crate::Waveform::get_sample).
+    ///
+    /// # Examples
+    /// ```
+    /// use babycat::Waveform;
+    ///
+    /// let interleaved_samples: Vec<f32> = vec![
+    ///    -1.0, -0.9, -0.8, //
+    ///    -0.7, -0.6, -0.5, //
+    ///    -0.4, -0.3, -0.2, //
+    ///    -0.1, 0.0, 0.1, //
+    ///    0.2, 0.3, 0.4,
+    /// ];
+    ///
+    /// let frame_rate_hz = 44100;
+    /// let num_channels = 3;
+    ///
+    /// let waveform = Waveform::from_interleaved_samples(
+    ///     frame_rate_hz, num_channels, &interleaved_samples,
+    /// );
+    ///
+    /// unsafe {
+    ///     assert_eq!(waveform.get_unchecked_sample(0, 0), -1.0);
+    ///     assert_eq!(waveform.get_unchecked_sample(0, 1), -0.9);
+    ///     assert_eq!(waveform.get_unchecked_sample(0, 2), -0.8);
+    ///
+    ///     assert_eq!(waveform.get_unchecked_sample(1, 0), -0.7);
+    ///     assert_eq!(waveform.get_unchecked_sample(1, 1), -0.6);
+    ///     assert_eq!(waveform.get_unchecked_sample(1, 2), -0.5);
+    /// }
+    /// ```
+    ///
+    /// # Safety
+    /// Because this method does not peform any bounds checks, it is unsafe.
+    #[inline]
+    pub unsafe fn get_unchecked_sample(&self, frame_idx: usize, channel_idx: u16) -> f32 {
+        *(self
+            .interleaved_samples
+            .get_unchecked(frame_idx * self.num_channels as usize + channel_idx as usize))
     }
 
     /// Returns the total number of decoded frames in the `Waveform`.

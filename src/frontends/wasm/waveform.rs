@@ -116,6 +116,17 @@ impl Waveform {
         self.inner.num_frames()
     }
 
+    /// Return a given audio sample belonging to a specific frame and channel.
+    pub fn getSample(&self, frame_idx: usize, channel_idx: u16) -> Option<f32> {
+        self.inner.get_sample(frame_idx, channel_idx)
+    }
+
+    /// Return a given audio sample belonging to a specific frame and channel without
+    /// performing bounds checks.
+    pub fn getUncheckedSample(&self, frame_idx: usize, channel_idx: u16) -> f32 {
+        unsafe { self.inner.get_unchecked_sample(frame_idx, channel_idx) }
+    }
+
     /// Resamples the waveform using the default resampler.
     pub fn resample(&self, frameRateHz: u32) -> Result<Waveform, JsValue> {
         match self.inner.resample(frameRateHz) {

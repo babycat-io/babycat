@@ -8,6 +8,8 @@ babycat.Waveform
    .frameRateHz() <frameRateHz>
    .numChannels() <numChannels>
    .numFrames() <numFrames>
+   .getSample() <getSample>
+   .getUncheckedSample <getUncheckedSample>
    .fromFramesOfSilence() <fromFramesOfSilence>
    .fromMillisecondsOfSilence() <fromMillisecondsOfSilence>
    .fromEncodedArray() <fromEncodedArray>
@@ -26,6 +28,12 @@ Waveform properties
 - :doc:`frameRateHz`
 - :doc:`numChannels`
 - :doc:`numFrames`
+
+
+Indexing waveforms
+------------------
+- :doc:`getSample`
+- :doc:`getUncheckedSample`
 
 
 Generating waveform from silence
