@@ -15,6 +15,12 @@ create_exception!(babycat, WrongTimeOffset, BabycatError);
 create_exception!(babycat, WrongNumChannels, BabycatError);
 create_exception!(babycat, WrongNumChannelsAndMono, WrongNumChannels);
 create_exception!(babycat, CannotZeroPadWithoutSpecifiedLength, BabycatError);
+create_exception!(babycat, CannotRepeatPadWithoutSpecifiedLength, BabycatError);
+create_exception!(
+    babycat,
+    CannotSetZeroPadEndingAndRepeatPadEnding,
+    BabycatError
+);
 //
 // Decoding errors
 create_exception!(babycat, NoSuitableAudioStreams, BabycatError);
@@ -45,6 +51,14 @@ impl std::convert::From<Error> for PyErr {
 
             Error::CannotZeroPadWithoutSpecifiedLength => {
                 CannotZeroPadWithoutSpecifiedLength::new_err(err.to_string())
+            }
+
+            Error::CannotRepeatPadWithoutSpecifiedLength => {
+                CannotRepeatPadWithoutSpecifiedLength::new_err(err.to_string())
+            }
+
+            Error::CannotSetZeroPadEndingAndRepeatPadEnding => {
+                CannotSetZeroPadEndingAndRepeatPadEnding::new_err(err.to_string())
             }
 
             Error::UnknownDecodingBackend(..) => UnknownDecodingBackend::new_err(err.to_string()),
@@ -165,6 +179,36 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
     exceptions_submodule.add(
         "CannotZeroPadWithoutSpecifiedLength",
         cannot_zero_pad_without_specified_length,
+    )?;
+
+    let cannot_repeat_pad_without_specified_length =
+        py.get_type::<CannotRepeatPadWithoutSpecifiedLength>();
+    cannot_repeat_pad_without_specified_length.setattr("__module__", "babycat.exceptions")?;
+    cannot_repeat_pad_without_specified_length.setattr(
+        "__doc__",
+        "Raised when ``repeat_pad_ending`` is set without setting ``end_time_milliseconds``.
+    
+    If you have not set an ``end_time_milliseconds``, then Babycat
+    will return all of the audio from ``start_time_milliseconds``
+    to the end of the audio file. In this context,
+    ``repeat_pad_ending = True`` is not meaningful.
+    ",
+    )?;
+    exceptions_submodule.add(
+        "CannotRepeatPadWithoutSpecifiedLength",
+        cannot_repeat_pad_without_specified_length,
+    )?;
+
+    let cannot_set_zero_pad_ending_and_repeat_pad_ending =
+        py.get_type::<CannotSetZeroPadEndingAndRepeatPadEnding>();
+    cannot_set_zero_pad_ending_and_repeat_pad_ending.setattr("__module__", "babycat.exceptions")?;
+    cannot_set_zero_pad_ending_and_repeat_pad_ending.setattr(
+        "__doc__",
+        "Raised if you try to set both ``zero_pad_ending`` and ``repeat_pad_ending`` as ``True``.",
+    )?;
+    exceptions_submodule.add(
+        "CannotSetZeroPadEndingAndRepeatPadEnding",
+        cannot_set_zero_pad_ending_and_repeat_pad_ending,
     )?;
 
     let unknown_input_encoding = py.get_type::<UnknownInputEncoding>();

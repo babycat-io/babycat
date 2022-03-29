@@ -16,6 +16,10 @@ pub const ERROR_WRONG_NUM_CHANNELS: u32 = 201;
 pub const ERROR_WRONG_NUM_CHANNELS_AND_MONO: u32 = 202;
 /// Returned if you set `zero_pad_ending` as `true` without also specifying `end_time_milliseconds`.
 pub const ERROR_CANNOT_ZERO_PAD: u32 = 203;
+/// Returned if you set `repeat_pad_ending` as `true` without also specifying `end_time_milliseconds`.
+pub const ERROR_CANNOT_REPEAT_PAD: u32 = 204;
+/// Returned if you try setting both `zero_pad_ending` and  `repeat_pad_ending` as `true`.
+pub const ERROR_CANNOT_ZERO_PAD_AND_REPEAT_PAD: u32 = 205;
 //
 /// Returned when we were not able to detect the encoded input as decodable audio.
 pub const ERROR_UNKNOWN_INPUT_ENCODING: u32 = 300;
@@ -53,6 +57,10 @@ pub fn error_to_num(err: Error) -> u32 {
         Error::WrongNumChannelsAndMono => ERROR_WRONG_NUM_CHANNELS_AND_MONO,
 
         Error::CannotZeroPadWithoutSpecifiedLength => ERROR_CANNOT_ZERO_PAD,
+
+        Error::CannotRepeatPadWithoutSpecifiedLength => ERROR_CANNOT_REPEAT_PAD,
+
+        Error::CannotSetZeroPadEndingAndRepeatPadEnding => ERROR_CANNOT_ZERO_PAD_AND_REPEAT_PAD,
 
         Error::UnknownDecodingBackend(..) => ERROR_UNKNOWN_DECODING_BACKEND,
 

@@ -34,6 +34,7 @@ fn main() {
             num_channels,
             convert_to_mono,
             zero_pad_ending,
+            repeat_pad_ending,
             resample_mode,
             decoding_backend,
         } => commands::convert::convert(
@@ -46,6 +47,7 @@ fn main() {
             num_channels,
             convert_to_mono,
             zero_pad_ending,
+            repeat_pad_ending,
             &resample_mode,
             &decoding_backend,
         ),

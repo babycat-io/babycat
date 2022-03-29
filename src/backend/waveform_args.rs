@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::backend::constants::{
     DEFAULT_CONVERT_TO_MONO, DEFAULT_DECODING_BACKEND, DEFAULT_END_TIME_MILLISECONDS,
-    DEFAULT_FRAME_RATE_HZ, DEFAULT_NUM_CHANNELS, DEFAULT_RESAMPLE_MODE,
+    DEFAULT_FRAME_RATE_HZ, DEFAULT_NUM_CHANNELS, DEFAULT_REPEAT_PAD_ENDING, DEFAULT_RESAMPLE_MODE,
     DEFAULT_START_TIME_MILLISECONDS, DEFAULT_ZERO_PAD_ENDING,
 };
 /// Specifies what transformations to apply to the audio during the decoding
@@ -60,8 +60,22 @@ pub struct WaveformArgs {
     /// the output waveform will be shorter than
     /// `end_time_milliseconds - start_time_milliseconds`
     /// if the input audio is shorter than `end_time_milliseconds`.
+    /// Note that setting `zero_pad_ending = true` is
+    /// mutually exclusive with setting `repeat_pad_ending = true`.
     #[serde(default)]
     pub zero_pad_ending: bool,
+    /// If you set this to `true`,
+    /// Babycat will repeat the audio waveform to ensure that
+    /// the output waveform's duration is exactly
+    /// `end_time_milliseconds - start_time_milliseconds`.
+    /// By default, `repeat_pad_ending = false`, in which
+    /// case the output waveform will be shorter than
+    /// `end_time_milliseconds - start_time_milliseconds`
+    /// if the input audio is shorter than `end_time_milliseconds`.
+    /// Note that setting `repeat_pad_ending = true` is
+    /// mutually exclusive with setting `zero_pad_ending = true`.
+    #[serde(default)]
+    pub repeat_pad_ending: bool,
     /// Sets which resampling method is used if you have set
     /// [`frame_rate_hz`](#structfield.frame_rate_hz).
     /// This usually defaults to the highest-accuracy resampler compiled
@@ -90,6 +104,7 @@ impl Default for WaveformArgs {
             num_channels: DEFAULT_NUM_CHANNELS,
             convert_to_mono: DEFAULT_CONVERT_TO_MONO,
             zero_pad_ending: DEFAULT_ZERO_PAD_ENDING,
+            repeat_pad_ending: DEFAULT_REPEAT_PAD_ENDING,
             resample_mode: DEFAULT_RESAMPLE_MODE,
             decoding_backend: DEFAULT_DECODING_BACKEND,
         }

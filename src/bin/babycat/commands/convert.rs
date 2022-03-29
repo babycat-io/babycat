@@ -19,6 +19,7 @@ pub fn convert(
     num_channels: u16,
     convert_to_mono: bool,
     zero_pad_ending: bool,
+    repeat_pad_ending: bool,
     resample_mode: &str,
     decoding_backend: &str,
 ) {
@@ -57,6 +58,7 @@ pub fn convert(
         num_channels,
         convert_to_mono,
         zero_pad_ending,
+        repeat_pad_ending,
         resample_mode: resample_mode_int,
         decoding_backend: decoding_backend_int,
     };
