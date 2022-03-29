@@ -38,7 +38,7 @@ impl Signal for Box<dyn Decoder> {
         (&**self).num_channels()
     }
 
-    #[inline(always)]
+    #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
         (&**self).num_frames_estimate()
     }
