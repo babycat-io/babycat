@@ -14,6 +14,15 @@ Waveform properties
    .num_frames <num_frames>
 
 
+Indexing waveforms
+------------------
+.. toctree::
+   :maxdepth: 2
+
+   .get_sample() <get_sample>
+   .get_unchecked_sample() <get_unchecked_sample>
+
+
 Generating waveforms from silence
 ---------------------------------
 .. toctree::

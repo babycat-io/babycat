@@ -1030,6 +1030,58 @@ impl Waveform {
         waveform_result_to_pyresult(self.inner.resample_by_mode(frame_rate_hz, resample_mode))
     }
 
+    /// Return a given audio sample belonging to a specific frame and channel.
+    ///
+    /// This method performs bounds checks. If you want an unsafe
+    /// method that does not perform bounds checks, use
+    /// :py:meth:`get_unchecked_sample`.
+    ///
+    /// Args:
+    ///     frame_idx: The index of the given frame to query.
+    ///
+    ///     channel_idx: the index of the given channel to query.
+    ///
+    /// Returns:
+    ///     Returns ``None`` if ``frame_idx`` or  ``channel_idx``
+    ///     is out-of-bounds. Otherwise, it returns an Audio sample as
+    ///     a native Python 64-bit :py:class:`float` value.
+    ///
+    #[args(frame_idx, channel_idx)]
+    #[pyo3(text_signature = "(
+        self,
+        frame_idx,
+        channel_idx,
+    )")]
+    pub fn get_sample(&self, frame_idx: usize, channel_idx: u16) -> Option<f32> {
+        self.inner.get_sample(frame_idx, channel_idx)
+    }
+
+    /// Return a given audio sample belonging to a specific frame and channel,
+    /// *without* performing any bounds checks.
+    ///
+    /// If you want bounds checking, use the :py:meth:`get_sample` method.
+    ///
+    /// Args:
+    ///     frame_idx: The index of the given frame to query.
+    ///
+    ///     channel_idx: the index of the given channel to query.
+    ///
+    /// Returns:
+    ///     Returns ``None`` if ``frame_idx`` or ``channel_idx``
+    ///     is out-of-bounds. Otherwise, it returns an Audio sample as
+    ///     a native Python 64-bit :py:class:`float` value.
+    ///
+    #[args(frame_idx, channel_idx)]
+    #[pyo3(text_signature = "(
+        self,
+        frame_idx,
+        channel_idx,
+    )")]
+    #[allow(clippy::missing_safety_doc)]
+    pub unsafe fn get_unchecked_sample(&self, frame_idx: usize, channel_idx: u16) -> f32 {
+        self.inner.get_unchecked_sample(frame_idx, channel_idx)
+    }
+
     /// Returns the audio waveform as a Python list of interleaved samples.
     #[args()]
     #[pyo3(text_signature = "()")]

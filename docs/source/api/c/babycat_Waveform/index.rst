@@ -10,6 +10,7 @@ babycat_Waveform
    babycat_waveform_get_num_channels
    babycat_waveform_get_num_frames
    babycat_waveform_get_num_samples
+   babycat_waveform_get_unchecked_sample
    babycat_waveform_to_interleaved_samples
    babycat_waveform_from_frames_of_silence
    babycat_waveform_from_milliseconds_of_silence
@@ -35,6 +36,11 @@ Waveform properties
 - :doc:`babycat_waveform_get_num_channels`
 - :doc:`babycat_waveform_get_num_frames`
 - :doc:`babycat_waveform_get_num_samples`
+
+
+Indexing waveforms
+------------------
+- :doc:`babycat_waveform_get_unchecked_sample`
 
 
 Generating waveform from silence

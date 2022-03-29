@@ -169,6 +169,30 @@ pub unsafe extern "C" fn babycat_waveform_to_interleaved_samples(
     waveform.as_ref().unwrap().to_interleaved_samples().as_ptr()
 }
 
+/// Return a given audio sample belonging to a specific frame and channel.
+///
+/// @param waveform A pointer to the `babycat_Waveform` to query.
+/// @param frame_idx The given frame.
+/// @param channel_idx The given channel.
+///
+/// This method does not perform any bounds-checking.
+/// It is memory-unsafe if `frame_idx` is above the number
+/// of frames and `channel_idx` is above the number of channels.
+///
+#[allow(clippy::missing_safety_doc)]
+#[allow(clippy::missing_panics_doc)]
+#[no_mangle]
+pub unsafe extern "C" fn babycat_waveform_get_unchecked_sample(
+    waveform: *mut Waveform,
+    frame_idx: usize,
+    channel_idx: u16,
+) -> f32 {
+    waveform
+        .as_ref()
+        .unwrap()
+        .get_unchecked_sample(frame_idx, channel_idx)
+}
+
 /// Resample a `babycat_Waveform` with the default resampler.
 ///
 /// @param waveform A pointer to the `babycat_Waveform` to resample.
