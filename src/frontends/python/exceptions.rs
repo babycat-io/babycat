@@ -38,6 +38,20 @@ create_exception!(babycat, ResamplingErrorWithMessage, ResamplingError);
 create_exception!(babycat, WrongFrameRate, BabycatError);
 create_exception!(babycat, WrongFrameRateRatio, WrongFrameRate);
 
+//
+// Source errors
+create_exception!(babycat, SourceError, BabycatError);
+create_exception!(
+    babycat,
+    CannotAppendSourcesWithDifferentNumChannels,
+    SourceError
+);
+create_exception!(
+    babycat,
+    CannotAppendSourcesWithDifferentFrameRates,
+    SourceError
+);
+
 impl std::convert::From<Error> for PyErr {
     fn from(err: Error) -> PyErr {
         match err {
@@ -92,6 +106,13 @@ impl std::convert::From<Error> for PyErr {
             }
 
             Error::UnknownIOError => pyo3::exceptions::PyIOError::new_err(err.to_string()),
+
+            Error::CannotAppendSourcesWithDifferentNumChannels(..) => {
+                CannotAppendSourcesWithDifferentNumChannels::new_err(err.to_string())
+            }
+            Error::CannotAppendSourcesWithDifferentFrameRates(..) => {
+                CannotAppendSourcesWithDifferentFrameRates::new_err(err.to_string())
+            }
         }
     }
 }
@@ -261,6 +282,39 @@ pub fn make_exceptions_submodule(py: Python) -> PyResult<&PyModule> {
         ",
     )?;
     exceptions_submodule.add("WrongFrameRateRatio", wrong_frame_rate_ratio)?;
+
+    let source_error = py.get_type::<SourceError>();
+    source_error.setattr("__module__", "babycat.exceptions")?;
+    source_error.setattr(
+        "__doc__",
+        "Raised during input validation of source transforms.",
+    )?;
+    exceptions_submodule.add("SourceError", source_error)?;
+
+    let cannot_append_sources_with_different_num_channels =
+        py.get_type::<CannotAppendSourcesWithDifferentNumChannels>();
+    cannot_append_sources_with_different_num_channels
+        .setattr("__module__", "babycat.exceptions")?;
+    cannot_append_sources_with_different_num_channels.setattr(
+        "__doc__",
+        "Raised when we try to concatenate two audio sources with a different number of channels.",
+    )?;
+    exceptions_submodule.add(
+        "CannotAppendSourcesWithDifferentNumChannels",
+        cannot_append_sources_with_different_num_channels,
+    )?;
+
+    let cannot_append_sources_with_different_frame_rates =
+        py.get_type::<CannotAppendSourcesWithDifferentFrameRates>();
+    cannot_append_sources_with_different_frame_rates.setattr("__module__", "babycat.exceptions")?;
+    cannot_append_sources_with_different_frame_rates.setattr(
+        "__doc__",
+        "Raised when we try to concatenate two audio sources with different frame rates.",
+    )?;
+    exceptions_submodule.add(
+        "CannotAppendSourcesWithDifferentFrameRates",
+        cannot_append_sources_with_different_frame_rates,
+    )?;
 
     Ok(exceptions_submodule)
 }

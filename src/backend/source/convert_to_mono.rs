@@ -1,10 +1,24 @@
-use crate::backend::signal::Signal;
+use crate::backend::display::est_num_frames_to_str;
+use crate::backend::Signal;
 use crate::backend::Source;
 
 pub struct ConvertToMono<S: Source> {
     iter: S,
     iter_num_channels_usize: usize,
     iter_num_channels_f32: f32,
+}
+
+impl<S: Source> std::fmt::Debug for ConvertToMono<S> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "ConvertToMono {{ {} frames,  {} -> 1 channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.num_channels(),
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
+    }
 }
 
 impl<S: Source> ConvertToMono<S> {

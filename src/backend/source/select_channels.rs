@@ -1,4 +1,5 @@
-use crate::backend::signal::Signal;
+use crate::backend::display::est_num_frames_to_str;
+use crate::backend::Signal;
 use crate::backend::Source;
 
 pub struct SelectChannels<S: Source> {
@@ -20,6 +21,20 @@ impl<S: Source> SelectChannels<S> {
             selected_num_channels,
             channel_idx: 0,
         }
+    }
+}
+
+impl<S: Source> std::fmt::Debug for SelectChannels<S> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "SelectChannels {{ {} frames,  {} -> {} channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.original_num_channels,
+            self.selected_num_channels,
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
     }
 }
 

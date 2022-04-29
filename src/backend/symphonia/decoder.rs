@@ -16,8 +16,8 @@ use symphonia::core::probe::Hint;
 use crate::backend::constants::DEFAULT_FILE_EXTENSION;
 use crate::backend::constants::DEFAULT_MIME_TYPE;
 use crate::backend::errors::Error;
-use crate::backend::signal::Signal;
 use crate::backend::Decoder;
+use crate::backend::Signal;
 use crate::backend::Source;
 
 use crate::backend::symphonia::SymphoniaSource;

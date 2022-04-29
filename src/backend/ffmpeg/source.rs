@@ -6,6 +6,7 @@ use ffmpeg_next::format::context::input::PacketIter;
 use ffmpeg_next::format::context::Input;
 use ffmpeg_next::frame::Audio as Frame;
 
+use crate::backend::display::est_num_frames_to_str;
 use crate::backend::Sample;
 use crate::backend::Signal;
 use crate::backend::Source;
@@ -82,6 +83,19 @@ pub struct FFmpegSource<'a, T: Sample, const PACKED: bool> {
     channel_idx: usize,
     sent_eof: bool,
     _ph: PhantomData<T>,
+}
+
+impl<'a, T: Sample, const PACKED: bool> std::fmt::Debug for FFmpegSource<'a, T, PACKED> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "FFmpegSource {{ {} frames,  {} channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.num_channels(),
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
+    }
 }
 
 impl<'a, T: Sample, const PACKED: bool> FFmpegSource<'a, T, PACKED> {

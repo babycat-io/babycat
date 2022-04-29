@@ -32,8 +32,8 @@ use crate::backend::WaveformNamedResult;
 /// The first two files are successfully processed, and we catch a
 /// [`Error::FileNotFound`][crate::Error::FileNotFound] error when processing the third file.
 /// ```
-/// use babycat::{BatchArgs, Error, WaveformArgs, WaveformNamedResult};
-/// use babycat::batch::waveforms_from_files;
+/// use babycat::assertions::assert_debug;
+/// use babycat::{batch::waveforms_from_files, BatchArgs, Error, WaveformArgs, WaveformNamedResult};
 ///
 /// let filenames = &[
 ///     "audio-for-tests/andreas-theme/track.flac",
@@ -48,29 +48,25 @@ use crate::backend::WaveformNamedResult;
 ///     batch_args
 /// );
 ///
-/// fn display_result(wnr: &WaveformNamedResult) -> String {
-///     match &wnr.result {
-///         Ok(waveform) => format!("\nSuccess: {}:\n{:?}", wnr.name, waveform),
-///         Err(err) => format!("\nFailure: {}:\n{}", wnr.name, err),
-///     }
-/// }
-/// assert_eq!(
-///     display_result(&batch[0]),
-///      "
-/// Success: audio-for-tests/andreas-theme/track.flac:
-/// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586415}",
+/// // Check that the FIRST file was SUCCESSFULLY decoded.
+/// assert_eq!(&batch[0].name, "audio-for-tests/andreas-theme/track.flac");
+/// assert_debug(
+///     &batch[0].result,
+///     "Ok(Waveform { 9586415 frames,  2 channels,  44100 hz,  3m 37s 379ms })",
 /// );
-/// assert_eq!(
-///     display_result(&batch[1]),
-///      "
-/// Success: audio-for-tests/blippy-trance/track.wav:
-/// Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 5292911}",
+///
+/// // Check that the SECOND file was SUCCESSFULLY decoded.
+/// assert_eq!(&batch[1].name, "audio-for-tests/blippy-trance/track.wav");
+/// assert_debug(
+///     &batch[1].result,
+///     "Ok(Waveform { 5292911 frames,  2 channels,  44100 hz,  2m 20ms })",
 /// );
-/// assert_eq!(
-///     display_result(&batch[2]),
-///      "
-/// Failure: does-not-exist:
-/// Cannot find the given filename does-not-exist.",
+///
+/// // Check that the THIRD file returned a [`Error#FileNotFound`] error.
+/// assert_eq!(&batch[2].name, "does-not-exist");
+/// assert_debug(
+///     &batch[2].result,
+///     "Err(FileNotFound(\"does-not-exist\"))",
 /// );
 /// ```
 #[allow(dead_code)] // Silence dead code warning because we do not use this function in the C frontend.
