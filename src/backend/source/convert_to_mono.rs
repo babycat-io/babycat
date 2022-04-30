@@ -2,6 +2,7 @@ use crate::backend::display::est_num_frames_to_str;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::convert_to_mono()`]
 pub struct ConvertToMono<S: Source> {
     iter: S,
     iter_num_channels_usize: usize,

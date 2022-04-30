@@ -2,6 +2,7 @@ use crate::backend::display::est_num_frames_to_str;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::select_first_channels()`]
 pub struct SelectChannels<S: Source> {
     iter: S,
     original_num_channels: usize,

@@ -2,6 +2,7 @@ use crate::backend::Signal;
 use crate::backend::Source;
 use crate::backend::display::est_num_frames_to_str;
 
+/// [`Source::stack_channels()`]
 pub struct StackChannels<S1: Source, S2: Source> {
     first: S1,
     second: S2,

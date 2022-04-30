@@ -2,6 +2,7 @@ use crate::backend::display::est_num_frames_to_str;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::scale()`]
 pub struct Scale<S: Source> {
     iter: S,
     constant: f32,

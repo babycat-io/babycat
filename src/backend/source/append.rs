@@ -3,6 +3,7 @@ use crate::backend::Error;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::append()`]
 pub struct Append<S1: Source, S2: Source> {
     first: S1,
     second: S2,

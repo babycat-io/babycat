@@ -3,6 +3,7 @@ use crate::backend::units::frames_to_samples;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::prepend_zeros()`]
 pub struct PrependZeros<S: Source> {
     iter: S,
     num_samples_remaining: usize,

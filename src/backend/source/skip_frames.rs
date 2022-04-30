@@ -3,6 +3,7 @@ use crate::backend::units::frames_to_samples;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::skip_frames()`]
 pub struct SkipFrames<S: Source> {
     iter: S,
     num_samples: usize,

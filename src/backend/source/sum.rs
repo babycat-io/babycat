@@ -3,6 +3,7 @@ use crate::backend::units::frames_to_samples;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::sum()`]
 pub struct Sum<S1: Source, S2: Source> {
     first: S1,
     second: S2,

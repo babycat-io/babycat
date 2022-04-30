@@ -1,6 +1,7 @@
 use crate::backend::display::est_num_frames_to_str;
 use crate::backend::{Signal, Source, Waveform};
 
+/// A wrapper for [`Waveform`] that turns it into a consumable [`Source`] iterator.
 #[derive(Clone, PartialEq)]
 pub struct WaveformSource {
     waveform: Waveform,

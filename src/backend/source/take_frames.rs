@@ -3,6 +3,7 @@ use crate::backend::units::frames_to_samples;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::take_frames()`]
 pub struct TakeFrames<S: Source> {
     iter: S,
     remaining_samples: usize,

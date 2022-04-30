@@ -3,6 +3,7 @@ use crate::backend::units::frames_to_samples;
 use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::append_zeros()`]
 pub struct AppendZeros<S: Source> {
     iter: S,
     drained: bool,
