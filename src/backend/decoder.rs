@@ -182,6 +182,7 @@ pub fn from_file_by_backend<F: Clone + AsRef<Path>>(
     }
 }
 
+#[cfg(feature = "enable-filesystem")]
 #[inline]
 pub fn from_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Box<dyn Decoder>, Error> {
     from_file_by_backend(DEFAULT_DECODING_BACKEND, filename)
