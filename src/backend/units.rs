@@ -1,4 +1,7 @@
 //! Functions for converting from one unit of measurement to another.
+
+#![allow(dead_code)]
+
 use std::time::Duration;
 
 #[inline]

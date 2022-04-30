@@ -92,7 +92,7 @@ mod tests {
         let num_channels: u16 = 2;
         let interleaved_samples: Vec<f32> = (0..100).step_by(10).map(|x| x as f32).collect();
         let waveform = Waveform::new(frame_rate_hz, num_channels, interleaved_samples);
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_eq!(ws.size_hint().0, 10);
         assert_eq!(ws.size_hint().1.unwrap(), 10);
         let collected: Vec<usize> = ws.convert_to_mono().map(|x| x as usize).collect();

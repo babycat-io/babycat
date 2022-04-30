@@ -348,7 +348,7 @@ pub trait Source: Signal + Iterator<Item = f32> + Debug {
     /// let frame_rate_hz: u32 = 44100;
     /// let num_channels: u16 = 3;
     /// let interleaved_samples = vec![-1.0, 1.0, 0.0, -0.5, 0.5, 0.0, -0.5, 0.5, 0.0, -1.0, 1.0, 0.0];
-    /// let s = Waveform::new(frame_rate_hz, num_channels, interleaved_samples).to_source();
+    /// let s = Waveform::new(frame_rate_hz, num_channels, interleaved_samples).into_source();
     ///
     /// // Select the first 2 channels out of a 3-channel `Source`.
     /// let output_samples = s.select_first_channels(2).collect_interleaved_samples();
@@ -374,7 +374,7 @@ pub trait Source: Signal + Iterator<Item = f32> + Debug {
     /// use babycat::{Source, Waveform};
     ///
     /// let interleaved_samples = vec![-1.0, 0.5, -0.5, 0.25, -0.25, 0.125];
-    /// let s = Waveform::new(44100, 2, interleaved_samples).to_source();
+    /// let s = Waveform::new(44100, 2, interleaved_samples).into_source();
     ///
     /// let output_samples = s.convert_to_mono().collect_interleaved_samples();
     ///
@@ -463,7 +463,7 @@ pub trait Source: Signal + Iterator<Item = f32> + Debug {
         Self: Sized,
     {
         let waveform = self.to_waveform();
-        waveform.to_source()
+        waveform.into_source()
     }
 }
 

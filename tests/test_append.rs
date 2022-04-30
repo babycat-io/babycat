@@ -8,7 +8,7 @@ mod test_append {
     fn test_do_nothing() {
         let waveform = new_small_waveform();
 
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_eq!(ws.size_hint(), (30, Some(30)));
 
         let ws = ws.append_zeros(0);

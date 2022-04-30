@@ -1,4 +1,5 @@
 //! Custom assertions and other testing utilities.
+#![allow(dead_code)]
 
 use std::convert::AsRef;
 use std::fmt::Debug;

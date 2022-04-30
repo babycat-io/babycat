@@ -104,7 +104,7 @@ mod tests {
             samples.iter().map(|x| *x as f32).collect(),
         );
 
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_eq!(ws.size_hint().0, 11);
         assert_eq!(ws.size_hint().1.unwrap(), 11);
 

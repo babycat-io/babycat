@@ -8,7 +8,7 @@ mod test_skip_frames {
     fn test_size_hint_1() {
         let waveform = new_small_waveform();
 
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_eq!(ws.size_hint(), (30, Some(30)));
 
         let mut ws = ws.skip_frames(1);

@@ -707,7 +707,7 @@ impl Waveform {
         &self.interleaved_samples
     }
 
-    pub fn to_source(self) -> WaveformSource {
+    pub fn into_source(self) -> WaveformSource {
         WaveformSource::new(self)
     }
 }
