@@ -10,6 +10,7 @@ pub mod resample;
 pub mod build_info;
 pub mod constants;
 pub mod decoder;
+pub mod newtypes;
 pub mod source;
 pub mod symphonia;
 
