@@ -1,6 +1,8 @@
-use crate::backend::signal::Signal;
+use crate::backend::display::est_num_frames_to_str;
+use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::select_first_channels()`]
 pub struct SelectChannels<S: Source> {
     iter: S,
     original_num_channels: usize,
@@ -20,6 +22,20 @@ impl<S: Source> SelectChannels<S> {
             selected_num_channels,
             channel_idx: 0,
         }
+    }
+}
+
+impl<S: Source> std::fmt::Debug for SelectChannels<S> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "SelectChannels {{ {} frames,  {} -> {} channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.original_num_channels,
+            self.selected_num_channels,
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
     }
 }
 
@@ -88,7 +104,7 @@ mod tests {
             samples.iter().map(|x| *x as f32).collect(),
         );
 
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_eq!(ws.size_hint().0, 11);
         assert_eq!(ws.size_hint().1.unwrap(), 11);
 

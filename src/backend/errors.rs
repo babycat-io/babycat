@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[allow(clippy::enum_variant_names)]
 pub enum Error {
     /// Raised when you are trying to use a feature at runtime that was not included at compile-time.
     ///
@@ -73,6 +74,14 @@ pub enum Error {
     FileNotFound(&'static str),
     /// Raised when something else went wrong while doing I/O.
     UnknownIOError,
+    //
+    // Source errors
+    // Raised when we try to append one audio source to another, but they don't have
+    // the same number of channels.
+    CannotAppendSourcesWithDifferentNumChannels(u16, u16),
+    // Raised when we try to append one audio source to another, but they don't have
+    // the same frame rate.
+    CannotAppendSourcesWithDifferentFrameRates(u32, u32),
 }
 
 impl std::error::Error for Error {}
@@ -129,6 +138,16 @@ impl Error {
             Error::FileNotFound(filename) => format!("FileNotFound({})", filename),
 
             Error::UnknownIOError => "UnknownIOError".to_string(),
+
+            Error::CannotAppendSourcesWithDifferentNumChannels(c1, c2) => format!(
+                "CannotAppendSourcesWithDifferentNumChannels({}, {})",
+                c1, c2
+            ),
+
+            Error::CannotAppendSourcesWithDifferentFrameRates(f1, f2) => format!(
+                "CannotAppendSourcesWithDifferentNumChannels({}, {})",
+                f1, f2
+            ),
         }
     }
 }
@@ -180,6 +199,10 @@ impl fmt::Display for Error {
             }
 
             Error::UnknownIOError => write!(f, "Unknown I/O error."),
+
+            Error::CannotAppendSourcesWithDifferentNumChannels(c1, c2) => write!(f, "We cannot append two sources because they have a different number of channels ({} channels and {} channels).", c1, c2),
+
+            Error::CannotAppendSourcesWithDifferentFrameRates(f1, f2) => write!(f, "We cannot append two sources because they have a different frame rates ({} hz and {} hz).", f1, f2)
         }
     }
 }

@@ -1,30 +1,23 @@
-use std::fmt;
 use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
 
 use serde::{Deserialize, Serialize};
 
-use crate::backend::common::milliseconds_to_frames;
-//use crate::backend::constants::*;
 use crate::backend::constants::{
     DEFAULT_END_TIME_MILLISECONDS, DEFAULT_FRAME_RATE_HZ, DEFAULT_NUM_CHANNELS,
     DEFAULT_RESAMPLE_MODE, DEFAULT_START_TIME_MILLISECONDS,
 };
-use crate::backend::decoder::from_encoded_bytes;
-use crate::backend::decoder::from_encoded_bytes_with_hint;
-use crate::backend::decoder::from_encoded_stream;
-use crate::backend::decoder::from_encoded_stream_with_hint;
+use crate::backend::decoder;
+use crate::backend::display::est_num_frames_to_str;
 use crate::backend::errors::Error;
 use crate::backend::resample::resample;
-use crate::backend::signal::Signal;
 use crate::backend::source::WaveformSource;
+use crate::backend::units::milliseconds_to_frames;
 use crate::backend::Decoder;
+use crate::backend::Signal;
 use crate::backend::Source;
 use crate::backend::WaveformArgs;
-
-#[cfg(feature = "enable-filesystem")]
-use crate::backend::decoder::from_file;
 
 /// Represents a fixed-length audio waveform as a `Vec<f32>`.
 #[allow(clippy::unsafe_derive_deserialize)]
@@ -36,14 +29,15 @@ pub struct Waveform {
     num_frames: usize,
 }
 
-// We manually implement the debug trait so that we don't
-// print out giant vectors.
-impl fmt::Debug for Waveform {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl std::fmt::Debug for Waveform {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
-            "Waveform {{ frame_rate_hz: {}, num_channels: {}, num_frames: {}}}",
-            self.frame_rate_hz, self.num_channels, self.num_frames
+            "Waveform {{ {} frames,  {} channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.num_channels(),
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
         )
     }
 }
@@ -58,8 +52,16 @@ impl Waveform {
     }
 
     pub fn from_decoder(args: WaveformArgs, mut decoder: Box<dyn Decoder>) -> Result<Self, Error> {
-        let original_frame_rate_hz = decoder.frame_rate_hz();
-        let original_num_channels = decoder.num_channels();
+        let source: Box<dyn Source + '_> = decoder.begin()?;
+        Self::from_source(args, source)
+    }
+
+    pub fn from_source(
+        args: WaveformArgs,
+        mut source: Box<dyn Source + '_>,
+    ) -> Result<Self, Error> {
+        let original_frame_rate_hz = source.frame_rate_hz();
+        let original_num_channels = source.num_channels();
 
         // If the user has provided an end timestamp that is BEFORE
         // our start timestamp, then we raise an error.
@@ -122,23 +124,16 @@ impl Waveform {
         };
 
         let start_frame_idx =
-            milliseconds_to_frames(original_frame_rate_hz, args.start_time_milliseconds);
+            milliseconds_to_frames(args.start_time_milliseconds, original_frame_rate_hz);
         let end_frame_idx =
-            milliseconds_to_frames(original_frame_rate_hz, args.end_time_milliseconds);
-        let start_sample_idx = start_frame_idx * original_num_channels as usize;
-        let end_sample_idx = end_frame_idx * original_num_channels as usize;
+            milliseconds_to_frames(args.end_time_milliseconds, original_frame_rate_hz);
 
-        let take_samples = if end_sample_idx > start_sample_idx {
-            end_sample_idx - start_sample_idx
-        } else {
-            0
-        };
-        let mut source: Box<dyn Source + '_> = decoder.begin()?;
-        if start_sample_idx != 0 {
-            source = Box::new(source.skip_samples(start_sample_idx));
+        let take_frames = end_frame_idx.saturating_sub(start_frame_idx);
+        if start_frame_idx != 0 {
+            source = Box::new(source.skip_frames(start_frame_idx));
         }
-        if take_samples != 0 {
-            source = Box::new(source.take_samples(take_samples));
+        if take_frames != 0 {
+            source = Box::new(source.take_frames(take_frames));
         }
         if selected_num_channels != original_num_channels {
             source = Box::new(source.select_first_channels(selected_num_channels));
@@ -202,6 +197,7 @@ impl Waveform {
     ///
     /// # Examples
     /// ```
+    /// use babycat::assertions::assert_debug;
     /// use babycat::Waveform;
     ///
     /// let encoded_bytes: Vec<u8> = std::fs::read("audio-for-tests/andreas-theme/track.flac").unwrap();
@@ -212,9 +208,9 @@ impl Waveform {
     ///     &encoded_bytes,
     ///     waveform_args,
     /// ).unwrap();
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 9586415}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 9586415 frames,  2 channels,  44100 hz,  3m 37s 379ms }",
     /// );
     /// ```
     ///
@@ -222,8 +218,9 @@ impl Waveform {
         encoded_bytes: &[u8],
         waveform_args: WaveformArgs,
     ) -> Result<Self, Error> {
-        let decoder = from_encoded_bytes(waveform_args.decoding_backend, encoded_bytes)?;
-        Self::from_decoder(waveform_args, decoder)
+        let d =
+            decoder::from_encoded_bytes_by_backend(waveform_args.decoding_backend, encoded_bytes)?;
+        Self::from_decoder(waveform_args, d)
     }
 
     /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
@@ -242,13 +239,13 @@ impl Waveform {
         file_extension: &str,
         mime_type: &str,
     ) -> Result<Self, Error> {
-        let decoder = from_encoded_bytes_with_hint(
+        let d = decoder::from_encoded_bytes_with_hint_by_backend(
             waveform_args.decoding_backend,
             encoded_bytes,
             file_extension,
             mime_type,
         )?;
-        Self::from_decoder(waveform_args, decoder)
+        Self::from_decoder(waveform_args, d)
     }
 
     /// Decodes audio stored in a locaselect_first_channelsl file.
@@ -266,22 +263,23 @@ impl Waveform {
     /// # Examples
     /// **Decode one audio file with the default decoding arguments:**
     /// ```
-    /// use babycat::{WaveformArgs, Waveform};
+    /// use babycat::{assertions::assert_debug, WaveformArgs, Waveform};
     ///
     /// let waveform = Waveform::from_file(
     ///    "audio-for-tests/circus-of-freaks/track.flac",
     ///     Default::default(),
     /// ).unwrap();
     ///
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491247}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }",
     /// );
+    ///
     /// ```
     ///
     /// **Decode only the first 30 seconds and upsample to 48khz:**
     /// ```
-    /// use babycat::{WaveformArgs, Waveform};
+    /// use babycat::{assertions::assert_debug, WaveformArgs, Waveform};
     ///
     /// let waveform_args = WaveformArgs {
     ///     end_time_milliseconds: 30000,
@@ -293,15 +291,15 @@ impl Waveform {
     ///     waveform_args,
     /// ).unwrap();
     ///
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 48000, num_channels: 2, num_frames: 1440000}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 1440000 frames,  2 channels,  48000 hz,  30s }"    
     /// );
     /// ```
     #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, waveform_args: WaveformArgs) -> Result<Self, Error> {
-        let decoder = from_file(waveform_args.decoding_backend, filename)?;
-        Self::from_decoder(waveform_args, decoder)
+        let d = decoder::from_file_by_backend(waveform_args.decoding_backend, filename)?;
+        Self::from_decoder(waveform_args, d)
     }
 
     /// Decodes audio from an input stream.
@@ -318,8 +316,11 @@ impl Waveform {
         encoded_stream: R,
         waveform_args: WaveformArgs,
     ) -> Result<Self, Error> {
-        let decoder = from_encoded_stream(waveform_args.decoding_backend, encoded_stream)?;
-        Self::from_decoder(waveform_args, decoder)
+        let d = decoder::from_encoded_stream_by_backend(
+            waveform_args.decoding_backend,
+            encoded_stream,
+        )?;
+        Self::from_decoder(waveform_args, d)
     }
 
     /// Decodes audio from an input stream, using a user-specified decoding hint.
@@ -338,13 +339,13 @@ impl Waveform {
         file_extension: &str,
         mime_type: &str,
     ) -> Result<Self, Error> {
-        let decoder = from_encoded_stream_with_hint(
+        let d = decoder::from_encoded_stream_with_hint_by_backend(
             waveform_args.decoding_backend,
             encoded_stream,
             file_extension,
             mime_type,
         )?;
-        Self::from_decoder(waveform_args, decoder)
+        Self::from_decoder(waveform_args, d)
     }
 
     /// Creates a silent waveform measured in frames.
@@ -358,11 +359,12 @@ impl Waveform {
     /// This creates a `Waveform` containing one second of silent *stereo* audio.
     /// ```
     /// use babycat::Waveform;
+    /// use babycat::assertions::assert_debug;
     ///
     /// let waveform = Waveform::from_frames_of_silence(44100, 2, 44100);
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 44100 frames,  2 channels,  44100 hz,  1s }"
     /// );
     /// ```
     ///
@@ -390,11 +392,12 @@ impl Waveform {
     /// This creates a `Waveform` containing one second of silent *stereo* audio.
     /// ```
     /// use babycat::Waveform;
+    /// use babycat::assertions::assert_debug;
     ///
     /// let waveform = Waveform::from_milliseconds_of_silence(44100, 2, 1000);
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 44100 frames,  2 channels,  44100 hz,  1s }",
     /// );
     /// ```
     ///
@@ -403,7 +406,7 @@ impl Waveform {
         num_channels: u16,
         duration_milliseconds: usize,
     ) -> Self {
-        let num_frames = milliseconds_to_frames(frame_rate_hz, duration_milliseconds);
+        let num_frames = milliseconds_to_frames(duration_milliseconds, frame_rate_hz);
         Self::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
     }
 
@@ -414,27 +417,27 @@ impl Waveform {
     ///
     /// # Examples
     /// ```
-    /// use babycat::Waveform;
+    /// use babycat::{assertions::assert_debug, Waveform};
     ///
     /// let waveform = Waveform::from_file(
     ///     "audio-for-tests/circus-of-freaks/track.flac",
     ///     Default::default()
     /// ).unwrap();
-    /// assert_eq!(
-    ///    format!("{:?}", waveform),
-    ///    "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491247}"
+    /// assert_debug(
+    ///    &waveform,
+    ///    "Waveform { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
     /// );
     ///
     /// let upsampled = waveform.resample(96000).unwrap();
-    /// assert_eq!(
-    ///    format!("{:?}", upsampled),
-    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5423123}"
+    /// assert_debug(
+    ///     &upsampled,
+    ///     "Waveform { 5423123 frames,  2 channels,  96000 hz,  56s 490ms }"
     /// );
     ///
     /// let downsampled = waveform.resample(8252).unwrap();
-    /// assert_eq!(
-    ///    format!("{:?}", downsampled),
-    ///    "Waveform { frame_rate_hz: 8252, num_channels: 2, num_frames: 466163}"
+    /// assert_debug(
+    ///     &downsampled,
+    ///     "Waveform { 466163 frames,  2 channels,  8252 hz,  56s 490ms }",
     /// );
     /// ```
     pub fn resample(&self, frame_rate_hz: u32) -> Result<Self, Error> {
@@ -449,15 +452,15 @@ impl Waveform {
     ///
     /// # Examples
     /// ```
-    /// use babycat::Waveform;
+    /// use babycat::{assertions::assert_debug, Waveform};
     ///
     /// let waveform = Waveform::from_file(
     ///     "audio-for-tests/circus-of-freaks/track.flac",
     ///     Default::default()
     /// ).unwrap();
-    /// assert_eq!(
-    ///    format!("{:?}", waveform),
-    ///    "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 2491247}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }",
     /// );
     ///
     /// // Here we upsample our audio to 96khz with the libsamplerate resampler.
@@ -465,9 +468,9 @@ impl Waveform {
     ///     96000,
     ///     babycat::constants::RESAMPLE_MODE_LIBSAMPLERATE
     /// ).unwrap();
-    /// assert_eq!(
-    ///    format!("{:?}", upsampled_libsamplerate),
-    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5423123}"
+    /// assert_debug(
+    ///     &upsampled_libsamplerate,
+    ///     "Waveform { 5423123 frames,  2 channels,  96000 hz,  56s 490ms }",
     /// );
     ///
     /// // And we upsample our audio again with Babycat's Lanczos resampler.
@@ -475,9 +478,9 @@ impl Waveform {
     ///     96000,
     ///     babycat::constants::RESAMPLE_MODE_BABYCAT_LANCZOS
     /// ).unwrap();
-    /// assert_eq!(
-    ///    format!("{:?}", upsampled_lanczos),
-    ///    "Waveform { frame_rate_hz: 96000, num_channels: 2, num_frames: 5423123}"
+    /// assert_debug(
+    ///     &upsampled_lanczos,
+    ///     "Waveform { 5423123 frames,  2 channels,  96000 hz,  56s 490ms }",
     /// );
     /// ```
     pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> Result<Self, Error> {
@@ -570,14 +573,15 @@ impl Waveform {
     /// 44,100 frames containing two samples each.
     /// ```
     /// use babycat::Waveform;
+    /// use babycat::assertions::assert_debug;
     ///
     /// let frame_rate_hz = 44100;
     /// let num_channels = 2;
     /// let raw_uncompressed_audio: Vec<f32> = vec![0.0_f32; 88200];
     /// let waveform = Waveform::new(frame_rate_hz, num_channels, raw_uncompressed_audio);
-    /// assert_eq!(
-    ///     format!("{:?}", waveform),
-    ///     "Waveform { frame_rate_hz: 44100, num_channels: 2, num_frames: 44100}"
+    /// assert_debug(
+    ///     &waveform,
+    ///     "Waveform { 44100 frames,  2 channels,  44100 hz,  1s }",
     /// );
     /// ```
     ///
@@ -677,6 +681,22 @@ impl Waveform {
             .get_unchecked(frame_idx * self.num_channels as usize + channel_idx as usize))
     }
 
+    #[inline]
+    pub fn get_interleaved_sample(&self, sample_idx: usize) -> Option<f32> {
+        self.interleaved_samples.get(sample_idx).copied()
+    }
+
+    /// # Safety
+    /// Because this method does not peform any bounds checks, it is unsafe.
+    #[inline]
+    pub unsafe fn get_unchecked_interleaved_sample(&self, sample_idx: usize) -> f32 {
+        *(self.interleaved_samples.get_unchecked(sample_idx))
+    }
+
+    pub fn num_samples(&self) -> usize {
+        self.interleaved_samples.len()
+    }
+
     /// Returns the total number of decoded frames in the `Waveform`.
     pub fn num_frames(&self) -> usize {
         self.num_frames
@@ -687,12 +707,8 @@ impl Waveform {
         &self.interleaved_samples
     }
 
-    pub fn to_source(&self) -> WaveformSource {
-        WaveformSource::new(
-            &self.interleaved_samples,
-            self.frame_rate_hz,
-            self.num_channels,
-        )
+    pub fn into_source(self) -> WaveformSource {
+        WaveformSource::new(self)
     }
 }
 

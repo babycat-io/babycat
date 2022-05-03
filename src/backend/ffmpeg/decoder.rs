@@ -10,11 +10,11 @@ use ffmpeg_next::util::format::sample::Type::Packed;
 use ffmpeg_next::util::format::sample::Type::Planar;
 use ffmpeg_next::Stream;
 
-use crate::backend::errors::Error;
 use crate::backend::ffmpeg::ffmpeg_init;
 use crate::backend::ffmpeg::FFmpegSource;
-use crate::backend::signal::Signal;
 use crate::backend::Decoder;
+use crate::backend::Error;
+use crate::backend::Signal;
 use crate::backend::Source;
 
 #[inline]

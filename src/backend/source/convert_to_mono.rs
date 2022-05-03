@@ -1,10 +1,25 @@
-use crate::backend::signal::Signal;
+use crate::backend::display::est_num_frames_to_str;
+use crate::backend::Signal;
 use crate::backend::Source;
 
+/// [`Source::convert_to_mono()`]
 pub struct ConvertToMono<S: Source> {
     iter: S,
     iter_num_channels_usize: usize,
     iter_num_channels_f32: f32,
+}
+
+impl<S: Source> std::fmt::Debug for ConvertToMono<S> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "ConvertToMono {{ {} frames,  {} -> 1 channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.num_channels(),
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
+    }
 }
 
 impl<S: Source> ConvertToMono<S> {
@@ -77,7 +92,7 @@ mod tests {
         let num_channels: u16 = 2;
         let interleaved_samples: Vec<f32> = (0..100).step_by(10).map(|x| x as f32).collect();
         let waveform = Waveform::new(frame_rate_hz, num_channels, interleaved_samples);
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_eq!(ws.size_hint().0, 10);
         assert_eq!(ws.size_hint().1.unwrap(), 10);
         let collected: Vec<usize> = ws.convert_to_mono().map(|x| x as usize).collect();

@@ -3,8 +3,9 @@ use symphonia::core::codecs::Decoder as SymphoniaDecoderTrait;
 use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::formats::{FormatReader, Track};
 
+use crate::backend::display::est_num_frames_to_str;
 use crate::backend::errors::Error;
-use crate::backend::signal::Signal;
+use crate::backend::Signal;
 use crate::backend::Source;
 
 pub struct SymphoniaSource<'a> {
@@ -17,6 +18,19 @@ pub struct SymphoniaSource<'a> {
     current_packet_audio_buffer: Option<SampleBuffer<f32>>,
     current_packet_sample_idx: usize,
     error: Result<(), Error>,
+}
+
+impl<'a> std::fmt::Debug for SymphoniaSource<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "SymphoniaSource {{ {} frames,  {} channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.num_channels(),
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
+    }
 }
 
 impl<'a> SymphoniaSource<'a> {

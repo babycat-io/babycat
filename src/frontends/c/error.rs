@@ -46,6 +46,12 @@ pub const ERROR_FILE_NOT_FOUND: u32 = 601;
 /// Returned when something else went wrong while doing I/O.
 pub const ERROR_UNKNOWN_IO_ERROR: u32 = 602;
 
+/// Returned when we try to append two audio sources that have a different number of channels.
+pub const ERROR_CANNOT_APPEND_SOURCES_WITH_DIFFERENT_NUM_CHANNELS: u32 = 701;
+
+/// Returned when we try to append two audio sources that have different frame rates.
+pub const ERROR_CANNOT_APPEND_SOURCES_WITH_DIFFERENT_FRAME_RATES: u32 = 702;
+
 pub fn error_to_num(err: Error) -> u32 {
     match err {
         Error::FeatureNotCompiled(..) => ERROR_FEATURE_NOT_COMPILED,
@@ -85,5 +91,13 @@ pub fn error_to_num(err: Error) -> u32 {
         Error::FileNotFound(..) => ERROR_FILE_NOT_FOUND,
 
         Error::UnknownIOError => ERROR_UNKNOWN_IO_ERROR,
+
+        Error::CannotAppendSourcesWithDifferentNumChannels(..) => {
+            ERROR_CANNOT_APPEND_SOURCES_WITH_DIFFERENT_NUM_CHANNELS
+        }
+
+        Error::CannotAppendSourcesWithDifferentFrameRates(..) => {
+            ERROR_CANNOT_APPEND_SOURCES_WITH_DIFFERENT_FRAME_RATES
+        }
     }
 }

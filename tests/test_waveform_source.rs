@@ -30,7 +30,7 @@ mod test_waveform_source {
     #[test]
     fn test_circus_of_freaks_default_1() {
         let waveform = Waveform::from_file(COF_FILENAME, Default::default()).unwrap();
-        let mut ws = waveform.to_source();
+        let mut ws = waveform.into_source();
         assert_ws(&ws, COF_NUM_CHANNELS, COF_FRAME_RATE_HZ, COF_NUM_SAMPLES);
         ws.next();
         assert_ws(
@@ -62,7 +62,7 @@ mod test_waveform_source {
         let num_frames: usize = 101;
         let num_samples: usize = num_frames * num_channels as usize;
         let waveform = Waveform::from_frames_of_silence(frame_rate_hz, num_channels, num_frames);
-        let ws = waveform.to_source();
+        let ws = waveform.into_source();
         assert_ws(&ws, num_channels, frame_rate_hz, num_samples);
     }
 }

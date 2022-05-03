@@ -32,6 +32,7 @@ symphonia = { version = "0.5.0",  features = [ "aac", "alac", "flac", "mp3",
 base64 = "0.13"
 float-cmp= "0.9"
 hound = "3.4"
+humantime = "2.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 log = { version = "0.4", features = ["serde"]}
@@ -131,6 +132,16 @@ frontend-c = [
     "enable-multithreading",
     "enable-libsamplerate",
 ]
+
+
+
+# == docs.rs documentation metadata ==
+[package.metadata.docs.rs]
+# When building Rust documentation to publish on docs.rs,
+# enable the FFmpeg features.
+features = ["frontend-rust", "enable-ffmpeg-build"]
+all-features = false
+no-default-features = false
 
 
 

@@ -1,58 +1,101 @@
-use crate::backend::{Signal, Source};
+use crate::backend::display::est_num_frames_to_str;
+use crate::backend::{Signal, Source, Waveform};
 
-pub struct WaveformSource<'a> {
-    interleaved_samples: &'a [f32],
-    frame_rate_hz: u32,
-    num_channels: u16,
+/// A wrapper for [`Waveform`] that turns it into a consumable [`Source`] iterator.
+#[derive(Clone, PartialEq)]
+pub struct WaveformSource {
+    waveform: Waveform,
     current_sample: usize,
 }
 
-impl<'a> WaveformSource<'a> {
-    pub fn new(interleaved_samples: &'a [f32], frame_rate_hz: u32, num_channels: u16) -> Self {
-        Self {
-            interleaved_samples,
-            frame_rate_hz,
-            num_channels,
-            current_sample: 0,
-        }
+impl std::fmt::Debug for WaveformSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "WaveformSource {{ {} frames,  {} channels,  {} hz,  {} }}",
+            est_num_frames_to_str(self.num_frames_estimate()),
+            self.num_channels(),
+            self.frame_rate_hz(),
+            self.duration_estimate_to_str(),
+        )
     }
 }
 
-impl<'a> Source for WaveformSource<'a> {}
+impl WaveformSource {
+    #[inline]
+    pub fn from_interleaved_samples(
+        frame_rate_hz: u32,
+        num_channels: u16,
+        interleaved_samples: &[f32],
+    ) -> Self {
+        Self::new(Waveform::from_interleaved_samples(
+            frame_rate_hz,
+            num_channels,
+            interleaved_samples,
+        ))
+    }
 
-impl<'a> Signal for WaveformSource<'a> {
+    #[inline]
+    pub fn new(waveform: Waveform) -> Self {
+        Self {
+            waveform,
+            current_sample: 0,
+        }
+    }
+
+    #[inline]
+    pub fn remaining_samples(&self) -> usize {
+        self.waveform
+            .num_samples()
+            .saturating_sub(self.current_sample)
+    }
+
+    #[inline]
+    pub fn remaining_frames(&self) -> usize {
+        self.remaining_samples() / self.waveform.num_channels() as usize
+    }
+}
+
+impl From<Waveform> for WaveformSource {
+    fn from(waveform: Waveform) -> WaveformSource {
+        WaveformSource::new(waveform)
+    }
+}
+
+impl Source for WaveformSource {}
+
+impl Signal for WaveformSource {
     #[inline]
     fn frame_rate_hz(&self) -> u32 {
-        self.frame_rate_hz
+        self.waveform.frame_rate_hz()
     }
 
     #[inline]
     fn num_channels(&self) -> u16 {
-        self.num_channels
+        self.waveform.num_channels()
     }
 
     #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
-        let remaining_samples: usize = self.interleaved_samples.len() - self.current_sample;
-        Some(remaining_samples / self.num_channels as usize)
+        Some(self.remaining_frames())
     }
 }
 
-impl<'a> Iterator for WaveformSource<'a> {
+impl Iterator for WaveformSource {
     type Item = f32;
 
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
-        let diff = self.interleaved_samples.len() - self.current_sample;
-        (diff, Some(diff))
+        let remaining = self.remaining_samples();
+        (remaining, Some(remaining))
     }
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
-        if self.current_sample >= self.interleaved_samples.len() {
+        if self.current_sample >= self.waveform.num_samples() {
             return None;
         }
-        let retval: Option<Self::Item> = Some(self.interleaved_samples[self.current_sample]);
+        let retval = self.waveform.get_interleaved_sample(self.current_sample);
         self.current_sample += 1;
         retval
     }

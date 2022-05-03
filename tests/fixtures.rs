@@ -83,3 +83,10 @@ pub const ALL_FRAME_RATE_HZ: &[u32] = &[
     TMS_FRAME_RATE_HZ,
     VR_FRAME_RATE_HZ,
 ];
+
+pub fn new_small_waveform() -> babycat::Waveform {
+    let frame_rate_hz: u32 = 1234;
+    let num_channels: u16 = 3;
+    let interleaved_samples: Vec<f32> = (0..30_usize).map(|x| x as f32).collect();
+    babycat::Waveform::new(frame_rate_hz, num_channels, interleaved_samples)
+}
