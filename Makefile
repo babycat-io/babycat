@@ -5,7 +5,7 @@ ifeq ($(PROFILE),release)
 	WASM_PROFILE_FLAG:=$(PROFILE_FLAG)
 else
 	ifeq ($(PROFILE),debug)
-		PROFILE_FLAG :=
+		PROFILE_FLAG:=
 		WASM_PROFILE_FLAG:=--dev
 	else
 		PROFILE_FLAG:=--profile=$(PROFILE)
@@ -353,7 +353,7 @@ fmt-check-python: .b/init-python-dev
 .PHONY: fmt-check-python
 
 fmt-check-rust: .b/init-cargo-fmt
-	$(CARGO) fmt -- --check
+	$(CARGO) fmt --check
 .PHONY: fmt-check-rust
 
 fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
