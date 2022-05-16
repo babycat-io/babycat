@@ -1,6 +1,9 @@
 ![Babycat Logo](https://static.neocrym.com/images/babycat/v1/2x/babycat-body-icon-dark-social-media-cover--2x.png "Babycat Logo")
 
 # Babycat is an audio decoding and manipulation library
+[![Rustdoc status](https://docs.rs/babycat/badge.svg)](https://docs.rs/crate/babycat)
+[![crates.io status](https://img.shields.io/crates/v/babycat.svg)](https://crates.io/crates/babycat)
+[![Rust dependency status](https://deps.rs/repo/github/babycat-io/babycat/status.svg)](https://deps.rs/repo/github/babycat-io/babycat)
 
 ## Features
 
