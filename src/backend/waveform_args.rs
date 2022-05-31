@@ -90,7 +90,7 @@ pub struct WaveformArgs {
     /// Sets which audio decoding backend to use.
     /// Currently the only available decoding backend is
     /// [`DECODING_BACKEND_SYMPHONIA`](crate::constants::DECODING_BACKEND_SYMPHONIA), which
-    /// corresponds to the [`SymphoniaDecoder`](crate::symphonia::SymphoniaDecoder), which
+    /// corresponds to the [`SymphoniaDecoder`](crate::decoder::SymphoniaDecoder), which
     /// is a wrapper for the [`symphonia`](https://github.com/pdeljanov/Symphonia/) library.
     pub decoding_backend: u32,
 }

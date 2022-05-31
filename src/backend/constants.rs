@@ -31,10 +31,10 @@ pub const RESAMPLE_MODE_BABYCAT_LANCZOS: u32 = 2;
 /// Use this value to resample audio with Babycat's sinc resampler.
 pub const RESAMPLE_MODE_BABYCAT_SINC: u32 = 3;
 
-/// Sets the decoding backend as [`SymphoniaDecoder`](crate::symphonia::SymphoniaDecoder).
+/// Sets the decoding backend as [`SymphoniaDecoder`](crate::decoder::SymphoniaDecoder).
 pub const DECODING_BACKEND_SYMPHONIA: u32 = 1;
 
-/// Sets the decoding backend as [`FFmpegDecoder`](crate::ffmpeg::FFmpegDecoder).
+/// Sets the decoding backend as [`FFmpegDecoder`](crate::decoder::FFmpegDecoder).
 #[allow(dead_code)]
 pub const DECODING_BACKEND_FFMPEG: u32 = 2;
 

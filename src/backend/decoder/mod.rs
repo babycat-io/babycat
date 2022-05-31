@@ -1,3 +1,46 @@
+//! Iterators that decode encoded audio files or
+//! streams into a [`Source`] yielding `f32` samples.
+//!
+//! # Examples
+//! ## Using [`SymphoniaDecoder`]
+//!
+//! ```
+//! // Decoders typically require importing the Source and Signal traits.
+//! use babycat::{Source, Signal};
+//! use babycat::decoder::SymphoniaDecoder;
+//!
+//! // Begin decoding an audio file.
+//! let filename = "audio-for-tests/circus-of-freaks/track.flac";
+//! let mut decoder = SymphoniaDecoder::from_file(filename).expect("decoding error");
+//!
+//! // Get properties about the audio.
+//! assert_eq!(decoder.frame_rate_hz(), 44100);
+//! assert_eq!(decoder.num_channels(), 2);
+//! assert_eq!(decoder.num_frames_estimate(), Some(2491247));
+//!
+//! // Decoders are iterators. Let's get the first two audio samples.
+//! let sample1: Option<f32> = decoder.next();
+//! let sample2: Option<f32> = decoder.next();
+//!
+//! // Iterate over the decoder, storing all of the samples in-memory, except
+//! // the above two we iterated over.
+//! let waveform: babycat::Waveform = decoder.to_waveform();
+//! ```
+//!
+//! ## Using the default decoder
+//! Some decoding backends, like [`FFmpegDecoder`], can be included or
+//! excluded at compile-time via Cargo features. If you do not know
+//! which audio decoders will be available to you, you can request
+//! the "default" decoding backend:
+//! ```
+//! use babycat::{Source, Signal};
+//! use babycat::decoder;
+//!
+//! let filename = "audio-for-tests/circus-of-freaks/track.flac";
+//! let d = decoder::from_file(filename).expect("decoding failed");
+//! assert_eq!(d.num_frames_estimate(), Some(2491247));
+//! ```
+//!
 #![allow(dead_code)]
 
 #[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
@@ -37,7 +80,7 @@ pub fn from_encoded_stream_with_hint_by_backend<R: 'static + Read + Send + Sync>
                 mime_type,
             )?))
         }
-        _ => Err(Error::FeatureNotCompiled("decoding-backend-1")),
+        _ => Err(Error::FeatureNotCompiled("unknown-decoding-backend")),
     }
 }
 
@@ -149,10 +192,10 @@ pub fn from_file_by_backend<F: Clone + AsRef<Path>>(
             }
             #[cfg(not(feature = "enable-ffmpeg"))]
             {
-                Err(Error::FeatureNotCompiled("decoding-backend-2"))
+                Err(Error::FeatureNotCompiled("ffmpeg"))
             }
         }
-        _ => Err(Error::FeatureNotCompiled("decoding-backend-3")),
+        _ => Err(Error::FeatureNotCompiled("unknown-decoding-backend")),
     }
 }
 
