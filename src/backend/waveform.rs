@@ -14,7 +14,6 @@ use crate::backend::errors::Error;
 use crate::backend::resample::resample;
 use crate::backend::source::WaveformSource;
 use crate::backend::units::milliseconds_to_frames;
-use crate::backend::Decoder;
 use crate::backend::Signal;
 use crate::backend::Source;
 use crate::backend::WaveformArgs;
@@ -49,11 +48,6 @@ impl Waveform {
         interleaved_samples: &[f32],
     ) -> Self {
         Self::new(frame_rate_hz, num_channels, interleaved_samples.to_owned())
-    }
-
-    pub fn from_decoder(args: WaveformArgs, mut decoder: Box<dyn Decoder>) -> Result<Self, Error> {
-        let source: Box<dyn Source + '_> = decoder.begin()?;
-        Self::from_source(args, source)
     }
 
     pub fn from_source(
@@ -220,7 +214,7 @@ impl Waveform {
     ) -> Result<Self, Error> {
         let d =
             decoder::from_encoded_bytes_by_backend(waveform_args.decoding_backend, encoded_bytes)?;
-        Self::from_decoder(waveform_args, d)
+        Self::from_source(waveform_args, d)
     }
 
     /// Decodes audio in an in-memory byte array, using user-specified encoding hints.
@@ -245,7 +239,7 @@ impl Waveform {
             file_extension,
             mime_type,
         )?;
-        Self::from_decoder(waveform_args, d)
+        Self::from_source(waveform_args, d)
     }
 
     /// Decodes audio stored in a locaselect_first_channelsl file.
@@ -299,7 +293,7 @@ impl Waveform {
     #[cfg(feature = "enable-filesystem")]
     pub fn from_file(filename: &str, waveform_args: WaveformArgs) -> Result<Self, Error> {
         let d = decoder::from_file_by_backend(waveform_args.decoding_backend, filename)?;
-        Self::from_decoder(waveform_args, d)
+        Self::from_source(waveform_args, d)
     }
 
     /// Decodes audio from an input stream.
@@ -320,7 +314,7 @@ impl Waveform {
             waveform_args.decoding_backend,
             encoded_stream,
         )?;
-        Self::from_decoder(waveform_args, d)
+        Self::from_source(waveform_args, d)
     }
 
     /// Decodes audio from an input stream, using a user-specified decoding hint.
@@ -345,7 +339,7 @@ impl Waveform {
             file_extension,
             mime_type,
         )?;
-        Self::from_decoder(waveform_args, d)
+        Self::from_source(waveform_args, d)
     }
 
     /// Creates a silent waveform measured in frames.

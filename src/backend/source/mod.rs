@@ -41,33 +41,31 @@ pub trait Source: Signal + Iterator<Item = f32> + Debug {
     ///
     /// ```
     /// use babycat::assertions::assert_debug;
-    /// use babycat::{symphonia::SymphoniaDecoder, Source, Signal, Waveform};
+    /// use babycat::{decoder::SymphoniaDecoder, Source, Signal, Waveform};
     ///
     /// // Load the FIRST audio file as a source.
     /// let f1 = "audio-for-tests/circus-of-freaks/track.flac";
     /// let mut d1 = SymphoniaDecoder::from_file(f1).unwrap();
-    /// let s1 = d1.begin().unwrap();
     /// assert_debug(
-    ///     &s1,
-    ///     "SymphoniaSource { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
+    ///     &d1,
+    ///     "SymphoniaDecoder { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
     /// );
     ///
     /// // Load the SECOND audio file as a source.
     /// let f2 = "audio-for-tests/andreas-theme/track.flac";
     /// let mut d2 = SymphoniaDecoder::from_file(f2).unwrap();
-    /// let s2 = d2.begin().unwrap();
     /// assert_debug(
-    ///     &s2,
-    ///     "SymphoniaSource { 9586415 frames,  2 channels,  44100 hz,  3m 37s 379ms }"
+    ///     &d2,
+    ///     "SymphoniaDecoder { 9586415 frames,  2 channels,  44100 hz,  3m 37s 379ms }"
     /// );
     ///
     /// // Append the second audio file AFTER the first audio file.
     /// // The new length (in frames) is the sum of the two audio files' lengths.
-    /// let s1_s2 = s1.append(s2).unwrap();
+    /// let d1_d2 = d1.append(d2).unwrap();
     ///
     /// // Test that it works.
     /// assert_debug(
-    ///     &s1_s2,
+    ///     &d1_d2,
     ///     "Append { 2491247 + 9586415 = 12077662 frames,  2 channels,  44100 hz,  4m 33s 869ms }"
     /// );
     /// ```
@@ -405,19 +403,18 @@ pub trait Source: Signal + Iterator<Item = f32> + Debug {
     /// # Examples
     /// ```
     /// use babycat::assertions::assert_debug;
-    /// use babycat::{symphonia::SymphoniaDecoder, Source, Signal};
+    /// use babycat::{decoder::SymphoniaDecoder, Source, Signal};
     ///
-    /// // Decode an audio file into a `SymphoniaSource` iterator.
+    /// // Decode an audio file into a `SymphoniaDecoder` iterator.
     /// let mut decoder = SymphoniaDecoder::from_file("audio-for-tests/circus-of-freaks/track.flac").unwrap();
-    /// let source = decoder.begin().unwrap();
     /// assert_debug(
-    ///     &source,
-    ///     "SymphoniaSource { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
+    ///     &decoder,
+    ///     "SymphoniaDecoder { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
     /// );
     ///
-    /// // Convert the `SymphoniaSource` iterator into a `Waveform` struct,
+    /// // Convert the `SymphoniaDecoder` iterator into a `Waveform` struct,
     /// // which loads all of the audio samples into memory.
-    /// let waveform = source.to_waveform();
+    /// let waveform = decoder.to_waveform();
     /// assert_debug(
     ///     &waveform,
     ///     "Waveform { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
@@ -439,19 +436,18 @@ pub trait Source: Signal + Iterator<Item = f32> + Debug {
     /// # Examples
     /// ```
     /// use babycat::assertions::assert_debug;
-    /// use babycat::{symphonia::SymphoniaDecoder, Source, Signal};
+    /// use babycat::{decoder::SymphoniaDecoder, Source, Signal};
     ///
-    /// // Decode an audio file into a `SymphoniaSource` iterator.
+    /// // Decode an audio file into a `SymphoniaDecoder` iterator.
     /// let mut decoder = SymphoniaDecoder::from_file("audio-for-tests/circus-of-freaks/track.flac").unwrap();
-    /// let source = decoder.begin().unwrap();
     /// assert_debug(
-    ///     &source,
-    ///     "SymphoniaSource { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
+    ///     &decoder,
+    ///     "SymphoniaDecoder { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
     /// );
     ///
-    /// // Convert the `SymphoniaSource` iterator into a `WaveformSource` iterator,
+    /// // Convert the `SymphoniaDecoder` iterator into a `WaveformSource` iterator,
     /// // which loads all of the audio samples into memory.
-    /// let waveform_source = source.to_waveform_source();
+    /// let waveform_source = decoder.to_waveform_source();
     /// assert_debug(
     ///     &waveform_source,
     ///     "WaveformSource { 2491247 frames,  2 channels,  44100 hz,  56s 490ms }"
