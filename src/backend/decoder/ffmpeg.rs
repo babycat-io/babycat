@@ -91,10 +91,11 @@ fn get_first_working_audio_stream(input: &FFInput) -> Result<(FFStream, FFDecode
 #[inline]
 unsafe fn get_sample_packed<T: Sample>(
     sample_buffer: &FFSamplesBuffer,
+    num_channels: usize,
     frame_idx: usize,
     channel_idx: usize,
 ) -> f32 {
-    let sample_idx: usize = frame_idx * sample_buffer.channels() as usize + channel_idx;
+    let sample_idx: usize = frame_idx * num_channels + channel_idx;
     // When audio is in a "packed" format, FFmpeg stores
     // each sample interleaved in the first data plane.
     let plane_ptr: *const T = (*sample_buffer.as_ptr()).data[0] as *const T;
@@ -126,14 +127,28 @@ unsafe fn get_sample_planar<T: Sample>(
 ///
 /// This function checks whether the frame's sample format is packed or planar.
 #[inline]
-unsafe fn get_sample(sample_buffer: &FFSamplesBuffer, frame_idx: usize, channel_idx: usize) -> f32 {
-    match sample_buffer.format() {
+unsafe fn get_sample(
+    sample_buffer: &FFSamplesBuffer,
+    sample_format: FFSampleFormat,
+    num_channels: usize,
+    frame_idx: usize,
+    channel_idx: usize,
+) -> f32 {
+    match sample_format {
         //
         // Packed
-        I16(Packed) => get_sample_packed::<i16>(sample_buffer, frame_idx, channel_idx),
-        I32(Packed) => get_sample_packed::<i32>(sample_buffer, frame_idx, channel_idx),
-        F32(Packed) => get_sample_packed::<f32>(sample_buffer, frame_idx, channel_idx),
-        F64(Packed) => get_sample_packed::<f64>(sample_buffer, frame_idx, channel_idx),
+        I16(Packed) => {
+            get_sample_packed::<i16>(sample_buffer, num_channels, frame_idx, channel_idx)
+        }
+        I32(Packed) => {
+            get_sample_packed::<i32>(sample_buffer, num_channels, frame_idx, channel_idx)
+        }
+        F32(Packed) => {
+            get_sample_packed::<f32>(sample_buffer, num_channels, frame_idx, channel_idx)
+        }
+        F64(Packed) => {
+            get_sample_packed::<f64>(sample_buffer, num_channels, frame_idx, channel_idx)
+        }
         //
         // Planar
         I16(Planar) => get_sample_planar::<i16>(sample_buffer, frame_idx, channel_idx),
@@ -156,10 +171,14 @@ fn sample_format_is_supported(format: FFSampleFormat) -> bool {
 pub struct FFmpegDecoder {
     input: FFInput,
     decoder: FFDecoder,
+    sample_format: FFSampleFormat,
     stream_index: usize,
+    frame_rate_hz: u32,
+    num_channels: usize,
     num_samples_remaining: usize,
     packet: Option<FFPacket>,
     samples_buffer: Option<FFSamplesBuffer>,
+    buf_num_frames: usize,
     buf_frame_idx: usize,
     buf_channel_idx: usize,
 }
@@ -180,10 +199,12 @@ impl std::fmt::Debug for FFmpegDecoder {
 impl FFmpegDecoder {
     fn from_ff_input(input: FFInput) -> Result<Self, Error> {
         let (stream, decoder) = get_first_working_audio_stream(&input)?;
-        if !sample_format_is_supported(decoder.format()) {
+        let sample_format = decoder.format();
+        if !sample_format_is_supported(sample_format) {
             // TODO: Replace with an error about the invalid sample format.
             return Err(Error::UnknownDecodeError);
         }
+        let frame_rate_hz = decoder.rate();
         let num_channels = decoder.channels() as usize;
         let num_samples_remaining = estimate_num_frames(&stream, &decoder) * num_channels;
 
@@ -191,10 +212,14 @@ impl FFmpegDecoder {
         let mut new_self = Self {
             input,
             decoder,
+            sample_format,
             stream_index,
+            frame_rate_hz,
+            num_channels,
             num_samples_remaining,
             packet: None,
             samples_buffer: None,
+            buf_num_frames: 0,
             buf_frame_idx: 0,
             buf_channel_idx: 0,
         };
@@ -240,11 +265,36 @@ impl FFmpegDecoder {
 
     #[inline]
     fn next_samples_buffer(&mut self) -> Option<FFSamplesBuffer> {
+        self.buf_channel_idx = 0;
+        self.buf_frame_idx = 0;
         let mut fsb = FFSamplesBuffer::empty();
         if self.decoder.receive_frame(&mut fsb).is_err() {
+            self.buf_num_frames = 0;
             return None;
         }
+        self.buf_num_frames = fsb.samples();
         Some(fsb)
+    }
+
+    #[inline]
+    unsafe fn next_sample(&mut self) -> f32 {
+        let samples_buffer: &FFSamplesBuffer = self.samples_buffer.as_ref().unwrap_unchecked();
+        let sample: f32 = get_sample(
+            samples_buffer,
+            self.sample_format,
+            self.num_channels,
+            self.buf_frame_idx,
+            self.buf_channel_idx,
+        );
+        // If we have reached the last channel in the current frame,
+        // then move onto the next frame.
+        self.buf_channel_idx += 1;
+        self.num_samples_remaining = self.num_samples_remaining.saturating_sub(1);
+        if self.buf_channel_idx >= self.num_channels {
+            self.buf_frame_idx += 1;
+            self.buf_channel_idx = 0;
+        }
+        sample
     }
 }
 
@@ -253,18 +303,18 @@ impl Source for FFmpegDecoder {}
 impl Signal for FFmpegDecoder {
     #[inline]
     fn frame_rate_hz(&self) -> u32 {
-        self.decoder.rate()
+        self.frame_rate_hz
     }
 
+    #[allow(clippy::cast_possible_truncation)]
     #[inline]
     fn num_channels(&self) -> u16 {
-        self.decoder.channels()
+        self.num_channels as u16
     }
 
     #[inline]
     fn num_frames_estimate(&self) -> Option<usize> {
-        let num_channels = self.decoder.channels() as usize;
-        Some(self.num_samples_remaining / num_channels)
+        Some(self.num_samples_remaining / self.num_channels)
     }
 }
 
@@ -279,42 +329,27 @@ impl Iterator for FFmpegDecoder {
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            match &mut self.samples_buffer {
-                None => {
-                    // If the samples buffer is None, then get the next packet.
-                    self.packet = self.next_packet();
-                    // If the packet is None, then we return None.
-                    self.packet.as_ref()?;
-                    // If the packet is Some, then we get the next samples buffer.
-                    self.samples_buffer = self.next_samples_buffer();
-                    continue;
-                }
-                Some(samples_buffer) => {
-                    let buf_num_frames = samples_buffer.samples();
-                    if self.buf_frame_idx < buf_num_frames {
-                        // If we have not reached the end of the sample buffer,
-                        // then get the next sample.
-                        let sample: f32 = unsafe {
-                            get_sample(samples_buffer, self.buf_frame_idx, self.buf_channel_idx)
-                        };
-                        self.buf_channel_idx += 1;
-                        self.num_samples_remaining = self.num_samples_remaining.saturating_sub(1);
-                        // If we have reached the last channel in the current frame,
-                        // then move onto the next frame.
-                        let num_channels = samples_buffer.channels() as usize;
-                        if self.buf_channel_idx >= num_channels {
-                            self.buf_frame_idx += 1;
-                            self.buf_channel_idx = 0;
-                        }
-                        return Some(sample);
-                    }
-                    // If we have reached the end of the current sample buffer,
-                    // then we fetch the next buffer.
-                    self.samples_buffer = self.next_samples_buffer();
-                    self.buf_channel_idx = 0;
-                    self.buf_frame_idx = 0;
-                }
+            // If we have not reached the end of the sample buffer,
+            // then get the next sample.
+            if self.buf_frame_idx < self.buf_num_frames {
+                let sample: f32 = unsafe { self.next_sample() };
+                return Some(sample);
             }
+
+            // We exhausted our previous samples buffer. We need a new one.
+            self.samples_buffer = self.next_samples_buffer();
+            if self.samples_buffer.is_some() {
+                continue;
+            }
+
+            // We exhausted our packet. We need a new one.
+            self.packet = self.next_packet();
+            if self.packet.is_some() {
+                continue;
+            }
+
+            // There are no more packets. We are done.
+            return None;
         }
     }
 }
