@@ -353,9 +353,7 @@ fmt-check-python: .b/init-python-dev
 .PHONY: fmt-check-python
 
 fmt-check-rust: .b/init-cargo-fmt
-	$(CARGO) fmt --help || true
-	$(CARGO) fmt --check || true
-	$(CARGO) fmt -- --check || true
+	$(CARGO) fmt -- --check
 .PHONY: fmt-check-rust
 
 fmt-check: fmt-check-c fmt-check-javascript fmt-check-python fmt-check-rust
