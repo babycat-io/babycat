@@ -13,9 +13,9 @@ However, in order to compile Babycat and run tests, there are some software pack
 Requirements for compiling Babycat
 ----------------------------------
 
-Rust 1.56 or newer
+Rust 1.61 or newer
 ^^^^^^^^^^^^^^^^^^
-Babycat is written for stable Rust, targeting 1.56.0 or newer. You can install Rust with `rustup <https://www.rust-lang.org/tools/install>`_.
+Babycat is written for stable Rust, targeting 1.61.0 or newer. You can install Rust with `rustup <https://www.rust-lang.org/tools/install>`_.
 
 cbindgen
 ^^^^^^^^
