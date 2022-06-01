@@ -87,78 +87,6 @@ fn get_first_working_audio_stream(input: &FFInput) -> Result<(FFStream, FFDecode
     Err(Error::NoSuitableAudioStreams(num_found_streams))
 }
 
-/// Retrieve an individual audio sample from a **PACKED** FFmpeg frame.
-#[inline]
-unsafe fn get_sample_packed<T: Sample>(
-    sample_buffer: &FFSamplesBuffer,
-    num_channels: usize,
-    frame_idx: usize,
-    channel_idx: usize,
-) -> f32 {
-    let sample_idx: usize = frame_idx * num_channels + channel_idx;
-    // When audio is in a "packed" format, FFmpeg stores
-    // each sample interleaved in the first data plane.
-    let plane_ptr: *const T = (*sample_buffer.as_ptr()).data[0] as *const T;
-    let sample: T = *plane_ptr.add(sample_idx);
-    sample.as_f32_sample()
-}
-
-/// Retrieve an individual audio sample from a **PLANAR** FFmpeg frame.
-#[inline]
-unsafe fn get_sample_planar<T: Sample>(
-    sample_buffer: &FFSamplesBuffer,
-    frame_idx: usize,
-    channel_idx: usize,
-) -> f32 {
-    // When audio is stored in a "planar" format, FFmpeg
-    // stores the first eight planes in the `.data` attribute.
-    // If there are more than 8 planes, all of them are
-    // available in the `.extended_data` attribute.
-    // If there are not more than 8 planes, then
-    // `.extended_data` just points to `.data`.
-    let extended_data_ptr: *const *const T =
-        (*sample_buffer.as_ptr()).extended_data as *const *const T;
-    let plane_ptr: *const T = *extended_data_ptr.add(channel_idx);
-    let sample: T = *plane_ptr.add(frame_idx);
-    sample.as_f32_sample()
-}
-
-/// Retrieve an individual audio sample from an FFmpeg frame.
-///
-/// This function checks whether the frame's sample format is packed or planar.
-#[inline]
-unsafe fn get_sample(
-    sample_buffer: &FFSamplesBuffer,
-    sample_format: FFSampleFormat,
-    num_channels: usize,
-    frame_idx: usize,
-    channel_idx: usize,
-) -> f32 {
-    match sample_format {
-        //
-        // Packed
-        I16(Packed) => {
-            get_sample_packed::<i16>(sample_buffer, num_channels, frame_idx, channel_idx)
-        }
-        I32(Packed) => {
-            get_sample_packed::<i32>(sample_buffer, num_channels, frame_idx, channel_idx)
-        }
-        F32(Packed) => {
-            get_sample_packed::<f32>(sample_buffer, num_channels, frame_idx, channel_idx)
-        }
-        F64(Packed) => {
-            get_sample_packed::<f64>(sample_buffer, num_channels, frame_idx, channel_idx)
-        }
-        //
-        // Planar
-        I16(Planar) => get_sample_planar::<i16>(sample_buffer, frame_idx, channel_idx),
-        I32(Planar) => get_sample_planar::<i32>(sample_buffer, frame_idx, channel_idx),
-        F32(Planar) => get_sample_planar::<f32>(sample_buffer, frame_idx, channel_idx),
-        F64(Planar) => get_sample_planar::<f64>(sample_buffer, frame_idx, channel_idx),
-        _ => panic!("FFmpegDecoder cannot decode the sample type."),
-    }
-}
-
 /// Returns `true` if the given FFmpeg sample format is supported by Babycat.
 #[inline]
 fn sample_format_is_supported(format: FFSampleFormat) -> bool {
@@ -209,7 +137,7 @@ impl FFmpegDecoder {
         let num_samples_remaining = estimate_num_frames(&stream, &decoder) * num_channels;
 
         let stream_index = stream.index();
-        let mut new_self = Self {
+        Ok(Self {
             input,
             decoder,
             sample_format,
@@ -222,9 +150,7 @@ impl FFmpegDecoder {
             buf_num_frames: 0,
             buf_frame_idx: 0,
             buf_channel_idx: 0,
-        };
-        new_self.packet = new_self.next_packet();
-        Ok(new_self)
+        })
     }
 
     pub fn from_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Self, Error> {
@@ -276,16 +202,57 @@ impl FFmpegDecoder {
         Some(fsb)
     }
 
+    /// Retrieve an individual audio sample from a **PACKED** FFmpeg frame.
+    #[inline]
+    unsafe fn get_sample_packed<T: Sample>(&self) -> f32 {
+        let samples_buffer: &FFSamplesBuffer = self.samples_buffer.as_ref().unwrap_unchecked();
+        let sample_idx: usize = self.buf_frame_idx * self.num_channels + self.buf_channel_idx;
+        // When audio is in a "packed" format, FFmpeg stores
+        // each sample interleaved in the first data plane.
+        let plane_ptr: *const T = (*samples_buffer.as_ptr()).data[0] as *const T;
+        let sample: T = *plane_ptr.add(sample_idx);
+        sample.as_f32_sample()
+    }
+
+    /// Retrieve an individual audio sample from a **PLANAR** FFmpeg frame.
+    #[inline]
+    unsafe fn get_sample_planar<T: Sample>(&self) -> f32 {
+        let samples_buffer: &FFSamplesBuffer = self.samples_buffer.as_ref().unwrap_unchecked();
+        // When audio is stored in a "planar" format, FFmpeg
+        // stores the first eight planes in the `.data` attribute.
+        // If there are more than 8 planes, all of them are
+        // available in the `.extended_data` attribute.
+        // If there are not more than 8 planes, then
+        // `.extended_data` just points to `.data`.
+        let extended_data_ptr: *const *const T =
+            (*samples_buffer.as_ptr()).extended_data as *const *const T;
+        let plane_ptr: *const T = *extended_data_ptr.add(self.buf_channel_idx);
+        let sample: T = *plane_ptr.add(self.buf_frame_idx);
+        sample.as_f32_sample()
+    }
+
+    #[inline]
+    unsafe fn get_sample(&self) -> f32 {
+        match self.sample_format {
+            //
+            // Packed
+            I16(Packed) => self.get_sample_packed::<i16>(),
+            I32(Packed) => self.get_sample_packed::<i32>(),
+            F32(Packed) => self.get_sample_packed::<f32>(),
+            F64(Packed) => self.get_sample_packed::<f64>(),
+            //
+            // Planar
+            I16(Planar) => self.get_sample_planar::<i16>(),
+            I32(Planar) => self.get_sample_planar::<i32>(),
+            F32(Planar) => self.get_sample_planar::<f32>(),
+            F64(Planar) => self.get_sample_planar::<f64>(),
+            _ => panic!("FFmpegDecoder cannot decode the sample type."),
+        }
+    }
+
     #[inline]
     unsafe fn next_sample(&mut self) -> f32 {
-        let samples_buffer: &FFSamplesBuffer = self.samples_buffer.as_ref().unwrap_unchecked();
-        let sample: f32 = get_sample(
-            samples_buffer,
-            self.sample_format,
-            self.num_channels,
-            self.buf_frame_idx,
-            self.buf_channel_idx,
-        );
+        let sample: f32 = self.get_sample();
         // If we have reached the last channel in the current frame,
         // then move onto the next frame.
         self.buf_channel_idx += 1;
