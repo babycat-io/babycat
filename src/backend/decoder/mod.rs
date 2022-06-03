@@ -1,64 +1,86 @@
+//! Iterators that decode encoded audio files or
+//! streams into a [`Source`] yielding `f32` samples.
+//!
+//! # Examples
+//! ## Using [`SymphoniaDecoder`]
+//!
+//! ```
+//! // Decoders typically require importing the Source and Signal traits.
+//! use babycat::{Source, Signal};
+//! use babycat::decoder::SymphoniaDecoder;
+//!
+//! // Begin decoding an audio file.
+//! let filename = "audio-for-tests/circus-of-freaks/track.flac";
+//! let mut decoder = SymphoniaDecoder::from_file(filename).expect("decoding error");
+//!
+//! // Get properties about the audio.
+//! assert_eq!(decoder.frame_rate_hz(), 44100);
+//! assert_eq!(decoder.num_channels(), 2);
+//! assert_eq!(decoder.num_frames_estimate(), Some(2491247));
+//!
+//! // Decoders are iterators. Let's get the first two audio samples.
+//! let sample1: Option<f32> = decoder.next();
+//! let sample2: Option<f32> = decoder.next();
+//!
+//! // Iterate over the decoder, storing all of the samples in-memory, except
+//! // the above two we iterated over.
+//! let waveform: babycat::Waveform = decoder.to_waveform();
+//! ```
+//!
+//! ## Using the default decoder
+//! Some decoding backends, like [`FFmpegDecoder`], can be included or
+//! excluded at compile-time via Cargo features. If you do not know
+//! which audio decoders will be available to you, you can request
+//! the "default" decoding backend:
+//! ```
+//! use babycat::{Source, Signal};
+//! use babycat::decoder;
+//!
+//! let filename = "audio-for-tests/circus-of-freaks/track.flac";
+//! let d = decoder::from_file(filename).expect("decoding failed");
+//! assert_eq!(d.num_frames_estimate(), Some(2491247));
+//! ```
+//!
 #![allow(dead_code)]
 
-#[cfg(feature = "enable-filesystem")]
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+mod ffmpeg;
+
+mod symphonia;
+
+#[cfg(all(feature = "enable-filesystem", feature = "enable-ffmpeg"))]
+pub use ffmpeg::FFmpegDecoder;
+
+pub use self::symphonia::SymphoniaDecoder;
+
 use std::convert::AsRef;
-#[cfg(feature = "enable-filesystem")]
-use std::path::Path;
-
-use crate::backend::constants;
-
+use std::io::Cursor;
 use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
+use std::path::Path;
 
+use crate::backend::constants;
 use crate::backend::Error;
-use crate::backend::Signal;
 use crate::backend::Source;
 
-/// Methods common to all audio decoders.
-pub trait Decoder: Signal {
-    fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error>;
-}
-
-impl Decoder for Box<dyn Decoder> {
-    #[inline]
-    fn begin(&mut self) -> Result<Box<dyn Source + '_>, Error> {
-        (&mut **self).begin()
-    }
-}
-
-impl Signal for Box<dyn Decoder> {
-    #[inline]
-    fn frame_rate_hz(&self) -> u32 {
-        (&**self).frame_rate_hz()
-    }
-
-    #[inline]
-    fn num_channels(&self) -> u16 {
-        (&**self).num_channels()
-    }
-
-    #[inline]
-    fn num_frames_estimate(&self) -> Option<usize> {
-        (&**self).num_frames_estimate()
-    }
-}
+type DecoderResult = Result<Box<dyn Source>, Error>;
 
 pub fn from_encoded_stream_with_hint_by_backend<R: 'static + Read + Send + Sync>(
     decoding_backend: u32,
     encoded_stream: R,
     file_extension: &str,
     mime_type: &str,
-) -> Result<Box<dyn Decoder>, Error> {
+) -> DecoderResult {
     match decoding_backend {
         constants::DEFAULT_DECODING_BACKEND | constants::DECODING_BACKEND_SYMPHONIA => {
-            crate::backend::symphonia::SymphoniaDecoder::from_encoded_stream_with_hint(
+            Ok(Box::new(SymphoniaDecoder::from_encoded_stream_with_hint(
                 encoded_stream,
                 file_extension,
                 mime_type,
-            )
+            )?))
         }
-        _ => Err(Error::FeatureNotCompiled("decoding-backend-1")),
+        _ => Err(Error::FeatureNotCompiled("unknown-decoding-backend")),
     }
 }
 
@@ -66,7 +88,7 @@ pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
     encoded_stream: R,
     file_extension: &str,
     mime_type: &str,
-) -> Result<Box<dyn Decoder>, Error> {
+) -> DecoderResult {
     from_encoded_stream_with_hint_by_backend(
         constants::DEFAULT_DECODING_BACKEND,
         encoded_stream,
@@ -78,7 +100,7 @@ pub fn from_encoded_stream_with_hint<R: 'static + Read + Send + Sync>(
 pub fn from_encoded_stream_by_backend<R: 'static + Read + Send + Sync>(
     decoding_backend: u32,
     encoded_stream: R,
-) -> Result<Box<dyn Decoder>, Error> {
+) -> DecoderResult {
     from_encoded_stream_with_hint_by_backend(
         decoding_backend,
         encoded_stream,
@@ -88,9 +110,7 @@ pub fn from_encoded_stream_by_backend<R: 'static + Read + Send + Sync>(
 }
 
 #[inline]
-pub fn from_encoded_stream<R: 'static + Read + Send + Sync>(
-    encoded_stream: R,
-) -> Result<Box<dyn Decoder>, Error> {
+pub fn from_encoded_stream<R: 'static + Read + Send + Sync>(encoded_stream: R) -> DecoderResult {
     from_encoded_stream_by_backend(constants::DEFAULT_DECODING_BACKEND, encoded_stream)
 }
 
@@ -100,9 +120,9 @@ pub fn from_encoded_bytes_with_hint_by_backend(
     encoded_bytes: &[u8],
     file_extension: &str,
     mime_type: &str,
-) -> Result<Box<dyn Decoder>, Error> {
+) -> DecoderResult {
     let owned = encoded_bytes.to_owned();
-    let encoded_stream = std::io::Cursor::new(owned);
+    let encoded_stream = Cursor::new(owned);
     from_encoded_stream_with_hint_by_backend(
         decoding_backend,
         encoded_stream,
@@ -116,7 +136,7 @@ pub fn from_encoded_bytes_with_hint(
     encoded_bytes: &[u8],
     file_extension: &str,
     mime_type: &str,
-) -> Result<Box<dyn Decoder>, Error> {
+) -> DecoderResult {
     from_encoded_bytes_with_hint_by_backend(
         constants::DEFAULT_DECODING_BACKEND,
         encoded_bytes,
@@ -126,10 +146,7 @@ pub fn from_encoded_bytes_with_hint(
 }
 
 #[inline]
-pub fn from_encoded_bytes_by_backend(
-    decoding_backend: u32,
-    encoded_bytes: &[u8],
-) -> Result<Box<dyn Decoder>, Error> {
+pub fn from_encoded_bytes_by_backend(decoding_backend: u32, encoded_bytes: &[u8]) -> DecoderResult {
     from_encoded_bytes_with_hint_by_backend(
         decoding_backend,
         encoded_bytes,
@@ -139,7 +156,7 @@ pub fn from_encoded_bytes_by_backend(
 }
 
 #[inline]
-pub fn from_encoded_bytes(encoded_bytes: &[u8]) -> Result<Box<dyn Decoder>, Error> {
+pub fn from_encoded_bytes(encoded_bytes: &[u8]) -> DecoderResult {
     from_encoded_bytes_with_hint_by_backend(
         constants::DEFAULT_DECODING_BACKEND,
         encoded_bytes,
@@ -152,38 +169,38 @@ pub fn from_encoded_bytes(encoded_bytes: &[u8]) -> Result<Box<dyn Decoder>, Erro
 pub fn from_file_by_backend<F: Clone + AsRef<Path>>(
     decoding_backend: u32,
     filename: F,
-) -> Result<Box<dyn Decoder>, Error> {
+) -> DecoderResult {
     #[allow(clippy::match_same_arms)]
     match decoding_backend {
         constants::DEFAULT_DECODING_BACKEND => {
             #[cfg(feature = "enable-ffmpeg")]
             {
-                crate::backend::ffmpeg::FFmpegDecoder::from_file(filename)
+                Ok(Box::new(FFmpegDecoder::from_file(filename)?))
             }
             #[cfg(not(feature = "enable-ffmpeg"))]
             {
-                crate::backend::symphonia::SymphoniaDecoder::from_file(filename)
+                Ok(Box::new(SymphoniaDecoder::from_file(filename)?))
             }
         }
         constants::DECODING_BACKEND_SYMPHONIA => {
-            crate::backend::symphonia::SymphoniaDecoder::from_file(filename)
+            Ok(Box::new(SymphoniaDecoder::from_file(filename)?))
         }
         constants::DECODING_BACKEND_FFMPEG => {
             #[cfg(feature = "enable-ffmpeg")]
             {
-                crate::backend::ffmpeg::FFmpegDecoder::from_file(filename)
+                Ok(Box::new(FFmpegDecoder::from_file(filename)?))
             }
             #[cfg(not(feature = "enable-ffmpeg"))]
             {
-                Err(Error::FeatureNotCompiled("decoding-backend-2"))
+                Err(Error::FeatureNotCompiled("ffmpeg"))
             }
         }
-        _ => Err(Error::FeatureNotCompiled("decoding-backend-3")),
+        _ => Err(Error::FeatureNotCompiled("unknown-decoding-backend")),
     }
 }
 
 #[cfg(feature = "enable-filesystem")]
 #[inline]
-pub fn from_file<F: Clone + AsRef<Path>>(filename: F) -> Result<Box<dyn Decoder>, Error> {
+pub fn from_file<F: Clone + AsRef<Path>>(filename: F) -> DecoderResult {
     from_file_by_backend(constants::DEFAULT_DECODING_BACKEND, filename)
 }

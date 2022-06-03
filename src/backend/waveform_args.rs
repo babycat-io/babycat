@@ -90,7 +90,7 @@ pub struct WaveformArgs {
     /// Sets which audio decoding backend to use.
     /// Currently the only available decoding backend is
     /// [`DECODING_BACKEND_SYMPHONIA`](crate::constants::DECODING_BACKEND_SYMPHONIA), which
-    /// corresponds to the [`SymphoniaDecoder`](crate::symphonia::SymphoniaDecoder), which
+    /// corresponds to the [`SymphoniaDecoder`](crate::decoder::SymphoniaDecoder), which
     /// is a wrapper for the [`symphonia`](https://github.com/pdeljanov/Symphonia/) library.
     pub decoding_backend: u32,
 }
@@ -113,48 +113,56 @@ impl Default for WaveformArgs {
 
 impl WaveformArgs {
     /// Set the [`start_time_milliseconds`](#structfield.start_time_milliseconds) field.
+    #[must_use]
     pub fn set_start_time_milliseconds(&mut self, start_time_milliseconds: usize) -> Self {
         self.start_time_milliseconds = start_time_milliseconds;
         *self
     }
 
     /// Set the [`end_time_milliseconds`](#structfield.end_time_milliseconds) field.
+    #[must_use]
     pub fn set_end_time_milliseconds(&mut self, end_time_milliseconds: usize) -> Self {
         self.end_time_milliseconds = end_time_milliseconds;
         *self
     }
 
     /// Set the [`frame_rate_hz`](#structfield.frame_rate_hz) field.
+    #[must_use]
     pub fn set_frame_rate_hz(&mut self, frame_rate_hz: u32) -> Self {
         self.frame_rate_hz = frame_rate_hz;
         *self
     }
 
     /// Set the [`num_channels`](#structfield.num_channels) field.
+    #[must_use]
     pub fn set_num_channels(&mut self, num_channels: u16) -> Self {
         self.num_channels = num_channels;
         *self
     }
 
     /// Set the [`convert_to_mono`](#structfield.convert_to_mono) field.
+    #[must_use]
     pub fn set_convert_to_mono(&mut self, convert_to_mono: bool) -> Self {
         self.convert_to_mono = convert_to_mono;
         *self
     }
 
     /// Set the [`zero_pad_ending`](#structfield.zero_pad_ending) field.
+    #[must_use]
     pub fn set_zero_pad_ending(&mut self, zero_pad_ending: bool) -> Self {
         self.zero_pad_ending = zero_pad_ending;
         *self
     }
 
     /// Set the [`resample_mode`](#structfield.resample_mode) field.
+    #[must_use]
     pub fn set_resample_mode(&mut self, resample_mode: u32) -> Self {
         self.resample_mode = resample_mode;
         *self
     }
 
     /// Set the [`decoding_backend`](#structfield.decoding_backend) field.
+    #[must_use]
     pub fn set_decoding_backend(&mut self, decoding_backend: u32) -> Self {
         self.decoding_backend = decoding_backend;
         *self
