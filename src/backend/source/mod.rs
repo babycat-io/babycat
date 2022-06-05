@@ -31,7 +31,7 @@ use crate::backend::Signal;
 use crate::backend::Waveform;
 
 /// A sample iterator created by an audio decoder.
-pub trait Source: Signal + Iterator<Item = f32> + Debug {
+pub trait Source: Signal + Iterator<Item = f32> + Debug + Send {
     /// Append one [`Source`] after another [`Source`].
     ///
     /// Both Sources are required to have the same frame rate and number
