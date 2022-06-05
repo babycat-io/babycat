@@ -1,3 +1,4 @@
+use either::{Either, Either::Left, Either::Right};
 use std::time::Duration;
 
 use crate::backend::display::duration_estimate_to_str;
@@ -23,5 +24,52 @@ pub trait Signal {
     /// A string representation of this [`Signal`]'s wall-clock duration.
     fn duration_estimate_to_str(&self) -> String {
         duration_estimate_to_str(self.duration_estimate())
+    }
+}
+
+/// This allows us to use the [`Either`] enum for [`Signal`] objects.
+impl<L, R> Signal for Either<L, R>
+where
+    L: Signal,
+    R: Signal,
+{
+    #[inline]
+    fn frame_rate_hz(&self) -> u32 {
+        match self {
+            Left(left) => left.frame_rate_hz(),
+            Right(right) => right.frame_rate_hz(),
+        }
+    }
+
+    #[inline]
+    fn num_channels(&self) -> u16 {
+        match self {
+            Left(left) => left.num_channels(),
+            Right(right) => right.num_channels(),
+        }
+    }
+
+    #[inline]
+    fn num_frames_estimate(&self) -> Option<usize> {
+        match self {
+            Left(left) => left.num_frames_estimate(),
+            Right(right) => right.num_frames_estimate(),
+        }
+    }
+
+    #[inline]
+    fn duration_estimate(&self) -> Option<Duration> {
+        match self {
+            Left(left) => left.duration_estimate(),
+            Right(right) => right.duration_estimate(),
+        }
+    }
+
+    #[inline]
+    fn duration_estimate_to_str(&self) -> String {
+        match self {
+            Left(left) => left.duration_estimate_to_str(),
+            Right(right) => right.duration_estimate_to_str(),
+        }
     }
 }

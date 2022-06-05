@@ -2,6 +2,7 @@ use std::io::Read;
 use std::marker::Send;
 use std::marker::Sync;
 
+use either::Either::{Left, Right};
 use serde::{Deserialize, Serialize};
 
 use crate::backend::constants::{
@@ -50,10 +51,7 @@ impl Waveform {
         Self::new(frame_rate_hz, num_channels, interleaved_samples.to_owned())
     }
 
-    pub fn from_source(
-        args: WaveformArgs,
-        mut source: Box<dyn Source + '_>,
-    ) -> Result<Self, Error> {
+    pub fn from_source(args: WaveformArgs, source: Box<dyn Source + '_>) -> Result<Self, Error> {
         let original_frame_rate_hz = source.frame_rate_hz();
         let original_num_channels = source.num_channels();
 
@@ -123,18 +121,35 @@ impl Waveform {
             milliseconds_to_frames(args.end_time_milliseconds, original_frame_rate_hz);
 
         let take_frames = end_frame_idx.saturating_sub(start_frame_idx);
-        if start_frame_idx != 0 {
-            source = Box::new(source.skip_frames(start_frame_idx));
-        }
-        if take_frames != 0 {
-            source = Box::new(source.take_frames(take_frames));
-        }
-        if selected_num_channels != original_num_channels {
-            source = Box::new(source.select_first_channels(selected_num_channels));
-        }
-        if args.convert_to_mono {
-            source = Box::new(source.convert_to_mono());
-        }
+
+        // Skip frames.
+        let source = if start_frame_idx != 0 {
+            Left(source.skip_frames(start_frame_idx))
+        } else {
+            Right(source)
+        };
+
+        // Take frames.
+        let source = if take_frames != 0 {
+            Left(source.take_frames(take_frames))
+        } else {
+            Right(source)
+        };
+
+        // Select the first n channels.
+        let source = if selected_num_channels != original_num_channels {
+            Left(source.select_first_channels(selected_num_channels))
+        } else {
+            Right(source)
+        };
+
+        // Convert to mono.
+        let source = if args.convert_to_mono {
+            Left(source.convert_to_mono())
+        } else {
+            Right(source)
+        };
+
         let mut interleaved_samples: Vec<f32> = source.collect();
 
         // Pad the waveform if necessary.

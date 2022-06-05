@@ -2,6 +2,8 @@
 
 use std::fmt::Debug;
 
+use either::Either;
+
 mod append;
 mod append_zeros;
 mod convert_to_mono;
@@ -480,4 +482,12 @@ impl Signal for Box<dyn Source + '_> {
     fn num_frames_estimate(&self) -> Option<usize> {
         (&**self).num_frames_estimate()
     }
+}
+
+/// This allows us to use [`Either`] enums containing [`Source`] objects.
+impl<L, R> Source for Either<L, R>
+where
+    L: Source,
+    R: Source,
+{
 }
