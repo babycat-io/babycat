@@ -25,13 +25,13 @@ pub fn compiled_with_ffmpeg() -> bool {
 /// Returns `true` if Babycat was statically linked to an existing copy of FFmpeg.
 #[inline]
 pub fn compiled_with_ffmpeg_link_static() -> bool {
-    cfg!(feature = "enable-ffmpeg-link-static")
+    cfg!(feature = "enable-ffmpeg-static")
 }
 
 /// Returns `true` if Babycat compiled its own copy of FFmpeg.
 #[inline]
 pub fn compiled_with_ffmpeg_build_link_static() -> bool {
-    cfg!(feature = "enable-ffmpeg-build-link-static")
+    cfg!(feature = "enable-ffmpeg-build")
 }
 
 const MIT_LICENSE: &str = "MIT";
