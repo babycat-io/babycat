@@ -140,7 +140,7 @@ frontend-c = [
 [package.metadata.docs.rs]
 # When building Rust documentation to publish on docs.rs,
 # enable the FFmpeg features.
-features = ["frontend-rust", "enable-ffmpeg-build"]
+features = ["frontend-rust"]
 all-features = false
 no-default-features = false
 
