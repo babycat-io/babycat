@@ -1,9 +1,9 @@
-use numpy::PyArray2;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use rayon::prelude::*;
 
 use crate::backend::Waveform;
+use crate::frontends::python::waveform::PyArraySamples;
 
 /// Uses multithreading in Rust to decode many audio files in parallel.
 ///
@@ -164,6 +164,7 @@ use crate::backend::Waveform;
 #[allow(clippy::too_many_arguments)]
 #[allow(clippy::needless_pass_by_value)]
 pub fn waveforms_from_files(
+    py: Python<'_>,
     filenames: Vec<String>,
     start_time_milliseconds: usize,
     end_time_milliseconds: usize,
@@ -176,23 +177,26 @@ pub fn waveforms_from_files(
     decoding_backend: u32,
     num_workers: usize,
 ) -> Vec<crate::frontends::python::waveform_named_result::WaveformNamedResult> {
-    let waveform_args = crate::backend::WaveformArgs {
-        start_time_milliseconds,
-        end_time_milliseconds,
-        frame_rate_hz,
-        num_channels,
-        convert_to_mono,
-        zero_pad_ending,
-        repeat_pad_ending,
-        resample_mode,
-        decoding_backend,
-    };
-    let batch_args = crate::backend::BatchArgs { num_workers };
-    let filenames_ref: Vec<&str> = filenames.iter().map(String::as_str).collect();
-    crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
+    let waveform_named_results = py.allow_threads(move || {
+        let waveform_args = crate::backend::WaveformArgs {
+            start_time_milliseconds,
+            end_time_milliseconds,
+            frame_rate_hz,
+            num_channels,
+            convert_to_mono,
+            zero_pad_ending,
+            repeat_pad_ending,
+            resample_mode,
+            decoding_backend,
+        };
+        let batch_args = crate::backend::BatchArgs { num_workers };
+        let filenames_ref: Vec<&str> = filenames.iter().map(String::as_str).collect();
+        crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
+    });
+    waveform_named_results
         .into_iter()
         .map(crate::frontends::python::waveform_named_result::WaveformNamedResult::from)
-        .collect::<Vec<crate::frontends::python::waveform_named_result::WaveformNamedResult>>()
+        .collect()
 }
 
 /// Uses multithreading in Rust to decode many audio files in parallel,
@@ -312,6 +316,7 @@ pub fn waveforms_from_files(
 #[allow(clippy::too_many_arguments)]
 #[allow(clippy::needless_pass_by_value)]
 pub fn waveforms_from_files_into_numpys(
+    py: Python<'_>,
     filenames: Vec<String>,
     start_time_milliseconds: usize,
     end_time_milliseconds: usize,
@@ -324,22 +329,25 @@ pub fn waveforms_from_files_into_numpys(
     decoding_backend: u32,
     num_workers: usize,
 ) -> Vec<crate::frontends::python::numpy_named_result::NumPyNamedResult> {
-    let waveform_args = crate::backend::WaveformArgs {
-        start_time_milliseconds,
-        end_time_milliseconds,
-        frame_rate_hz,
-        num_channels,
-        convert_to_mono,
-        zero_pad_ending,
-        repeat_pad_ending,
-        resample_mode,
-        decoding_backend,
-    };
-    let batch_args = crate::backend::BatchArgs { num_workers };
-    let filenames_ref: Vec<&str> = filenames.iter().map(String::as_str).collect();
-    crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
+    let waveform_named_results = py.allow_threads(move || {
+        let waveform_args = crate::backend::WaveformArgs {
+            start_time_milliseconds,
+            end_time_milliseconds,
+            frame_rate_hz,
+            num_channels,
+            convert_to_mono,
+            zero_pad_ending,
+            repeat_pad_ending,
+            resample_mode,
+            decoding_backend,
+        };
+        let batch_args = crate::backend::BatchArgs { num_workers };
+        let filenames_ref: Vec<&str> = filenames.iter().map(String::as_str).collect();
+        crate::backend::batch::waveforms_from_files(&filenames_ref, waveform_args, batch_args)
+    });
+    waveform_named_results
         .into_iter()
-        .map(crate::frontends::python::numpy_named_result::NumPyNamedResult::from)
+        .map(|wnr| wnr.into_py(py))
         .collect::<Vec<crate::frontends::python::numpy_named_result::NumPyNamedResult>>()
 }
 
@@ -457,6 +465,7 @@ pub fn waveforms_from_files_into_numpys(
 #[allow(clippy::too_many_arguments)]
 #[allow(clippy::needless_pass_by_value)]
 pub fn waveforms_from_files_into_numpys_unwrapped(
+    py: Python<'_>,
     filenames: Vec<String>,
     start_time_milliseconds: usize,
     end_time_milliseconds: usize,
@@ -468,33 +477,32 @@ pub fn waveforms_from_files_into_numpys_unwrapped(
     resample_mode: u32,
     decoding_backend: u32,
     num_workers: usize,
-) -> Vec<Py<PyArray2<f32>>> {
-    let waveform_args = crate::backend::WaveformArgs {
-        start_time_milliseconds,
-        end_time_milliseconds,
-        frame_rate_hz,
-        num_channels,
-        convert_to_mono,
-        zero_pad_ending,
-        repeat_pad_ending,
-        resample_mode,
-        decoding_backend,
-    };
-    let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
-        .num_threads(num_workers)
-        .build()
-        .unwrap();
-
-    let waveforms: Vec<Waveform> = thread_pool.install(|| {
-        filenames
-            .par_iter()
-            .map(|filename| Waveform::from_file(filename, waveform_args).unwrap())
-            .collect()
+) -> Vec<PyArraySamples> {
+    let waveforms: Vec<Waveform> = py.allow_threads(move || {
+        let waveform_args = crate::backend::WaveformArgs {
+            start_time_milliseconds,
+            end_time_milliseconds,
+            frame_rate_hz,
+            num_channels,
+            convert_to_mono,
+            zero_pad_ending,
+            repeat_pad_ending,
+            resample_mode,
+            decoding_backend,
+        };
+        let thread_pool: rayon::ThreadPool = rayon::ThreadPoolBuilder::new()
+            .num_threads(num_workers)
+            .build()
+            .unwrap();
+        thread_pool.install(|| {
+            filenames
+                .par_iter()
+                .map(|filename| Waveform::from_file(filename, waveform_args).unwrap())
+                .collect()
+        })
     });
-    let waveform_arrays: Vec<Py<PyArray2<f32>>> = waveforms
-        .into_iter()
-        .map(std::convert::Into::into)
-        .collect();
+    let waveform_arrays: Vec<PyArraySamples> =
+        waveforms.into_iter().map(|w| w.into_py(py)).collect();
     waveform_arrays
 }
 
