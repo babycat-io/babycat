@@ -1,5 +1,6 @@
-use numpy::PyArray2;
 use pyo3::prelude::*;
+
+use crate::frontends::python::waveform::PyArraySamples;
 
 /// A container for decoding operations that may have succeeded or failed.
 ///
@@ -15,7 +16,7 @@ pub struct NumPyNamedResult {
     pub name: String,
     /// A :py:class:`numpy.ndarray` if decoding succeeded... or ``None`` if decoding failed.
     #[pyo3(get)]
-    pub array: Option<Py<PyArray2<f32>>>,
+    pub array: Option<PyArraySamples>,
     error: Option<crate::backend::Error>,
 }
 
@@ -32,16 +33,16 @@ impl NumPyNamedResult {
     }
 }
 
-impl From<crate::backend::WaveformNamedResult> for NumPyNamedResult {
-    fn from(inner: crate::backend::WaveformNamedResult) -> Self {
-        match inner.result {
-            Ok(waveform) => Self {
-                name: inner.name,
-                array: Some(waveform.into()),
+impl IntoPy<NumPyNamedResult> for crate::backend::WaveformNamedResult {
+    fn into_py(self, py: Python<'_>) -> NumPyNamedResult {
+        match self.result {
+            Ok(waveform) => NumPyNamedResult {
+                name: self.name,
+                array: Some(waveform.into_py(py)),
                 error: None,
             },
-            Err(err) => Self {
-                name: inner.name,
+            Err(err) => NumPyNamedResult {
+                name: self.name,
                 array: None,
                 error: Some(err),
             },

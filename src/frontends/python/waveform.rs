@@ -4,20 +4,7 @@ use pyo3::types::PyByteArray;
 
 use crate::backend::Signal;
 
-impl From<crate::backend::Waveform> for Py<PyArray2<f32>> {
-    fn from(waveform: crate::backend::Waveform) -> Py<PyArray2<f32>> {
-        let num_frames: usize = waveform.num_frames();
-        let num_channels: usize = waveform.num_channels() as usize;
-        Python::with_gil(|py| {
-            let interleaved_samples: Vec<f32> = waveform.into();
-            interleaved_samples
-                .into_pyarray(py)
-                .reshape([num_frames, num_channels])
-                .unwrap()
-                .into()
-        })
-    }
-}
+pub type PyArraySamples = Py<PyArray2<f32>>;
 
 /// An in-memory audio waveform.
 #[pyclass(module = "babycat")]
@@ -32,6 +19,32 @@ impl From<crate::backend::Waveform> for Waveform {
     }
 }
 
+///
+/// # Panics
+/// This function panics if we cannot create a NumPy array of shape
+/// `.(num_frames, num_channels)`.
+pub fn interleaved_samples_to_pyarray(
+    py: Python<'_>,
+    num_channels: u16,
+    num_frames: usize,
+    interleaved_samples: Vec<f32>,
+) -> PyArraySamples {
+    interleaved_samples
+        .into_pyarray(py)
+        .reshape([num_frames, num_channels as usize])
+        .unwrap()
+        .into()
+}
+
+impl IntoPy<PyArraySamples> for crate::backend::Waveform {
+    fn into_py(self, py: Python<'_>) -> PyArraySamples {
+        let num_channels = self.num_channels();
+        let num_frames = self.num_frames();
+        let interleaved_samples: Vec<f32> = self.into();
+        interleaved_samples_to_pyarray(py, num_channels, num_frames, interleaved_samples)
+    }
+}
+
 impl std::fmt::Display for Waveform {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -41,24 +54,6 @@ impl std::fmt::Display for Waveform {
             self.inner.num_channels(),
             self.inner.frame_rate_hz(),
         )
-    }
-}
-
-fn waveform_result_to_pyresult(
-    result: Result<crate::backend::Waveform, crate::backend::Error>,
-) -> PyResult<Waveform> {
-    match result {
-        Ok(waveform) => Ok(waveform.into()),
-        Err(error) => Err(error.into()),
-    }
-}
-
-fn waveform_result_to_numpy_pyresult(
-    result: Result<crate::backend::Waveform, crate::backend::Error>,
-) -> PyResult<Py<PyArray2<f32>>> {
-    match result {
-        Ok(waveform) => Ok(waveform.into()),
-        Err(error) => Err(error.into()),
     }
 }
 
@@ -96,12 +91,19 @@ impl Waveform {
         num_frames,
     )")]
     pub fn from_frames_of_silence(
+        py: Python<'_>,
         frame_rate_hz: u32,
         num_channels: u16,
         num_frames: usize,
     ) -> Self {
-        crate::backend::Waveform::from_frames_of_silence(frame_rate_hz, num_channels, num_frames)
-            .into()
+        py.allow_threads(move || {
+            crate::backend::Waveform::from_frames_of_silence(
+                frame_rate_hz,
+                num_channels,
+                num_frames,
+            )
+        })
+        .into()
     }
 
     /// Creates a silent waveform measured in milliseconds.
@@ -136,15 +138,18 @@ impl Waveform {
         duration_milliseconds,
     )")]
     pub fn from_milliseconds_of_silence(
+        py: Python<'_>,
         frame_rate_hz: u32,
         num_channels: u16,
         duration_milliseconds: usize,
     ) -> Self {
-        crate::backend::Waveform::from_milliseconds_of_silence(
-            frame_rate_hz,
-            num_channels,
-            duration_milliseconds,
-        )
+        py.allow_threads(move || {
+            crate::backend::Waveform::from_milliseconds_of_silence(
+                frame_rate_hz,
+                num_channels,
+                duration_milliseconds,
+            )
+        })
         .into()
     }
 
@@ -183,11 +188,15 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_interleaved_samples(
+        py: Python<'_>,
         frame_rate_hz: u32,
         num_channels: u16,
         interleaved_samples: Vec<f32>,
     ) -> Self {
-        crate::backend::Waveform::new(frame_rate_hz, num_channels, interleaved_samples).into()
+        py.allow_threads(move || {
+            crate::backend::Waveform::new(frame_rate_hz, num_channels, interleaved_samples)
+        })
+        .into()
     }
 
     /// Creates a :py:class:`Waveform` from a two-dimensional NumPy ``float32`` array.
@@ -227,14 +236,18 @@ impl Waveform {
         arr,
     )")]
     #[allow(clippy::needless_pass_by_value)]
-    pub fn from_numpy(frame_rate_hz: u32, arr: PyReadonlyArray2<f32>) -> PyResult<Self> {
+    pub fn from_numpy(
+        py: Python<'_>,
+        frame_rate_hz: u32,
+        arr: PyReadonlyArray2<f32>,
+    ) -> PyResult<Self> {
         #[allow(clippy::cast_possible_truncation)]
         let num_channels: u16 = arr.shape()[1] as u16;
-        waveform_result_to_pyresult(Ok(crate::backend::Waveform::new(
-            frame_rate_hz,
-            num_channels,
-            arr.to_vec().unwrap(),
-        )))
+        let interleaved_samples: Vec<f32> = arr.to_vec().unwrap();
+        let waveform = py.allow_threads(move || {
+            crate::backend::Waveform::new(frame_rate_hz, num_channels, interleaved_samples)
+        });
+        Ok(waveform.into())
     }
 
     /// Decodes audio stored as ``bytes``.
@@ -407,6 +420,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_encoded_bytes(
+        py: Python<'_>,
         encoded_bytes: &[u8],
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
@@ -420,23 +434,27 @@ impl Waveform {
         file_extension: &str,
         mime_type: &str,
     ) -> PyResult<Self> {
-        let waveform_args = crate::backend::WaveformArgs {
-            start_time_milliseconds,
-            end_time_milliseconds,
-            frame_rate_hz,
-            num_channels,
-            convert_to_mono,
-            zero_pad_ending,
-            repeat_pad_ending,
-            resample_mode,
-            decoding_backend,
-        };
-        waveform_result_to_pyresult(crate::backend::Waveform::from_encoded_bytes_with_hint(
-            encoded_bytes,
-            waveform_args,
-            file_extension,
-            mime_type,
-        ))
+        let wr = py.allow_threads(move || {
+            let waveform_args = crate::backend::WaveformArgs {
+                start_time_milliseconds,
+                end_time_milliseconds,
+                frame_rate_hz,
+                num_channels,
+                convert_to_mono,
+                zero_pad_ending,
+                repeat_pad_ending,
+                resample_mode,
+                decoding_backend,
+            };
+            crate::backend::Waveform::from_encoded_bytes_with_hint(
+                encoded_bytes,
+                waveform_args,
+                file_extension,
+                mime_type,
+            )
+        });
+        let waveform = wr?;
+        Ok(waveform.into())
     }
 
     /// Decodes audio stored as ``bytes``, directly returning a NumPy array.
@@ -552,6 +570,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_encoded_bytes_into_numpy(
+        py: Python<'_>,
         encoded_bytes: &[u8],
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
@@ -564,24 +583,28 @@ impl Waveform {
         decoding_backend: u32,
         file_extension: &str,
         mime_type: &str,
-    ) -> PyResult<Py<PyArray2<f32>>> {
-        let waveform_args = crate::backend::WaveformArgs {
-            start_time_milliseconds,
-            end_time_milliseconds,
-            frame_rate_hz,
-            num_channels,
-            convert_to_mono,
-            zero_pad_ending,
-            repeat_pad_ending,
-            resample_mode,
-            decoding_backend,
-        };
-        waveform_result_to_numpy_pyresult(crate::backend::Waveform::from_encoded_bytes_with_hint(
-            encoded_bytes,
-            waveform_args,
-            file_extension,
-            mime_type,
-        ))
+    ) -> PyResult<PyArraySamples> {
+        let wr = py.allow_threads(move || {
+            let waveform_args = crate::backend::WaveformArgs {
+                start_time_milliseconds,
+                end_time_milliseconds,
+                frame_rate_hz,
+                num_channels,
+                convert_to_mono,
+                zero_pad_ending,
+                repeat_pad_ending,
+                resample_mode,
+                decoding_backend,
+            };
+            crate::backend::Waveform::from_encoded_bytes_with_hint(
+                encoded_bytes,
+                waveform_args,
+                file_extension,
+                mime_type,
+            )
+        });
+        let waveform = wr?;
+        Ok(waveform.into_py(py))
     }
 
     /// Decodes audio stored in a local file.
@@ -782,6 +805,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_file(
+        py: Python<'_>,
         filename: &str,
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
@@ -793,18 +817,22 @@ impl Waveform {
         resample_mode: u32,
         decoding_backend: u32,
     ) -> PyResult<Self> {
-        let waveform_args = crate::backend::WaveformArgs {
-            start_time_milliseconds,
-            end_time_milliseconds,
-            frame_rate_hz,
-            num_channels,
-            convert_to_mono,
-            zero_pad_ending,
-            repeat_pad_ending,
-            resample_mode,
-            decoding_backend,
-        };
-        waveform_result_to_pyresult(crate::backend::Waveform::from_file(filename, waveform_args))
+        let wr = py.allow_threads(move || {
+            let waveform_args = crate::backend::WaveformArgs {
+                start_time_milliseconds,
+                end_time_milliseconds,
+                frame_rate_hz,
+                num_channels,
+                convert_to_mono,
+                zero_pad_ending,
+                repeat_pad_ending,
+                resample_mode,
+                decoding_backend,
+            };
+            crate::backend::Waveform::from_file(filename, waveform_args)
+        });
+        let waveform = wr?;
+        Ok(waveform.into())
     }
 
     /// Decodes audio stored in a local file, directly returning a NumPy array.
@@ -918,6 +946,7 @@ impl Waveform {
     )")]
     #[allow(clippy::too_many_arguments)]
     pub fn from_file_into_numpy(
+        py: Python<'_>,
         filename: &str,
         start_time_milliseconds: usize,
         end_time_milliseconds: usize,
@@ -928,22 +957,23 @@ impl Waveform {
         repeat_pad_ending: bool,
         resample_mode: u32,
         decoding_backend: u32,
-    ) -> PyResult<Py<PyArray2<f32>>> {
-        let waveform_args = crate::backend::WaveformArgs {
-            start_time_milliseconds,
-            end_time_milliseconds,
-            frame_rate_hz,
-            num_channels,
-            convert_to_mono,
-            zero_pad_ending,
-            repeat_pad_ending,
-            resample_mode,
-            decoding_backend,
-        };
-        waveform_result_to_numpy_pyresult(crate::backend::Waveform::from_file(
-            filename,
-            waveform_args,
-        ))
+    ) -> PyResult<PyArraySamples> {
+        let wr = py.allow_threads(move || {
+            let waveform_args = crate::backend::WaveformArgs {
+                start_time_milliseconds,
+                end_time_milliseconds,
+                frame_rate_hz,
+                num_channels,
+                convert_to_mono,
+                zero_pad_ending,
+                repeat_pad_ending,
+                resample_mode,
+                decoding_backend,
+            };
+            crate::backend::Waveform::from_file(filename, waveform_args)
+        });
+        let waveform = wr?;
+        Ok(waveform.into_py(py))
     }
 
     /// Returns the decoded waveform's frame rate in hertz.
@@ -1033,8 +1063,10 @@ impl Waveform {
     #[pyo3(text_signature = "(
         frame_rate_hz,
     )")]
-    pub fn resample(&self, frame_rate_hz: u32) -> PyResult<Self> {
-        waveform_result_to_pyresult(self.inner.resample(frame_rate_hz))
+    pub fn resample(&self, py: Python<'_>, frame_rate_hz: u32) -> PyResult<Self> {
+        let wr = py.allow_threads(move || self.inner.resample(frame_rate_hz));
+        let waveform = wr?;
+        Ok(waveform.into())
     }
 
     /// Resamples the waveform with the resampler of your choice.
@@ -1090,8 +1122,16 @@ impl Waveform {
         frame_rate_hz,
         resample_mode,
     )")]
-    pub fn resample_by_mode(&self, frame_rate_hz: u32, resample_mode: u32) -> PyResult<Self> {
-        waveform_result_to_pyresult(self.inner.resample_by_mode(frame_rate_hz, resample_mode))
+    pub fn resample_by_mode(
+        &self,
+        py: Python<'_>,
+        frame_rate_hz: u32,
+        resample_mode: u32,
+    ) -> PyResult<Self> {
+        let wr =
+            py.allow_threads(move || self.inner.resample_by_mode(frame_rate_hz, resample_mode));
+        let waveform = wr?;
+        Ok(waveform.into())
     }
 
     /// Return a given audio sample belonging to a specific frame and channel.
@@ -1171,17 +1211,11 @@ impl Waveform {
     ///
     #[args()]
     #[pyo3(text_signature = "()")]
-    pub fn to_numpy(&self, py: Python) -> Py<PyArray2<f32>> {
-        self.inner
-            .to_interleaved_samples()
-            .to_owned()
-            .into_pyarray(py)
-            .reshape([
-                self.inner.num_frames() as usize,
-                self.inner.num_channels() as usize,
-            ])
-            .unwrap()
-            .into()
+    pub fn to_numpy(&self, py: Python) -> PyArraySamples {
+        let num_channels = self.inner.num_channels();
+        let num_frames = self.inner.num_frames();
+        let interleaved_samples: Vec<f32> = self.inner.to_interleaved_samples().to_owned();
+        interleaved_samples_to_pyarray(py, num_channels, num_frames, interleaved_samples)
     }
 
     /// Encodes the waveform into a :py:class:`bytearray` in the WAV format.
