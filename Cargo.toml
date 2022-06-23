@@ -33,6 +33,7 @@ base64 = "0.13"
 float-cmp= "0.9"
 hound = "3.4"
 humantime = "2.1"
+either = "1.6"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 log = { version = "0.4", features = ["serde"]}

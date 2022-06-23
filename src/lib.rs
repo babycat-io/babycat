@@ -107,6 +107,7 @@
 #![allow(clippy::unnecessary_wraps)]
 #![allow(clippy::module_name_repetitions)]
 #![allow(clippy::default_trait_access)]
+#![allow(clippy::if_not_else)]
 #![doc(
     html_logo_url = "https://static.neocrym.com/images/babycat/v1/1x/babycat-face-icon-on-transparent--1x.png"
 )]
