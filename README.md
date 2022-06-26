@@ -5,7 +5,68 @@
 [![crates.io status](https://img.shields.io/crates/v/babycat.svg)](https://crates.io/crates/babycat)
 [![Rust dependency status](https://deps.rs/repo/github/babycat-io/babycat/status.svg)](https://deps.rs/repo/github/babycat-io/babycat)
 
+**Babycat is a library that makes it easy to decode and manipulate audio**.
+
+**Babycat is written in Rust and has bindings for Python, C, and WebAssembly.**
+
+## Examples
+
+### Ex #1: Decoding a single audio file into memory
+
+**Rust**
+```rust
+use babycat::{Signal, Waveform};
+
+let filename = "audio-for-tests/circus-of-freaks/track.flac"
+let waveform = Waveform::from_file(filename, Default::default()).unwrap();
+
+println!(
+    "Decoded {} frames with {} channels at {} hz",
+    waveform.num_frames(),
+    waveform.num_channels(),
+    waveform.frame_rate_hz(),
+);
+
+```
+**Python**
+```python3
+from babycat import Waveform
+
+filename = "audio-for-tests/circus-of-freaks/track.flac"
+waveform = Waveform.from_file(filename)
+
+print(
+    f"Decoded {waveform.num_frames} frames with "
+    f"{waveform.num_channels} channels at "
+    f"{waveform.frame_rate_hz} hz"
+)
+```
+
+## Licensing
+
+Babycat is licensed under the [MIT license][21].
+
+However, Babycat comes with optional support for statically linking other libraries--notably FFmpeg. If you compile Babycat with FFmpeg support, the resulting binaries and derivative works are also subject to [FFmpeg's license][18]. Typically, this license is [LGPL 2.1][19] ["or later"][20], but it is also possible to compile and Link FFmpeg with other libraries that are licensed under the GPL or under a proprietary license.
+
 ## Features
+
+### Audio demuxing and decoding
+
+### Resampling
+
+Babycat supports high-quality audio resampling with [libsamplerate][1], except
+
+Babycat's Rust, Python, and C bindins support high quality audio resampling with [libsamplerate][1].
+
+Currently, libsamplerate is not supported by Babycat's WebAssembly bindings, but Babycat's own pure-Rust sinc resampler works just fine.
+
+### Basic audio manipulation
+
+
+
+### Encoding
+
+Babycat supports encoding in-memory waveforms to a WAV file or a WAV in-memory buffer. Other target encoding formats are coming.
 
 ### Decoding, resampling, and encoding
 Babycat's core feature set includes:
@@ -36,14 +97,14 @@ Babycat was built at and is actively maintained by [Neocrym][2], a record label 
 ### Source code and issues
 You can find Babycat's source code at [github.com/babycat-io/babycat][3].
 
-### API documentation and releases
+### Documentation and releases
 [**babycat.io**](https://babycat.io) is our main documentation website. You can find documentation and releases for each binding at:
 
 | **Binding**     |  **Documentation**         |  **Releases**                                 |
 | --------------- | -------------------------- | --------------------------------------------- |
-| **Rust**        | [docs.rs/babycat][4]       | [crates.io/crates/babycat][5]                 |
-| **Python**      | [babycat.io/api/python][6] | [pypi.org/project/babycat][7]                 |
-| **WebAssembly** | [babycat.io/api/wasm][8]   | [npmjs.com/package/babycat][9]                |
+| **Rust**        | [docs.rs/babycat][4]       | [crates.io][5]                                |
+| **Python**      | [babycat.io/api/python][6] | [PyPI][7]                                     |
+| **WebAssembly** | [babycat.io/api/wasm][8]   | [NPM][9]                                      |
 | **C**           | [babycat.io/api/c][10]     | No releases yet. You can compile from source. |
 
 ### Tutorials
@@ -55,12 +116,12 @@ You can learn more about how to use Babycat from our long-form tutorials:
 - [Contributing to Babycat](https://babycat.io/tutorials/contributing/)
 
 ## Acknowledgements
-The first version of Babycat was an internal project at Neocrym written by [Ritik Mishra][11] Since then, the code has been extended and open-sourced by [James Mishra][12].
+The first version of Babycat was an internal project at [Neocrym][2] written by [Ritik Mishra][11] Since then, the code has been extended and open-sourced by [James Mishra][12].
 
 Babycat is built on top of *many* high-quality open source packages, including:
 
-- [Symphonia][13] for audio decoding.
-- [libsamplerate][1] for high-quality audio resampling.
+- [Symphonia][13] and [FFmpeg][22] for audio demuxing and decoding.
+- [libsamplerate][1] for high-quality audio resampling.documentation
 - [Hound][14] for WAV encoding.
 - [PyO3][15] for generating Python bindings.
 - [cbindgen][16] for generating C bindings.
@@ -85,3 +146,8 @@ Babycat's goal is to provide a simple and consistent API on top of the existing 
 [15]: https://github.com/PyO3/pyo3
 [16]: https://github.com/eqrion/cbindgen
 [17]: https://github.com/rustwasm/wasm-bindgen
+[18]: https://www.ffmpeg.org/legal.html
+[19]: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
+[20]: https://opensource.stackexchange.com/questions/6262/what-is-the-purpose-of-or-at-your-option-any-later-version-what-if-i-dont
+[21]: https://github.com/babycat-io/babycat/blob/master/LICENSE
+[22]: https://ffmpeg.org/
