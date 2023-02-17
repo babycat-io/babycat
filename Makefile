@@ -149,7 +149,7 @@ CARGO_RUN?=$(CARGO) run $(PROFILE_FLAG)
 CARGO_TEST?=$(CARGO) test $(PROFILE_FLAG)
 
 # maturin
-MATURIN_FLAGS?=--no-sdist --manifest-path=Cargo.toml
+MATURIN_FLAGS?=--manifest-path=Cargo.toml
 MATURIN_BUILD?=$(MATURIN) build $(MATURIN_FLAGS)
 
 # wasm-pack
@@ -300,7 +300,7 @@ init: init-python init-npm init-cargo
 # init-docker =======================================================
 # ===================================================================
 
-.b/init-docker-maturin:
+.b/init-docker-maturin: docker/maturin/Dockerfile
 	$(DOCKER) build -t babycat/maturin -f docker/maturin/Dockerfile .
 	@touch $@
 init-docker-maturin: .b/init-docker-maturin
@@ -419,16 +419,16 @@ build-ffmpeg-c: build-c-header
 .PHONY: build-ffmpeg-c
 
 build-python: .b/init-python-build
-	$(MATURIN_BUILD) --out="$(WHEEL_DIR)" --cargo-extra-args="$(PROFILE_FLAG) $(FRONTEND_PYTHON_FLAGS)"
+	$(MATURIN_BUILD) --out="$(WHEEL_DIR)" --profile=$(PROFILE) $(FRONTEND_PYTHON_FLAGS)
 .PHONY: build-python
 
 build-python-manylinux: .b/init-docker-maturin
 	mkdir -p $(MANYLINUX_WHEEL_DIR)
-	$(DOCKER) run --user=$$(id -u):$$(id -g) -eCARGO_TARGET_DIR=/tmp --volume="$(PWD):/src" --volume="$(MANYLINUX_WHEEL_DIR):/wheels" --workdir=/src babycat/maturin build --out=/wheels $(MATURIN_FLAGS) --cargo-extra-args="$(PROFILE_FLAG) $(FRONTEND_PYTHON_FLAGS)"
+	$(DOCKER) run --user=$$(id -u):$$(id -g) -eCARGO_TARGET_DIR=/tmp --volume="$(PWD):/src" --volume="$(MANYLINUX_WHEEL_DIR):/wheels" --workdir=/src babycat/maturin build --out=/wheels $(MATURIN_FLAGS) --profile=$(PROFILE) $(FRONTEND_PYTHON_FLAGS)
 .PHONY: build-python-manylinux
 
 build-ffmpeg-python: .b/init-python-build
-	$(MATURIN_BUILD) --out="$(FFMPEG_WHEEL_DIR)" --cargo-extra-args="$(PROFILE_FLAG) $(FRONTEND_FFMPEG_PYTHON_FLAGS)"
+	$(MATURIN_BUILD) --out="$(FFMPEG_WHEEL_DIR)"  --profile=$(PROFILE) $(FRONTEND_FFMPEG_PYTHON_FLAGS)
 .PHONY: build-ffmpeg-python
 
 build-wasm-bundler:
