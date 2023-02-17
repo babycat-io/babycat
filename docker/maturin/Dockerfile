@@ -8,8 +8,8 @@ RUN mkdir /.cache && chmod --recursive 777 /.cache
 
 
 # Install Rust so we can build the wheel.
-COPY --from=rust:1.61.0-slim /usr/local/cargo /usr/local/cargo
-COPY --from=rust:1.61.0-slim /usr/local/rustup /usr/local/rustup
+COPY --from=rust:1.67.1-slim /usr/local/cargo /usr/local/cargo
+COPY --from=rust:1.67.1-slim /usr/local/rustup /usr/local/rustup
 RUN chmod --recursive 777 /usr/local/cargo /usr/local/rustup
 
 
