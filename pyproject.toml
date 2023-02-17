@@ -5,3 +5,17 @@ build-backend = "maturin"
 [tool.maturin]
 manifest-path = "Cargo.toml"
 cargo-extra-args = "--no-default-features --features=frontend-python"
+
+[project]
+name = "babycat"
+dependencies = ["numpy >= 1.16.0"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Rust",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Sound/Audio :: Conversion",
+]
