@@ -26,7 +26,7 @@ jobs:
           override: true
 
     - name: Check out Babycat code from GitHub
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Get the version from our Git tag
       id: get_version

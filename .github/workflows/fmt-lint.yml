@@ -37,18 +37,18 @@ jobs:
           target: wasm32-unknown-unknown
 
     - name: Install Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       id: setup-python
       with:
         python-version: "3.8"
 
     - name: Install Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: "14"
 
     - name: Check out Babycat code from GitHub
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Cache the Python virtualenv
       uses: actions/cache@v2

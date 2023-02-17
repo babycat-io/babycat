@@ -33,7 +33,7 @@ jobs:
           override: true
 
     - name: Check out Babycat code from GitHub
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Build and run Rust tests with FFmpeg
       run: make test-ffmpeg-rust
