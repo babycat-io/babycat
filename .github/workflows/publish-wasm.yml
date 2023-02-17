@@ -27,12 +27,12 @@ jobs:
           target: wasm32-unknown-unknown
 
     - name: Install Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: "14"
 
     - name: Check out Babycat code from GitHub
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Get the version from the Git tag name
       id: get_version
