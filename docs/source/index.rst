@@ -163,7 +163,7 @@ This is an example of decoding a file named ``'audio.mp3'`` into memory and then
 
    .. code:: rust
 
-      use babycat::{WaveformArgs, Waveform};
+      use babycat::{Source, WaveformArgs, Waveform};
 
       fn main() {
          let waveform_args = WaveformArgs {
