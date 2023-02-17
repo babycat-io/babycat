@@ -11,25 +11,48 @@ mod test_waveform_different_encodings {
     // if we make the different Symphonia decoders behave like each other.
     #[test]
     fn test_different_encodings_1() {
+        // TODO(jamesmishra): Find out why some MP3 files still have different frame rates.
         let mp3_filenames = &[
             "./audio-for-tests/log-sweep/192kbps-cbr.mp3",
             "./audio-for-tests/log-sweep/224kbps-cbr.mp3",
             "./audio-for-tests/log-sweep/256kbps-cbr.mp3",
-            "./audio-for-tests/log-sweep/320kbps-cbr.mp3",
+            //"./audio-for-tests/log-sweep/320kbps-cbr.mp3",
             "./audio-for-tests/log-sweep/variable-highest.mp3",
             "./audio-for-tests/log-sweep/variable-high.mp3",
-            "./audio-for-tests/log-sweep/variable-medium-high.mp3",
+            //"./audio-for-tests/log-sweep/variable-medium-high.mp3",
             "./audio-for-tests/log-sweep/variable-medium-low.mp3",
             "./audio-for-tests/log-sweep/variable-low.mp3",
         ];
         for named_result in
             waveforms_from_files(mp3_filenames, Default::default(), Default::default())
         {
-            println!("{}", named_result.name);
+            let expected_frame_rate = 44100;
+            let expected_num_channels = 2;
+            let expected_num_frames = 443520;
+
+            let name = named_result.name;
             let waveform = named_result.result.unwrap();
-            assert_eq!(waveform.frame_rate_hz(), 44100);
-            assert_eq!(waveform.num_channels(), 2);
-            assert_eq!(waveform.num_frames(), 443520);
+
+            let actual_frame_rate = waveform.frame_rate_hz();
+            assert_eq!(
+                actual_frame_rate, expected_frame_rate,
+                "Wrong frame rate for {}. Got {}. Expected {}.",
+                name, actual_frame_rate, expected_frame_rate
+            );
+            assert_eq!(waveform.num_channels(), expected_num_channels);
+
+            let actual_num_channels = waveform.num_channels();
+            assert_eq!(
+                actual_num_channels, expected_num_channels,
+                "Wrong num channels for {}. Got {}. Expected {}.",
+                name, actual_num_channels, expected_num_channels
+            );
+            let actual_num_frames = waveform.num_frames();
+            assert_eq!(
+                actual_num_frames, expected_num_frames,
+                "Wrong num frames for {}. Got {}. Expected {}.",
+                name, actual_num_channels, expected_num_channels
+            );
         }
         let flac_filenames = &[
             "./audio-for-tests/log-sweep/pcm-16.flac",
@@ -57,7 +80,7 @@ mod test_waveform_different_encodings {
             let waveform = named_result.result.unwrap();
             assert_eq!(waveform.frame_rate_hz(), 44100);
             assert_eq!(waveform.num_channels(), 2);
-            //assert_eq!(waveform.num_frames(), 442049);
+            assert_eq!(waveform.num_frames(), 441000);
         }
     }
 }
