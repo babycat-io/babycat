@@ -63,8 +63,14 @@ ESLINT?=$(NODE_BIN)/eslint
 PRETTIER?=$(NODE_BIN)/prettier
 NETLIFY?=$(NODE_BIN)/netlify
 
-# Python venv configuration.
+# Command flags
+RUSTFLAGS+=--print native-static-libs
+
+# System Information
+RUST_HOST?=$(shell rustc -vV | grep host)
 OS?=
+
+# Python venv configuration.
 ifeq ($(OS),Windows_NT)
 	PYTHON?=python
 	VENV_SUBDIR?=Scripts
@@ -89,6 +95,9 @@ endif
 # (excluding the extension, see SHARED_LIB_EXT below)
 # that `cargo build` creates.
 ifeq ($(OS),Windows_NT)
+	ifneq (,$(findstring gnu,$(RUST_HOST)))
+		BABYCAT_SHARED_LIB_NAME?=libbabycat
+	endif
 	BABYCAT_SHARED_LIB_NAME?=babycat
 else
 	BABYCAT_SHARED_LIB_NAME?=libbabycat
@@ -106,6 +115,9 @@ endif
 # This sets the file extension for linking to shared libraries.
 # We typically use this when testing Babycat's C FFI bindings.
 ifeq ($(OS),Windows_NT)
+	ifneq (,$(findstring gnu,$(RUST_HOST)))
+		SHARED_LIB_EXT?=a
+	endif
 	SHARED_LIB_EXT?=lib
 else
 	ifeq ($(shell uname -s),Darwin)
@@ -118,6 +130,7 @@ endif
 # The path to the Babycat shared library.
 SHARED_LIB_FILENAME?=$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
 SHARED_LIB_PATH?=$(CARGO_TARGET_PROFILE_DIR)/$(SHARED_LIB_FILENAME)
+SHARED_LIB_NATIVE_FLAGS?=$(SHARED_LIB_PATH).flags
 CARGO_TARGET_C_DIR=$(CARGO_TARGET_PROFILE_DIR)/c
 CARGO_TARGET_FFMPEG_C_DIR=$(CARGO_TARGET_PROFILE_DIR)/ffmpeg-c
 FRONTEND_C_LIB?=$(CARGO_TARGET_C_DIR)/$(BABYCAT_SHARED_LIB_NAME).$(SHARED_LIB_EXT)
@@ -410,7 +423,9 @@ build-c-header: .b/init-cargo-cbindgen
 
 build-c: build-c-header
 	mkdir -p "$(CARGO_TARGET_C_DIR)"
-	$(CARGO_BUILD) $(FRONTEND_C_FLAGS) && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_C_LIB)"
+	$(CARGO_BUILD) $(FRONTEND_C_FLAGS) 2> tmp_build_c_log.txt && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_C_LIB)"
+	cat tmp_build_c_log.txt | grep native-static-libs | cut -d ':' -f 3 > $(SHARED_LIB_NATIVE_FLAGS)
+	rm tmp_build_c_log.txt
 .PHONY: build-c
 
 build-ffmpeg-c: build-c-header
@@ -464,7 +479,8 @@ build-ex-rust-resampler:
 .PHONY: build-ex-rust-resampler
 
 build-ex-c-decode: build-c
-	$(CC) -Wall -o "$(CARGO_TARGET_PROFILE_DIR)/examples-c/decode" examples-c/decode.c "$(FRONTEND_C_LIB)"
+	mkdir -p "$(CARGO_TARGET_PROFILE_DIR)/examples-c/"
+	$(CC) -Wall -o "$(CARGO_TARGET_PROFILE_DIR)/examples-c/decode" examples-c/decode.c "$(FRONTEND_C_LIB)" $(shell cat ${SHARED_LIB_NATIVE_FLAGS})
 .PHONY: build-ex-c-decode
 
 build-ex-wasm-decode: build-wasm-web
