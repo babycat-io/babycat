@@ -106,7 +106,7 @@ endif
 
 # This is the filename for the babycat binary.
 ifeq ($(OS),Windows_NT)
-	BABYCAT_BINARY_NAME?=babycat.exe	
+	BABYCAT_BINARY_NAME?=babycat.exe
 else
 	BABYCAT_BINARY_NAME?=babycat
 endif
