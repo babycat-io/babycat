@@ -64,7 +64,7 @@ PRETTIER?=$(NODE_BIN)/prettier
 NETLIFY?=$(NODE_BIN)/netlify
 
 # Command flags
-RUSTFLAGS+=--print native-static-libs
+RUSTFLAGS+="--print native-static-libs"
 
 # System Information
 RUST_HOST?=$(shell rustc -vV | grep host)
@@ -423,7 +423,7 @@ build-c-header: .b/init-cargo-cbindgen
 
 build-c: build-c-header
 	mkdir -p "$(CARGO_TARGET_C_DIR)"
-	$(CARGO_BUILD) $(FRONTEND_C_FLAGS) 2> tmp_build_c_log.txt && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_C_LIB)"
+	RUSTFLAGS=$(RUSTFLAGS) $(CARGO_BUILD) $(FRONTEND_C_FLAGS) 2> tmp_build_c_log.txt && cp "$(SHARED_LIB_PATH)" "$(FRONTEND_C_LIB)"
 	cat tmp_build_c_log.txt | grep native-static-libs | cut -d ':' -f 3 > $(SHARED_LIB_NATIVE_FLAGS)
 	rm tmp_build_c_log.txt
 .PHONY: build-c
